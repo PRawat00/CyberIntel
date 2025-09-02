@@ -1,3 +1,5 @@
 # Add pyproject.toml configuration
 # Setup: Add black formatter configuration
 # Setup: Add ruff linter configuration
+# Refactor: Improve pyproject.toml structure
+# Fix: Correct black line-length configuration
