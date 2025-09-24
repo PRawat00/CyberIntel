@@ -1,0 +1,1 @@
+# Security: Sanitize file paths
