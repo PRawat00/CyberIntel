@@ -1,0 +1,1 @@
+# Test: Nested dependency resolution
