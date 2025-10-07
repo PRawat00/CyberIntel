@@ -1,1 +1,2 @@
 # Add requirements.txt with dependencies
+# Chore: Update dependencies for Phase 3
