@@ -3,3 +3,4 @@
 # Setup: Add ruff linter configuration
 # Refactor: Improve pyproject.toml structure
 # Fix: Correct black line-length configuration
+# Chore: Update version to 0.2.0
