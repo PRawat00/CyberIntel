@@ -1,0 +1,1 @@
+# Docs: Frontend setup documentation
