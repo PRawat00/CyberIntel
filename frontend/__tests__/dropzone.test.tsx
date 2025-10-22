@@ -1,0 +1,1 @@
+# Test: Dropzone functionality tests
