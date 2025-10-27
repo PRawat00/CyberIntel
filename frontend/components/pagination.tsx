@@ -1,0 +1,1 @@
+# Table: Add pagination component
