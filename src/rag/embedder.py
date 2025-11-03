@@ -1,2 +1,3 @@
 # Phase 4: RAG System - Create embedder module
 # Embedder: Integrate sentence-transformers library
+# Embedder: Use all-MiniLM-L6-v2 model
