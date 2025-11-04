@@ -1,0 +1,1 @@
+# VectorStore: Create ChromaDB integration
