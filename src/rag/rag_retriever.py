@@ -2,3 +2,4 @@
 # Retriever: Implement query processing
 # Retriever: Add similarity search method
 # Retriever: Add result ranking
+# Retriever: Add result filtering
