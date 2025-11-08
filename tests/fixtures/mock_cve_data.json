@@ -1,0 +1,52 @@
+{
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2021-23337",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Lodash versions prior to 4.17.21 are vulnerable to Command Injection via the template function."
+          }
+        ],
+        "published": "2021-02-15T13:15:00",
+        "lastModified": "2021-02-20T18:43:00",
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "cvssData": {
+                "baseScore": 7.2,
+                "baseSeverity": "HIGH",
+                "vectorString": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2021-3749",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "axios is vulnerable to Inefficient Regular Expression Complexity"
+          }
+        ],
+        "published": "2021-08-31T11:15:00",
+        "lastModified": "2021-09-08T17:28:00",
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "cvssData": {
+                "baseScore": 7.5,
+                "baseSeverity": "HIGH",
+                "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

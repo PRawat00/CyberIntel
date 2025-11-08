@@ -1,0 +1,2057 @@
+[
+  {
+    "cve_id": "CVE-2025-12184",
+    "description": "The MeetingList plugin for WordPress is vulnerable to Stored Cross-Site Scripting via admin settings in all versions up to, and including, 0.11 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with administrator-level permissions and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This only affects multi-site installations and installations where unfiltered_html has been disabled.",
+    "published_date": "2025-11-04T15:15:37.163000",
+    "last_modified": "2025-11-04T15:40:45.533000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "HIGH",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.com/plugins/meeting-list",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/a14b0f3d-7c18-4468-88f7-cc070c4cea4e?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-63294",
+    "description": "WorkDo HRM SaaS HR and Payroll Tool 8.1 is affected vulnerable to Insecure Permissions. An authenticated user can create leave or resignation records on behalf of other users.",
+    "published_date": "2025-11-04T16:16:01.090000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://codecanyon.net/item/hrm-saas-hr-and-payroll-tool/25982934",
+      "https://medium.com/@barrattjack89/cve-2025-63294-insecure-permissions-in-workdo-hrm-saas-hr-and-payroll-8-1-d6bb03c21177",
+      "https://workdo.io/hrm-saas-human-resource-management-software/"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54323",
+    "description": "An issue was discovered in the camera in Samsung Mobile Processor Exynos 980, 990, 850, 1080, 2100, 1280, 2200, 1330, 1380, 1480, 2400, and 1580. Improper debug printing leads to information leakage.",
+    "published_date": "2025-11-04T17:16:22.243000",
+    "last_modified": "2025-11-07T12:56:07.173000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1080_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54323/"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54329",
+    "description": "An issue was discovered in NAS in Samsung Mobile Processor, Wearable Processor, and Modem Exynos 980, 990, 850, 2100, 1280, 2200, 1330, 1380, 1480, 2400, 1580, 2500, W920, W930, W1000, Modem 5123, Modem 5300, and Modem 5400. The function used to send a multiple-payloads message (including an SMS message) lacks bounds checking, which can lead to a heap overflow.",
+    "published_date": "2025-11-04T17:16:22.377000",
+    "last_modified": "2025-11-07T12:56:18.260000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1280_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54329/"
+    ],
+    "cwe_ids": [
+      "CWE-122"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54330",
+    "description": "An issue was discovered in NPU in Samsung Mobile Processor Exynos 1380 through July 2025. There is an Out-of-bounds Read of q->bufs[] in the __is_done_for_me function.",
+    "published_date": "2025-11-04T17:16:22.567000",
+    "last_modified": "2025-11-07T12:56:25.340000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1380_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54330/"
+    ],
+    "cwe_ids": [
+      "CWE-125"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54331",
+    "description": "An issue was discovered in NPU in Samsung Mobile Processor Exynos 1380 through July 2025. There is an Untrusted Pointer Dereference of src_hdr in the copy_ncp_header function.",
+    "published_date": "2025-11-04T17:16:22.740000",
+    "last_modified": "2025-11-07T12:56:30.490000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1380_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54331/"
+    ],
+    "cwe_ids": [
+      "CWE-822"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54332",
+    "description": "An issue was discovered in NPU in Samsung Mobile Processor Exynos 1380 through July 2025. There is a NULL Pointer Dereference of profiler.node in the npu_vertex_profileoff function.",
+    "published_date": "2025-11-04T17:16:22.853000",
+    "last_modified": "2025-11-07T12:56:37.587000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1380_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54332/"
+    ],
+    "cwe_ids": [
+      "CWE-476"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54863",
+    "description": "Radiometrics VizAir is vulnerable to exposure of the system's REST API key through a publicly accessible configuration file. This allows attackers to remotely alter weather data and configurations, automate attacks against multiple instances, and extract sensitive meteorological data, which could potentially compromise airport operations. Additionally, attackers could flood the system with false alerts, leading to a denial-of-service condition and significant disruption to airport operations. Unauthorized remote control over aviation weather monitoring and data manipulation could result in incorrect flight planning and hazardous takeoff and landing conditions.",
+    "published_date": "2025-11-04T17:16:22.967000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 10.0,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cisagov/CSAF/blob/develop/csaf_files/OT/white/2025/icsa-25-308-04.json",
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-04"
+    ],
+    "cwe_ids": [
+      "CWE-522"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-60925",
+    "description": "codeshare v1.0.0 was discovered to contain an information leakage vulnerability.",
+    "published_date": "2025-11-04T17:16:23.143000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://gist.github.com/XERXES-OG/8fa5e75604e1d0c908cff3f85251c6b1",
+      "https://medium.com/@ashutoshhwork/accessing-full-history-of-codeshare-io-users-432315083930"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-61945",
+    "description": "Radiometrics VizAir is vulnerable to any remote attacker via access to the admin panel of the VizAir system without authentication. Once inside, the attacker can modify critical weather parameters such as wind shear alerts, inversion depth, and CAPE values, which are essential for accurate weather forecasting and flight safety. This unauthorized access could result in the disabling of vital alerts, causing hazardous conditions for aircraft, and manipulating runway assignments, which could result in mid-air conflicts or runway incursions.",
+    "published_date": "2025-11-04T17:16:23.320000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 10.0,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cisagov/CSAF/blob/develop/csaf_files/OT/white/2025/icsa-25-308-04.json",
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-04"
+    ],
+    "cwe_ids": [
+      "CWE-306"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-61956",
+    "description": "Radiometrics VizAir is vulnerable to a lack of authentication mechanisms for critical functions, such as admin access and API requests. Attackers can modify configurations without authentication, potentially manipulating active runway settings and misleading air traffic control (ATC) and pilots. Additionally, manipulated meteorological data could mislead forecasters and ATC, causing inaccurate flight planning.",
+    "published_date": "2025-11-04T17:16:23.490000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 10.0,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cisagov/CSAF/blob/develop/csaf_files/OT/white/2025/icsa-25-308-04.json",
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-04"
+    ],
+    "cwe_ids": [
+      "CWE-306"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54325",
+    "description": "An issue was discovered in VTS in Samsung Mobile Processor and Wearable Processor Exynos 1080, 1280, 2200, 1380, 1480, 2400, 1580, 2500, W920, W930, W1000. A race condition in the VTS driver results in an out-of-bounds read, leading to an information leak.",
+    "published_date": "2025-11-04T18:16:45.273000",
+    "last_modified": "2025-11-07T12:56:43.197000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1080_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54325/"
+    ],
+    "cwe_ids": [
+      "CWE-125"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54333",
+    "description": "An issue was discovered in NPU in Samsung Mobile Processor Exynos 1380 through July 2025. There is an Invalid Pointer Dereference of node in the get_vs4l_profiler_node function.",
+    "published_date": "2025-11-04T18:16:45.377000",
+    "last_modified": "2025-11-07T12:56:49.760000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1380_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54333/"
+    ],
+    "cwe_ids": [
+      "CWE-763"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-10875",
+    "description": "Improper Neutralization of Input Used for LLM Prompting vulnerability in Salesforce Mulesoft Anypoint Code Builder allows Code Injection.This issue affects Mulesoft Anypoint Code Builder: before 1.11.6.",
+    "published_date": "2025-11-04T19:17:09.160000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12108",
+    "description": "The Survision LPR Camera system does not enforce password protection by default. This allows access to the configuration wizard immediately without a login prompt or credentials check.",
+    "published_date": "2025-11-04T19:17:09.740000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-02"
+    ],
+    "cwe_ids": [
+      "CWE-306"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-52512",
+    "description": "An issue was discovered in Samsung Mobile Processor Exynos 2400, 1580, 2500. A race condition in the HTS driver results in out-of-bounds memory access, leading to a denial of service.",
+    "published_date": "2025-11-04T19:17:11.170000",
+    "last_modified": "2025-11-07T12:56:57.367000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1580_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-52512/"
+    ],
+    "cwe_ids": [
+      "CWE-125"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-52513",
+    "description": "An issue was discovered in Samsung Mobile Processor Exynos 2400, 1580, 2500. A race condition in the HTS driver results in an out-of-bounds write, leading to a denial of service.",
+    "published_date": "2025-11-04T19:17:11.273000",
+    "last_modified": "2025-11-07T12:57:02.320000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1580_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-52513/"
+    ],
+    "cwe_ids": [
+      "CWE-787"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54334",
+    "description": "An issue was discovered in the NPU driver in Samsung Mobile Processor Exynos 1280, 2200, 1380, 1480, 2400, 1580, 2500. There is a NULL Pointer Dereference of hdev in the __npu_vertex_bootup function.",
+    "published_date": "2025-11-04T19:17:11.373000",
+    "last_modified": "2025-11-07T12:57:07.680000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1280_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54334/"
+    ],
+    "cwe_ids": [
+      "CWE-476"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64318",
+    "description": "Improper Neutralization of Input Used for LLM Prompting vulnerability in Salesforce Mulesoft Anypoint Code Builder allows Manipulating Writeable Configuration Files.This issue affects Mulesoft Anypoint Code Builder: before 1.11.6.",
+    "published_date": "2025-11-04T19:17:11.480000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64319",
+    "description": "Incorrect Permission Assignment for Critical Resource vulnerability in Salesforce Mulesoft Anypoint Code Builder allows Manipulating Writeable Configuration Files.This issue affects Mulesoft Anypoint Code Builder: before 1.11.6.",
+    "published_date": "2025-11-04T19:17:11.577000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [
+      "CWE-732"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64320",
+    "description": "Improper Neutralization of Input Used for LLM Prompting vulnerability in Salesforce Agentforce Vibes Extension allows Code Injection.This issue affects Agentforce Vibes Extension: before 3.2.0.",
+    "published_date": "2025-11-04T19:17:11.693000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64321",
+    "description": "Improper Neutralization of Input Used for LLM Prompting vulnerability in Salesforce Agentforce Vibes Extension allows Manipulating Writeable Configuration Files.This issue affects Agentforce Vibes Extension: before 3.2.0.",
+    "published_date": "2025-11-04T19:17:11.790000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64322",
+    "description": "Incorrect Permission Assignment for Critical Resource vulnerability in Salesforce Agentforce Vibes Extension allows Manipulating Writeable Configuration Files.This issue affects Agentforce Vibes Extension: before 3.2.0.",
+    "published_date": "2025-11-04T19:17:11.887000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://help.salesforce.com/s/articleView?id=005228032&type=1"
+    ],
+    "cwe_ids": [
+      "CWE-732"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-23358",
+    "description": "NVIDIA NVApp for Windows contains a vulnerability in the installer, where a local attacker can cause a search path element issue. A successful exploit of this vulnerability might lead to code execution and escalation of privileges.",
+    "published_date": "2025-11-04T20:17:14.563000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.2,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:C/C:H/I:H/A:H",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2025-23358",
+      "https://nvidia.custhelp.com/app/answers/detail/a_id/5717",
+      "https://www.cve.org/CVERecord?id=CVE-2025-23358"
+    ],
+    "cwe_ids": [
+      "CWE-427"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-33176",
+    "description": "NVIDIA RunAI for all platforms contains a vulnerability where a user could cause an improper restriction of communications channels on an adjacent network. A successful exploit of this vulnerability might lead to escalation of privileges, data tampering, and information disclosure.",
+    "published_date": "2025-11-04T20:17:14.993000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.2,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:N",
+    "attack_vector": "ADJACENT_NETWORK",
+    "attack_complexity": "HIGH",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2025-33176",
+      "https://nvidia.custhelp.com/app/answers/detail/a_id/5719",
+      "https://www.cve.org/CVERecord?id=CVE-2025-33176"
+    ],
+    "cwe_ids": [
+      "CWE-923"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-49494",
+    "description": "An issue was discovered in Samsung Mobile Processor, Wearable Processor, and Modem Exynos 2100, 1280, 2200, 1330, 1380, 1480, 9110, Modem 5123. Mishandling of an 5G NRMM packet leads to a Denial of Service.",
+    "published_date": "2025-11-04T20:17:15.930000",
+    "last_modified": "2025-11-07T12:57:14.400000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "modem_5123_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-49494/"
+    ],
+    "cwe_ids": [
+      "CWE-400"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54327",
+    "description": "An issue was discovered in VTS in Samsung Mobile Processor and Wearable Processor Exynos 1280, 2200, 1380, W920, W930, W1000. Improper input validation in the VTS driver leads to an arbitrary write.",
+    "published_date": "2025-11-04T20:17:16.653000",
+    "last_modified": "2025-11-07T12:59:10.047000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1280_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54327/"
+    ],
+    "cwe_ids": [
+      "CWE-20"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-61431",
+    "description": "A reflected cross-site scripted (XSS) vulnerability in the /jsp/gsfr_feditorHTML.jsp endpoint of Zucchetti ZMaintenance Infinity and Infinity Zucchetti v4.1 and earlier allows attackers to execute arbitrary Javascript in the context of a user's browser via injecting a crafted payload into the pHtmlSource parameter. A vendor fix was released on 2025-06-18.",
+    "published_date": "2025-11-04T20:17:27.823000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.1,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://gist.github.com/alex-xor/8651dbdd413e4fa7240b0ab1b1845d76",
+      "https://www.zucchetti.it/"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2024-56426",
+    "description": "An issue was discovered in Samsung Mobile Processor and Wearable Processor Exynos 980, 990, 850, 1080, 2100, 1280, 2200, 1330, 1380, 1480, 2400, W920, W930, W1000. The lack of a length check leads to out-of-bounds writes via malformed USB packets to the target.",
+    "published_date": "2025-11-04T21:15:33.667000",
+    "last_modified": "2025-11-07T12:59:47.613000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1080_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2024-56426/"
+    ],
+    "cwe_ids": [
+      "CWE-787"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-27374",
+    "description": "An issue was discovered in the Secure Boot component in Samsung Mobile Processor and Wearable Processor Exynos 9820, 9825, 980, 990, 850, 1080, 1280, 2200, 1330, 1380, 1480, 2400. The lack of a length check leads to out-of-bounds writes.",
+    "published_date": "2025-11-04T21:15:36.523000",
+    "last_modified": "2025-11-07T13:00:04.273000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_9825_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-27374/"
+    ],
+    "cwe_ids": [
+      "CWE-787"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-32786",
+    "description": "The GLPI Inventory Plugin handles network discovery, inventory, software deployment, and data collection for GLPI agents. Versions 1.5.0 and below are vulnerable to SQL Injection. This issue is fixed in version 1.5.1.",
+    "published_date": "2025-11-04T21:15:36.663000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/glpi-project/glpi-inventory-plugin/blob/1.5.1/CHANGELOG.md",
+      "https://github.com/glpi-project/glpi-inventory-plugin/releases/tag/1.5.1",
+      "https://github.com/glpi-project/glpi-inventory-plugin/security/advisories/GHSA-w2cp-r675-6xpq"
+    ],
+    "cwe_ids": [
+      "CWE-89"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-47776",
+    "description": "Mantis Bug Tracker (MantisBT) is an open source issue tracker. Due to incorrect use of loose (==) instead of strict (===) comparison in the authentication code in versions 2.27.1 and below.PHP type juggling will cause certain MD5 hashes matching scientific notation to be interpreted as numbers. Instances using the MD5 login method allow an attacker who knows the victim's username and has access to an account with a password hash that evaluates to zero to log in without knowing the victim's actual password, by using any other password with a hash that also evaluates to zero This issue is fixed in version 2.27.2.",
+    "published_date": "2025-11-04T21:15:37.367000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/mantisbt/mantisbt/commit/966554a19cf1bdbcfbfb3004766979faa748f9a2",
+      "https://github.com/mantisbt/mantisbt/security/advisories/GHSA-4v8w-gg5j-ph37"
+    ],
+    "cwe_ids": [
+      "CWE-305"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-48076",
+    "description": "Galette is a membership management web application for non profit organizations. Versions 1.1.5.2 and below allow a user to edit a group name and insert an XSS payload. This issue is fixed in version 1.2.0.",
+    "published_date": "2025-11-04T21:15:37.513000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/galette/galette/security/advisories/GHSA-ccwq-mxx3-chvh"
+    ],
+    "cwe_ids": [
+      "CWE-87"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-48884",
+    "description": "Galette is a membership management web application for non profit organizations. In versions 1.1.5.2 and below, Galette's Document Type is vulnerable to Cross-site Scripting. This issue is fixed in version 1.2.0.",
+    "published_date": "2025-11-04T21:15:37.660000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/galette/galette/security/advisories/GHSA-3rc3-rc5x-vmr4"
+    ],
+    "cwe_ids": [
+      "CWE-80"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-52910",
+    "description": "An issue was discovered in the GPU in Samsung Mobile Processor and Wearable Processor Exynos 1280, 2200, 1330, 1380, 1480, 2400. A Use-After-Free leads to privilege escalation.",
+    "published_date": "2025-11-04T21:15:37.970000",
+    "last_modified": "2025-11-07T13:00:22.963000",
+    "severity": "CRITICAL",
+    "cvss_score": 9.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1280_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-52910/"
+    ],
+    "cwe_ids": [
+      "CWE-416"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54335",
+    "description": "An issue was discovered in the GPU driver in Samsung Mobile Processor Exynos 1480, 2400, 1580, 2500. There is a use-after-free in the Xclipse GPU Driver.",
+    "published_date": "2025-11-04T21:15:39.170000",
+    "last_modified": "2025-11-07T13:00:31.390000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "exynos_1480_firmware",
+    "references": [
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/",
+      "https://semiconductor.samsung.com/support/quality-support/product-security-updates/cve-2025-54335/"
+    ],
+    "cwe_ids": [
+      "CWE-416"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-55155",
+    "description": "Mantis Bug Tracker (MantisBT) is an open source issue tracker. In versions 2.27.1 and below, when a user edits their profile to change their e-mail address, the system saves it without validating that it actually belongs to the user. This could result in storing an invalid email address, preventing the user from receiving system notifications. Notifications sent to another person's email address could lead to information disclosure. This issue is fixed in version 2.27.2.",
+    "published_date": "2025-11-04T21:15:39.280000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/mantisbt/mantisbt/commit/21e9fbedde8553c29c0d3156e84f78157fc4f22e",
+      "https://github.com/mantisbt/mantisbt/security/advisories/GHSA-q747-c74m-69pr",
+      "https://mantisbt.org/bugs/view.php?id=36005"
+    ],
+    "cwe_ids": [
+      "CWE-201",
+      "CWE-354"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54496",
+    "description": "A maliciously crafted project file may cause a heap-based buffer \noverflow in \nFuji Electric Monitouch V-SFT-6, which may allow the attacker to execute arbitrary code.",
+    "published_date": "2025-11-04T22:16:28.560000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.8,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://felib.fujielectric.co.jp/en/document_search?tab=software&document1%5B1%5D=M10009&document2%5B1%5D=M20104&product1%5B1%5D=P10003&product2%5B1%5D=P20023&product3%5B1%5D=P30623&product4%5B1%5D=S11133&discontinued%5B1%5D=0&count=20&sort=en_title&page=1&region=en-glb",
+      "https://github.com/cisagov/CSAF/blob/develop/csaf_files/OT/white/2025/icsa-25-308-01.json",
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-01"
+    ],
+    "cwe_ids": [
+      "CWE-122"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-54526",
+    "description": "Fuji Electric Monitouch V-SFT-6 is vulnerable to a stack-based buffer \noverflow while processing a specially crafted project file, which may \nallow an attacker to execute arbitrary code.",
+    "published_date": "2025-11-04T22:16:28.737000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.8,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://felib.fujielectric.co.jp/en/document_search?tab=software&document1%5B1%5D=M10009&document2%5B1%5D=M20104&product1%5B1%5D=P10003&product2%5B1%5D=P20023&product3%5B1%5D=P30623&product4%5B1%5D=S11133&discontinued%5B1%5D=0&count=20&sort=en_title&page=1&region=en-glb",
+      "https://github.com/cisagov/CSAF/blob/develop/csaf_files/OT/white/2025/icsa-25-308-01.json",
+      "https://www.cisa.gov/news-events/ics-advisories/icsa-25-308-01"
+    ],
+    "cwe_ids": [
+      "CWE-121"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-56230",
+    "description": "Tencent Docs Desktop 3.9.20 and earlier suffers from Missing SSL Certificate Validation in the update component.",
+    "published_date": "2025-11-04T22:16:31.500000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://www.notion.so/CVE-2025-56230-1a74e9f2a40d80dca0a2d0615dc7ac5a"
+    ],
+    "cwe_ids": [
+      "CWE-599"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62369",
+    "description": "Xibo is an open source digital signage platform with a web content management system (CMS). Versions 4.3.0 and below contain a Remote Code Execution vulnerability in the CMS Developer menu's Module Templating functionality, allowing authenticated users with \"System -> Add/Edit custom modules and templates\" permissions to manipulate Twig filters and execute arbitrary server-side functions as the web server user. This issue is fixed in version 4.3.1. To workaround this issue, use the 4.1 and 4.2 patch commits.",
+    "published_date": "2025-11-04T22:16:38.160000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.2,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/xibosignage/xibo-cms/commit/0f4e88396111ea027785a48dd8f5eeb14536bd71",
+      "https://github.com/xibosignage/xibo-cms/commit/ecd4f9d2cea739a46756a108a839cac80f65cf10",
+      "https://github.com/xibosignage/xibo-cms/releases/tag/4.3.1",
+      "https://github.com/xibosignage/xibo-cms/security/advisories/GHSA-7rmm-689c-gjgv",
+      "https://patch-diff.githubusercontent.com/raw/xibosignage/xibo-cms/pull/3128.patch"
+    ],
+    "cwe_ids": [
+      "CWE-94",
+      "CWE-1336"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62507",
+    "description": "Redis is an open source, in-memory database that persists on disk. In versions 8.2.0 and above, a user can run the XACKDEL command with multiple ID's and trigger a stack buffer overflow, which may potentially lead to remote code execution. This issue is fixed in version 8.2.3. To workaround this issue without patching the redis-server executable is to prevent users from executing XACKDEL operation. This can be done using ACL to restrict XACKDEL command.",
+    "published_date": "2025-11-04T22:16:38.330000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/redis/redis/commit/5f83972188f6e5b1d6f1940218c650a9cbdf7741",
+      "https://github.com/redis/redis/releases/tag/8.2.3",
+      "https://github.com/redis/redis/security/advisories/GHSA-jhjx-x4cf-4vm8"
+    ],
+    "cwe_ids": [
+      "CWE-20",
+      "CWE-121"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62520",
+    "description": "Mantis Bug Tracker (MantisBT) is an open source issue tracker. In versions 2.27.1 and below, due to insufficient access-level checks, any non-admin user with access to manage_config_columns_page.php can use the Copy From action to retrieve the columns configuration from a private project they have no access to. This issue is fixed in version 2.27.2.",
+    "published_date": "2025-11-04T22:16:38.487000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/mantisbt/mantisbt/commit/4fe94f45fa2baea2aeb4b65781d2009e7b4a0bf3",
+      "https://github.com/mantisbt/mantisbt/security/advisories/GHSA-g582-8vwr-68h2",
+      "https://mantisbt.org/bugs/view.php?id=36502"
+    ],
+    "cwe_ids": [
+      "CWE-285"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62715",
+    "description": "ClipBucket v5 is an open source video sharing platform. Versions 5.5.2-#147 and below contain a stored Cross-Site Scripting (XSS) vulnerability in ClipBucket\u2019s Collection tags feature. An authenticated normal user can create a tag containing HTML or JavaScript, which is later rendered unescaped in collection detail and tag-list pages. As a result, arbitrary JavaScript executes in the browsers of all users who view the affected pages. This issue is fixed in version 5.5.2-#152.",
+    "published_date": "2025-11-04T22:16:38.637000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/MacWarrior/clipbucket-v5/commit/8e3cf79ce2721fbebde68a05a9a1a6319f086bcc",
+      "https://github.com/MacWarrior/clipbucket-v5/security/advisories/GHSA-h5f4-wj75-39x3"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62719",
+    "description": "LinkAce is a self-hosted archive to collect website links. In versions 2.3.0 and below, the htmlKeywordsFromUrl function in the FetchController class accepts user-provided URLs and makes HTTP requests to them without validating that the destination is not an internal or private network resource. This Server-Side Request Forgery (SSRF) vulnerability allows authenticated attackers to use the application server to perform port scanning and service discovery on internal networks. Practical impact is very limited because the function only extracts content from HTML meta keywords tags, which prevents meaningful data exfiltration from databases, APIs, or cloud metadata endpoints. This issue is fixed in version 2.4.0.",
+    "published_date": "2025-11-04T22:16:38.787000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "http://github.com/Kovah/LinkAce/releases/tag/v2.4.0",
+      "https://github.com/Kovah/LinkAce/commit/4e0b822163ccefc2640c283ae969a39e673a0619",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-473x-rmm6-mc8c",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-473x-rmm6-mc8c"
+    ],
+    "cwe_ids": [
+      "CWE-918"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62720",
+    "description": "LinkAce is a self-hosted archive to collect website links. Versions 2.3.1 and below allow any authenticated user to export the entire database of links from all users in the system, including private links that should only be accessible to their owners. The HTML and CSV export functions in the ExportController class retrieve all links without applying any ownership or visibility filtering, effectively bypassing all access controls implemented elsewhere in the application. This issue is fixed in version 2.4.0.",
+    "published_date": "2025-11-04T22:16:38.973000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/Kovah/LinkAce/commit/0ba49dba5176db390999de1f90b9d743a4aedc24",
+      "https://github.com/Kovah/LinkAce/releases/tag/v2.4.0",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-cqxv-6v28-2f2h",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-cqxv-6v28-2f2h"
+    ],
+    "cwe_ids": [
+      "CWE-200",
+      "CWE-284"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62721",
+    "description": "LinkAce is a self-hosted archive to collect website links. In versions 2.3.1 and below, authenticated RSS feed endpoints in the FeedController class fail to implement proper authorization checks, allowing any authenticated user to access all links, lists, and tags from all users in the system, regardless of their ownership or visibility settings. This issue is fixed in version 2.4.0.",
+    "published_date": "2025-11-04T22:16:39.120000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/Kovah/LinkAce/commit/1fef32694cee2bd80892fb478416be9364c3fddd",
+      "https://github.com/Kovah/LinkAce/releases/tag/v2.4.0",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-47g2-qw6q-cr96",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-47g2-qw6q-cr96"
+    ],
+    "cwe_ids": [
+      "CWE-200",
+      "CWE-284"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-59595",
+    "description": "CVE-2025-59595 is an internally discovered denial of service \nvulnerability in versions of Secure Access prior to 14.12. An attacker \ncan send a specially crafted packet to a server in a non-default \nconfiguration and cause the server to crash.",
+    "published_date": "2025-11-04T23:15:43.773000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://www.absolute.com/platform/security-information/vulnerability-archive/cve-2025-59595"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-59596",
+    "description": "CVE-2025-59596 is a denial-of-service vulnerability in Secure Access \nWindows client versions 12.0 to 14.10 that is addressed in version \n14.12. If a local networking policy is active, attackers on an adjacent \nnetwork may be able to send a crafted packet and cause the client system\n to crash.",
+    "published_date": "2025-11-04T23:15:43.907000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://www.absolute.com/platform/security-information/vulnerability-archive/cve-2025-59596"
+    ],
+    "cwe_ids": [
+      "CWE-20"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62722",
+    "description": "LinkAce is a self-hosted archive to collect website links. In versions 2.3.1 and below, the social media sharing functionality contains a Stored Cross-Site Scripting (XSS) vulnerability that allows any authenticated user to inject arbitrary JavaScript by creating a link with malicious HTML in the title field. When a user views the link details page and the shareable links are rendered, the malicious JavaScript executes in their browser. This vulnerability affects multiple sharing services and can be exploited to steal session cookies, perform actions on behalf of users, or deliver malware. This issue is fixed in version 2.4.0.",
+    "published_date": "2025-11-04T23:15:44.020000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/Kovah/LinkAce/commit/95d29b71ad9d4750cff8bbe7488802f6a4afa6aa",
+      "https://github.com/Kovah/LinkAce/releases/tag/v2.4.0",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-4mxh-7c7f-q79j",
+      "https://github.com/Kovah/LinkAce/security/advisories/GHSA-4mxh-7c7f-q79j"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64106",
+    "description": "Cursor is a code editor built for programming with AI. In versions 1.7.28 and below, an input validation flaw in Cursor's MCP server installation enables specially crafted deep-links to bypass the standard security warnings and conceal executed commands from users if they choose to accept the server. If an attacker is able to convince a victim to navigate to a malicious deeplink, the victim will not see the correct speedbump modal, and if they choose to accept, will execute commands specified by the attackers deeplink.",
+    "published_date": "2025-11-04T23:15:44.170000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cursor/cursor/security/advisories/GHSA-4575-fh42-7848"
+    ],
+    "cwe_ids": [
+      "CWE-78"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64107",
+    "description": "Cursor is a code editor built for programming with AI. In versions 1.7.52 and below, manipulating internal settings may lead to RCE. Cursor detects path manipulation via forward slashes (./.cursor/./././././mcp.json etc.), and requires human approval to complete the operation. However, the same kind of manipulation using backslashes was not correctly detected, allowing an attacker who had already achieved prompt injection or some other level of control to overwrite sensitive editor files without approval on Windows machines. This issue is fixed in version 2.0.",
+    "published_date": "2025-11-04T23:15:44.330000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cursor/cursor/security/advisories/GHSA-2jr2-8wf5-v6pf"
+    ],
+    "cwe_ids": [
+      "CWE-22"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64108",
+    "description": "Cursor is a code editor built for programming with AI. In versions 1.7.44 and below, various NTFS path quirks allow a prompt injection attacker to circumvent sensitive file protections and overwrite files which Cursor requires human approval to overwrite. Modification of some of the protected files can lead to RCE. Must be chained with a prompt injection or malicious model attach. Only affects systems supporting NTFS. This issue is fixed in version 2.0.",
+    "published_date": "2025-11-04T23:15:44.470000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cursor/cursor/security/advisories/GHSA-6r98-6qcw-rxrw"
+    ],
+    "cwe_ids": [
+      "CWE-22",
+      "CWE-94"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64109",
+    "description": "Cursor is a code editor built for programming with AI. In versions and below, a vulnerability in the Cursor CLI Beta allowed an attacker to achieve remote code execution through the MCP (Model Context Protocol) server mechanism by uploading a malicious MCP configuration in .cursor/mcp.json file in a GitHub repository. Once a victim clones the project and opens it using Cursor CLI, the command to run the malicious MCP server is immediately executed without any warning, leading to potential code execution as soon as the command runs. This issue is fixed in version 2025.09.17-25b418f.",
+    "published_date": "2025-11-05T00:15:34.810000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/cursor/cursor/security/advisories/GHSA-4hwr-97q3-37w2"
+    ],
+    "cwe_ids": [
+      "CWE-78"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64110",
+    "description": "Cursor is a code editor built for programming with AI. In versions 1.7.23 and below, a logic bug allows a malicious agent to read sensitive files that should be protected via cursorignore. An attacker who has already achieved prompt injection, or a malicious model, could create a new cursorignore file which can invalidate the configuration of pre-existing ones. This could allow a malicious agent to read protected files. This issue is fixed in version 2.0.",
+    "published_date": "2025-11-05T00:15:34.957000",
+    "last_modified": "2025-11-07T13:04:09.867000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "anysphere",
+    "product": "cursor",
+    "references": [
+      "https://github.com/cursor/cursor/security/advisories/GHSA-vhc2-fjv4-wqch"
+    ],
+    "cwe_ids": [
+      "CWE-284"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12735",
+    "description": "The expr-eval library is a JavaScript expression parser and evaluator designed to safely evaluate mathematical expressions with user-defined variables. However, due to insufficient input validation, an attacker can pass a crafted variables object into the evaluate() function and trigger arbitrary code execution.",
+    "published_date": "2025-11-05T01:15:33.313000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 9.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/jorenbroekema/expr-eval",
+      "https://github.com/silentmatt/expr-eval",
+      "https://github.com/silentmatt/expr-eval/pull/288",
+      "https://www.npmjs.com/package/expr-eval",
+      "https://www.npmjs.com/package/expr-eval-fork"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12582",
+    "description": "The Features plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the 'features_revert_option AJAX endpoint in all versions up to, and including, 0.0.2. This makes it possible for authenticated attackers, with Subscriber-level access and above, to revert options.",
+    "published_date": "2025-11-05T03:15:42.703000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.org/plugins/features/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/4a6efab8-04a0-459f-a791-9360c83e5dbe?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-8871",
+    "description": "The Everest Forms (Pro) plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 1.9.7 via deserialization of untrusted input in the mime_content_type() function. This makes it possible for unauthenticated attackers to inject a PHP Object. This vulnerability may be exploited by unauthenticated attackers when a form is present on the site with a non-required signature form field along with an image upload field. No known POP chain is present in the vulnerable software, which means this vulnerability has no impact unless another plugin or theme containing a POP chain is installed on the site. If a POP chain is present via an additional plugin or theme installed on the target system, it may allow the attacker to perform actions like delete arbitrary files, retrieve sensitive data, or execute code depending on the POP chain present. This vulnerability is only exploitable in PHP versions prior to 8.",
+    "published_date": "2025-11-05T03:15:42.880000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.6,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "HIGH",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://everestforms.net/changelog/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/11d45287-f875-4cc9-aaf6-47158fe32858?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-502"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11835",
+    "description": "The Paid Membership Subscriptions \u2013 Effortless Memberships, Recurring Payments & Content Restriction plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability and validation check on the PMS_AJAX_Checkout_Handler::process_payment() function in all versions up to, and including, 2.16.4. This makes it possible for unauthenticated attackers to trigger stored auto-renew charges for arbitrary members.",
+    "published_date": "2025-11-05T04:15:32.063000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/changeset/3383182/paid-member-subscriptions",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/eb1948bd-c5b4-4fbe-9aa6-19f24325e6bb?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12580",
+    "description": "The SMS for WordPress plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via the 'paged' parameter in all versions up to, and including, 1.1.8 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link.",
+    "published_date": "2025-11-05T04:15:33.040000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.1,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/sms4wp/trunk/includes/views/templates/sms4wp_template.php#L13",
+      "https://wordpress.org/plugins/sms4wp/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/d4e1ddaa-d05a-4261-b55d-54d7650c12b8?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64448",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.227000",
+    "last_modified": "2025-11-05T04:15:33.227000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64449",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.313000",
+    "last_modified": "2025-11-05T04:15:33.313000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64450",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.377000",
+    "last_modified": "2025-11-05T04:15:33.377000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64451",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.440000",
+    "last_modified": "2025-11-05T04:15:33.440000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64452",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.503000",
+    "last_modified": "2025-11-05T04:15:33.503000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64453",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.573000",
+    "last_modified": "2025-11-05T04:15:33.573000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64454",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.637000",
+    "last_modified": "2025-11-05T04:15:33.637000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64455",
+    "description": "Rejected reason: Not used",
+    "published_date": "2025-11-05T04:15:33.703000",
+    "last_modified": "2025-11-05T04:15:33.703000",
+    "severity": null,
+    "cvss_score": null,
+    "cvss_vector": null,
+    "attack_vector": null,
+    "attack_complexity": null,
+    "vendor": null,
+    "product": null,
+    "references": [],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11162",
+    "description": "The Spectra Gutenberg Blocks \u2013 Website Builder for the Block Editor plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the Custom CSS in all versions up to, and including, 2.19.14 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+    "published_date": "2025-11-05T05:15:41.400000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/ultimate-addons-for-gutenberg/tags/2.19.14/classes/class-uagb-loader.php#L522",
+      "https://plugins.trac.wordpress.org/browser/ultimate-addons-for-gutenberg/tags/2.19.14/classes/class-uagb-post-assets.php#L1418",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/2f077817-704f-4595-bfb1-80234dd23f8d?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12197",
+    "description": "The The Events Calendar plugin for WordPress is vulnerable to blind SQL Injection via the 's' parameter in versions 6.15.1.1 to 6.15.9 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query.  This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
+    "published_date": "2025-11-05T05:15:51.590000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/changeset/3386042/the-events-calendar",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/bc927a93-0cb2-4211-9f93-c0671039011e?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-89"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-10567",
+    "description": "The FunnelKit  WordPress plugin before 3.12.0.1 does not sanitize user input before echoing it back in some of its checkout-related AJAX actions, allowing attackers to conduct reflected XSS attacks against logged-in users.",
+    "published_date": "2025-11-05T06:15:32.363000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wpscan.com/vulnerability/c7536b0c-3bce-449d-937e-b0195990110a/"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-10873",
+    "description": "The ElementInvader Addons for Elementor WordPress plugin before 1.4.1 allows unauthenticated user to send arbitrary e-mails to arbitrary addresses due to missing authorization on the elementinvader_addons_for_elementor_forms_send_form action.",
+    "published_date": "2025-11-05T06:15:32.870000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wpscan.com/vulnerability/2eb133db-e1c5-409e-94f8-b71edca5db16/"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11072",
+    "description": "The MelAbu WP Download Counter Button WordPress plugin through 1.8.6.7 does not validate the path of files to be downloaded, which could allow unauthenticated attacker to read/download arbitrary files.",
+    "published_date": "2025-11-05T06:15:32.990000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wpscan.com/vulnerability/538117c5-b04c-45fc-a953-6f619fdf7eaf/"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11749",
+    "description": "The AI Engine plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 3.1.3 via the /mcp/v1/ REST API endpoint that exposes the 'Bearer Token' value when 'No-Auth URL' is enabled. This makes it possible for unauthenticated attackers to extract the bearer token, which can be used to gain access to a valid session and perform many actions like creating a new administrator account, leading to privilege escalation.",
+    "published_date": "2025-11-05T06:15:33.097000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 9.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/ai-engine/trunk/labs/mcp.php#L226",
+      "https://plugins.trac.wordpress.org/changeset/3380753/ai-engine#file10",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/06eaf624-aedf-453d-8457-d03a572fac0d?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21071",
+    "description": "Out-of-bounds write in handling opcode in fingerprint trustlet prior to SMR Nov-2025 Release 1 allows local privileged attackers to write out-of-bounds memory.",
+    "published_date": "2025-11-05T06:15:33.337000",
+    "last_modified": "2025-11-07T13:03:49.420000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.7,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:N",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "HIGH",
+    "vendor": "samsung",
+    "product": "android",
+    "references": [
+      "https://security.samsungmobile.com/securityUpdate.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [
+      "CWE-787"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21073",
+    "description": "Insecure default configuration in USB connection mode prior to SMR Nov-2025 Release 1 allows privileged physical attackers to access user data. User interaction is required for triggering this vulnerability.",
+    "published_date": "2025-11-05T06:15:33.463000",
+    "last_modified": "2025-11-07T13:03:29.800000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.8,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+    "attack_vector": "ADJACENT_NETWORK",
+    "attack_complexity": "HIGH",
+    "vendor": "samsung",
+    "product": "android",
+    "references": [
+      "https://security.samsungmobile.com/securityUpdate.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21074",
+    "description": "Out-of-bounds read in libimagecodec.quram.so prior to SMR Nov-2025 Release 1 allows remote attackers to access out-of-bounds memory.",
+    "published_date": "2025-11-05T06:15:33.597000",
+    "last_modified": "2025-11-07T13:03:03.920000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "android",
+    "references": [
+      "https://security.samsungmobile.com/securityUpdate.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [
+      "CWE-125"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21075",
+    "description": "Out-of-bounds write in libimagecodec.quram.so prior to SMR Nov-2025 Release 1 allows remote attackers to access out-of-bounds memory.",
+    "published_date": "2025-11-05T06:15:33.720000",
+    "last_modified": "2025-11-07T13:02:47.623000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "android",
+    "references": [
+      "https://security.samsungmobile.com/securityUpdate.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [
+      "CWE-787"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21076",
+    "description": "Improper handling of insufficient permissions or privileges in Samsung Account prior to version 15.5.00.18 allows local attackers to access data in Samsung Account. User interaction is required for triggering this vulnerability.",
+    "published_date": "2025-11-05T06:15:33.840000",
+    "last_modified": "2025-11-07T13:02:25.600000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.5,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "account",
+    "references": [
+      "https://security.samsungmobile.com/serviceWeb.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21077",
+    "description": "Improper input validation in Samsung Email prior to version 6.2.06.0 allows local attackers to launch arbitrary activity with Samsung Email privilege.",
+    "published_date": "2025-11-05T06:15:33.963000",
+    "last_modified": "2025-11-07T13:02:01.790000",
+    "severity": "LOW",
+    "cvss_score": 3.3,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": "samsung",
+    "product": "email",
+    "references": [
+      "https://security.samsungmobile.com/serviceWeb.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21078",
+    "description": "Use of insufficiently random value of secretKey in Smart Switch prior to version 3.7.68.6 allows adjacent attackers to access backup data from applications.",
+    "published_date": "2025-11-05T06:15:34.103000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.8,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "ADJACENT_NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://security.samsungmobile.com/serviceWeb.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-21079",
+    "description": "Improper input validation in Samsung Members prior to version 5.5.01.3 allows remote attackers to connect arbitrary URL and launch arbitrary activity with Samsung Members privilege. User interaction is required for triggering this vulnerability.",
+    "published_date": "2025-11-05T06:15:34.227000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.1,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://security.samsungmobile.com/serviceWeb.smsb?year=2025&month=11"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-6027",
+    "description": "The Ace User Management WordPress plugin through 2.0.3 does not properly validate that a password reset token is associated with the user who requested it, allowing any authenticated users, such as subscriber to reset the password of arbitrary accounts, including administrators.",
+    "published_date": "2025-11-05T06:15:34.373000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wpscan.com/vulnerability/06fb8088-10e3-424e-a3ac-4673bac49467/"
+    ],
+    "cwe_ids": [],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11373",
+    "description": "The Popup and Slider Builder by Depicter \u2013 Add Email collecting Popup, Popup Modal, Coupon Popup, Image Slider, Carousel Slider, Post Slider Carousel plugin for WordPress is vulnerable to arbitrary file uploads due to a missing capability checks in the \"depicter-media-upload\" AJAX route in all versions up to, and including, 4.0.4. This makes it possible for authenticated attackers, with Contributor-level access and above, to upload limited files on the affected site's server.",
+    "published_date": "2025-11-05T07:15:31.653000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/depicter/tags/4.0.4/app/src/Middleware/CsrfAPIMiddleware.php#L51",
+      "https://plugins.trac.wordpress.org/browser/depicter/tags/4.0.4/app/src/WordPress/FileUploaderService.php#L9",
+      "https://plugins.trac.wordpress.org/changeset?sfp_email=&sfph_mail=&reponame=&new=3384613%40depicter&old=3313042%40depicter&sfp_email=&sfph_mail=",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/ae23f287-e4bb-4f97-aebe-18b6d7ad4e58?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11917",
+    "description": "The WPeMatico RSS Feed Fetcher plugin for WordPress is vulnerable to Server-Side Request Forgery in all versions up to, and including, 2.8.11 via the wpematico_test_feed() function. This makes it possible for authenticated attackers, with Subscriber-level access and above, to make web requests to arbitrary locations originating from the web application and can be used to query and modify information from internal services.",
+    "published_date": "2025-11-05T07:15:32.073000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://github.com/etruel/wpematico/commit/7a281dcfc0868490d62caee54f3b743708fed7cf",
+      "https://plugins.trac.wordpress.org/browser/wpematico/tags/2.8.11/app/campaign_edit.php#L24",
+      "https://plugins.trac.wordpress.org/browser/wpematico/tags/2.8.11/app/wpematico_functions.php#L1249",
+      "https://plugins.trac.wordpress.org/browser/wpematico/tags/2.8.11/app/wpematico_functions.php#L1260",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/5a1c6377-c2a7-4344-86bd-d2797db19469?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-918"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12139",
+    "description": "The File Manager for Google Drive \u2013 Integrate Google Drive with WordPress plugin for WordPress is vulnerable to sensitive information exposure in all versions up to, and including, 1.5.3 via the \"get_localize_data\" function. This makes it possible for unauthenticated attackers to extract sensitive data including Google OAuth credentials (client_id and client_secret) and Google account email addresses.",
+    "published_date": "2025-11-05T07:15:32.340000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 7.5,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/integrate-google-drive/tags/1.5.3/includes/class-enqueue.php#L232",
+      "https://plugins.trac.wordpress.org/browser/integrate-google-drive/tags/1.5.3/includes/class-enqueue.php#L243",
+      "https://plugins.trac.wordpress.org/browser/integrate-google-drive/tags/1.5.3/includes/class-enqueue.php#L88",
+      "https://plugins.trac.wordpress.org/changeset/3387825/integrate-google-drive",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/607073ad-3a4a-4a21-af0f-3ade81382605?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12384",
+    "description": "The Document Embedder \u2013 Embed PDFs, Word, Excel, and Other Files plugin for WordPress is vulnerable to unauthorized access/modification/loss of data in all versions up to, and including, 2.0.0. This is due to the plugin not properly verifying that a user is authorized to perform an action in the \"bplde_save_document_library\", \"bplde_get_all\", \"bplde_get_single\", and \"bplde_delete_document_library\" functions. This makes it possible for unauthenticated attackers to create, read, update, and delete arbitrary document_library posts.",
+    "published_date": "2025-11-05T07:15:32.570000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.6,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:L",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/changeset?old=3359820&old_path=document-emberdder%2Ftrunk%2Fdocument-library-block.php&new=&new_path=document-emberdder%2Ftrunk%2Fdocument-library-block.php",
+      "https://plugins.trac.wordpress.org/changeset?old=3359820&old_path=document-emberdder%2Ftrunk%2Fincludes%2FDocumentLibrary%2FInit-DocumentLibrary.php&new=&new_path=document-emberdder%2Ftrunk%2Fincludes%2FDocumentLibrary%2FInit-DocumentLibrary.php",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/eb7e4e96-a4ff-4c6c-91de-c0e5ba78f0da?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12388",
+    "description": "The B Carousel Block \u2013 Responsive Image and Content Carousel plugin for WordPress is vulnerable to Server-Side Request Forgery in versions up to, and including, 1.1.5. This is due to the plugin not validating user-supplied URLs before passing them to the wp_remote_request() function. This makes it possible for authenticated attackers, with subscriber-level access and above, to make web requests to arbitrary locations originating from the web application and can be used to query and modify information from internal services.",
+    "published_date": "2025-11-05T07:15:32.813000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/changeset/3387643/b-carousel-block",
+      "https://plugins.trac.wordpress.org/changeset/3388271/b-carousel-block",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/cb5ca73c-1a1d-4a93-bbcb-8af606189f26?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-918"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-62225",
+    "description": "Optical Disc Archive Software provided by Sony Corporation registers a Windows service with an unquoted file path. A user with the write permission on the root directory of the system drive may execute arbitrary code with SYSTEM privilege.",
+    "published_date": "2025-11-05T07:15:33.047000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.7,
+    "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://jvn.jp/en/jp/JVN81917433/",
+      "https://www.sony.jp/oda/application/?srsltid=AfmBOoo8t7k-alQo7ZnV2MAhq8qfIJtFOJN41U2Tu-B1yrpx3Y_KHurk"
+    ],
+    "cwe_ids": [
+      "CWE-428"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-64151",
+    "description": "Multiple Roboticsware products provided by Roboticsware PTE. LTD. register Windows services with unquoted file paths. A user with the write permission on the root directory of the system drive may execute arbitrary code with SYSTEM privilege.",
+    "published_date": "2025-11-05T07:15:33.300000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.7,
+    "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "LOCAL",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://jvn.jp/en/jp/JVN92563420/",
+      "https://www.roboticsware.com/dev-jp/2025/10/28/announcements-20251028/"
+    ],
+    "cwe_ids": [
+      "CWE-428"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-10622",
+    "description": "A flaw was found in Red Hat Satellite (Foreman component). This vulnerability allows an authenticated user with edit_settings permissions to achieve arbitrary command execution on the underlying operating system via insufficient server-side validation of command whitelisting.",
+    "published_date": "2025-11-05T08:15:32.990000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "HIGH",
+    "cvss_score": 8.0,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:C/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "HIGH",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://access.redhat.com/errata/RHSA-2025:19721",
+      "https://access.redhat.com/errata/RHSA-2025:19832",
+      "https://access.redhat.com/errata/RHSA-2025:19855",
+      "https://access.redhat.com/errata/RHSA-2025:19856",
+      "https://access.redhat.com/security/cve/CVE-2025-10622",
+      "https://bugzilla.redhat.com/show_bug.cgi?id=2396020"
+    ],
+    "cwe_ids": [
+      "CWE-602"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12674",
+    "description": "The KiotViet Sync plugin for WordPress is vulnerable to arbitrary file uploads due to missing file type validation in the create_media() function in all versions up to, and including, 1.8.5. This makes it possible for unauthenticated attackers to upload arbitrary files on the affected site's server which may make remote code execution possible.",
+    "published_date": "2025-11-05T08:15:33.313000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 9.8,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.org/plugins/kiotvietsync/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/7fdd670f-2a71-4c1d-af46-f0fd05352f7e?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-434"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12675",
+    "description": "The KiotViet Sync plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the saveConfig() function in all versions up to, and including, 1.8.5. This makes it possible for authenticated attackers, with Subscriber-level access and above, to update the plugin's config.",
+    "published_date": "2025-11-05T08:15:33.500000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 4.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.org/plugins/kiotvietsync/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/e67c6c3f-0b2a-424f-b8f2-2771449c82b4?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-862"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12676",
+    "description": "The KiotViet Sync plugin for WordPress is vulnerable to authorizarion bypass in all versions up to, and including, 1.8.5. This is due to the plugin using a hardcoded password for authentication in the QueryControllerAdmin::authenticated function. This makes it possible for unauthenticated attackers to create and sync products.",
+    "published_date": "2025-11-05T08:15:33.680000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.org/plugins/kiotvietsync/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/a2d7165b-1290-4032-8fbc-75ec1ab34a08?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-259"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12677",
+    "description": "The KiotViet Sync plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 1.8.5 via the register_api_route() function in kiotvietsync/includes/public_actions/WebHookAction.php. This makes it possible for unauthenticated attackers to extract the webhook token value when configured.",
+    "published_date": "2025-11-05T08:15:33.843000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://wordpress.org/plugins/kiotvietsync/",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/1114a84e-3425-402f-bcdc-a2ee05b2dbc9?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-55108",
+    "description": "The Control-M/Agent is vulnerable to unauthenticated remote code execution, arbitrary file read and write and similar unauthorized actions when mutual SSL/TLS authentication is not enabled (i.e. in the default configuration).\n\n\nNOTE: The vendor believes that this vulnerability only occurs when documented security best practices are not followed. BMC has always strongly recommended to use security best practices such as configuring SSL/TLS between Control-M Server and Agent.",
+    "published_date": "2025-11-05T09:15:32.170000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "CRITICAL",
+    "cvss_score": 10.0,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://bmcapps.my.site.com/casemgmt/sc_KnowledgeArticle?sfdcid=000441962",
+      "https://bmcapps.my.site.com/casemgmt/sc_KnowledgeArticle?sfdcid=000442099",
+      "https://bmcapps.my.site.com/casemgmt/sc_KnowledgeArticle?sfdcid=000442271"
+    ],
+    "cwe_ids": [
+      "CWE-306"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11820",
+    "description": "The Graphina \u2013 Elementor Charts and Graphs plugin for WordPress is vulnerable to Stored Cross-Site Scripting via multiple chart widgets in all versions up to, and including, 3.1.8 due to insufficient input sanitization and output escaping on data attributes. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The vulnerability affects multiple chart widgets including Area Chart, Line Chart, Column Chart, Donut Chart, Heatmap Chart, Radar Chart, Polar Chart, Pie Chart, Radial Chart, and Advance Data Table widgets.",
+    "published_date": "2025-11-05T10:15:34.357000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://gist.github.com/webber-naut/3c26ce96cc18d3b8387edb8482653bc3",
+      "https://plugins.trac.wordpress.org/browser/graphina-elementor-charts-and-graphs/tags/3.1.7/assets/elementor/js/apex-chart/GraphinaApexChartBase.js#L303",
+      "https://plugins.trac.wordpress.org/browser/graphina-elementor-charts-and-graphs/trunk/assets/elementor/js/apex-chart/AdvanceDataTable.js",
+      "https://plugins.trac.wordpress.org/browser/graphina-elementor-charts-and-graphs/trunk/assets/elementor/js/apex-chart/AreaChart.js",
+      "https://plugins.trac.wordpress.org/browser/graphina-elementor-charts-and-graphs/trunk/assets/elementor/js/apex-chart/LineChart.js",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/0a576c71-615c-4333-8cd3-93343ce64f7b?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-79"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-11987",
+    "description": "The Visual Link Preview plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the plugin's visual-link-preview shortcode in versions up to, and including, 2.2.7 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+    "published_date": "2025-11-05T10:15:34.637000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 6.4,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/visual-link-preview/tags/2.2.7/includes/public/class-vlp-link.php#L56",
+      "https://plugins.trac.wordpress.org/browser/visual-link-preview/tags/2.2.7/templates/link/simple/simple.php#L1",
+      "https://plugins.trac.wordpress.org/changeset/3388877/visual-link-preview/trunk/templates/link/simple/simple.php",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/65ae3119-61d1-4ec0-8ba2-352aae5cc834?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-80"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12192",
+    "description": "The Events Calendar plugin for WordPress is vulnerable to information disclosure in versions up to, and including, 6.15.9. The sysinfo REST endpoint compares the provided key to the stored opt-in key using a loose comparison, allowing unauthenticated attackers to send a boolean value and obtain the full system report whenever \"Yes, automatically share my system information with The Events Calendar support team\" setting is enabled.",
+    "published_date": "2025-11-05T10:15:35.217000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/changeset/3386042/the-events-calendar",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/e5f3feb7-547e-4c01-8453-a1fc207ee009?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-697"
+    ],
+    "source": "NVD"
+  },
+  {
+    "cve_id": "CVE-2025-12468",
+    "description": "The FunnelKit Automations \u2013 Email Marketing Automation and CRM for WordPress & WooCommerce plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 3.6.4.1 via the '/wc-coupons/' REST API endpoint. This is due to the endpoint being marked as a public API (`public_api = true`), which results in the endpoint being registered with `permission_callback => '__return_true'`, bypassing all authentication and capability checks. This makes it possible for unauthenticated attackers to extract sensitive data including all WooCommerce coupon codes, coupon IDs, and expiration status.",
+    "published_date": "2025-11-05T10:15:35.463000",
+    "last_modified": "2025-11-06T19:45:30.990000",
+    "severity": "MEDIUM",
+    "cvss_score": 5.3,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+    "attack_vector": "NETWORK",
+    "attack_complexity": "LOW",
+    "vendor": null,
+    "product": null,
+    "references": [
+      "https://plugins.trac.wordpress.org/browser/wp-marketing-automations/trunk/includes/api/wc/class-bwfan-api-wc-coupons.php#L19",
+      "https://plugins.trac.wordpress.org/browser/wp-marketing-automations/trunk/includes/class-bwfan-api-loader.php#L119",
+      "https://www.wordfence.com/threat-intel/vulnerabilities/id/1d2a2032-3d39-4195-8e6c-ab884164721a?source=cve"
+    ],
+    "cwe_ids": [
+      "CWE-200"
+    ],
+    "source": "NVD"
+  }
+]
