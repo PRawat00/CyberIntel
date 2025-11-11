@@ -1,0 +1,225 @@
+{
+  "description": "Comprehensive mock CVE data for testing CPE matching and version comparison logic",
+  "test_cves": [
+    {
+      "cve_id": "TEST-2021-LODASH-001",
+      "vendor": "lodash",
+      "product": "lodash",
+      "version": "4.17.20",
+      "severity": "HIGH",
+      "cvss_score": 7.2,
+      "description": "Command injection vulnerability in lodash template. Affects versions <=4.17.20",
+      "test_case": "exact_version_match",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-LODASH-002",
+      "vendor": "lodash",
+      "product": "lodash",
+      "version": "4.17.15",
+      "severity": "MEDIUM",
+      "cvss_score": 5.3,
+      "description": "Prototype pollution in lodash. Affects version 4.17.15 exactly",
+      "test_case": "exact_version_match_2",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-AXIOS-001",
+      "vendor": "axios",
+      "product": "axios",
+      "version": "0.21.1",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "description": "Server-side request forgery in axios. Affects versions <0.21.1",
+      "test_case": "version_range_less_than",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2022-AXIOS-002",
+      "vendor": "axios",
+      "product": "axios",
+      "version": "0.22.0",
+      "severity": "CRITICAL",
+      "cvss_score": 9.1,
+      "description": "Critical vulnerability in axios. Affects versions 0.20.0-0.22.0",
+      "test_case": "version_in_range",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-EXPRESS-001",
+      "vendor": "expressjs",
+      "product": "express",
+      "version": null,
+      "severity": "HIGH",
+      "cvss_score": 8.2,
+      "description": "Security vulnerability affecting all versions of express",
+      "test_case": "no_version_all_affected",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-MOMENT-001",
+      "vendor": "momentjs",
+      "product": "moment",
+      "version": "2.29.1",
+      "severity": "MEDIUM",
+      "cvss_score": 6.5,
+      "description": "Path traversal in moment.js. Affects versions <=2.29.1",
+      "test_case": "moment_vulnerability",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-REACT-001",
+      "vendor": "facebook",
+      "product": "react",
+      "version": "17.0.1",
+      "severity": "LOW",
+      "cvss_score": 3.7,
+      "description": "XSS vulnerability in React. Affects versions <17.0.2",
+      "test_case": "react_xss",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2020-DJANGO-001",
+      "vendor": "djangoproject",
+      "product": "django",
+      "version": "3.1.5",
+      "severity": "CRITICAL",
+      "cvss_score": 9.8,
+      "description": "SQL injection in Django ORM. Affects versions >=3.0,<3.1.5",
+      "test_case": "complex_version_range",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-DJANGO-002",
+      "vendor": "djangoproject",
+      "product": "django",
+      "version": "3.1.0",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "description": "CSRF vulnerability in Django. Affects version 3.1.0 specifically",
+      "test_case": "django_exact_match",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2022-FLASK-001",
+      "vendor": "palletsprojects",
+      "product": "flask",
+      "version": "1.1.4",
+      "severity": "HIGH",
+      "cvss_score": 7.3,
+      "description": "Session fixation in Flask. Affects versions <1.1.4",
+      "test_case": "flask_version_range",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-REQUESTS-001",
+      "vendor": "python-requests",
+      "product": "requests",
+      "version": "2.25.1",
+      "severity": "MEDIUM",
+      "cvss_score": 5.9,
+      "description": "Certificate validation bypass. Affects versions <=2.25.1",
+      "test_case": "requests_vulnerability",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-JINJA2-001",
+      "vendor": "palletsprojects",
+      "product": "jinja2",
+      "version": "2.11.3",
+      "severity": "CRITICAL",
+      "cvss_score": 9.0,
+      "description": "Remote code execution in Jinja2. Affects versions <2.11.3",
+      "test_case": "jinja2_rce",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2022-URLLIB3-001",
+      "vendor": "urllib3",
+      "product": "urllib3",
+      "version": "1.26.5",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "description": "HTTP request smuggling. Affects versions <1.26.5",
+      "test_case": "urllib3_smuggling",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-NUMPY-001",
+      "vendor": "numpy",
+      "product": "numpy",
+      "version": "1.21.0",
+      "severity": "MEDIUM",
+      "cvss_score": 6.2,
+      "description": "Buffer overflow in numpy. Affects versions <1.21.0",
+      "test_case": "numpy_overflow",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-SAFE-LODASH",
+      "vendor": "lodash",
+      "product": "lodash",
+      "version": "4.17.21",
+      "severity": "NONE",
+      "cvss_score": 0.0,
+      "description": "Safe version marker - no actual vulnerability",
+      "test_case": "safe_version_control",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-WEBPACK-001",
+      "vendor": "webpack",
+      "product": "webpack",
+      "version": "5.0.0",
+      "severity": "MEDIUM",
+      "cvss_score": 5.5,
+      "description": "Path traversal in webpack-dev-server. Affects versions <5.0.0",
+      "test_case": "webpack_dev_server",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2022-TYPESCRIPT-001",
+      "vendor": "microsoft",
+      "product": "typescript",
+      "version": "4.5.0",
+      "severity": "LOW",
+      "cvss_score": 3.1,
+      "description": "Type confusion vulnerability. Affects versions <4.5.0",
+      "test_case": "typescript_type_confusion",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2021-BABEL-001",
+      "vendor": "babel",
+      "product": "babel-core",
+      "version": "7.0.0",
+      "severity": "MEDIUM",
+      "cvss_score": 4.3,
+      "description": "Code injection in Babel transformer. Affects versions <7.0.0",
+      "test_case": "babel_injection",
+      "ecosystem": "npm"
+    },
+    {
+      "cve_id": "TEST-2022-PYTEST-001",
+      "vendor": "pytest",
+      "product": "pytest",
+      "version": "6.2.5",
+      "severity": "LOW",
+      "cvss_score": 3.3,
+      "description": "Local file disclosure in pytest. Affects versions <6.2.5",
+      "test_case": "pytest_disclosure",
+      "ecosystem": "pip"
+    },
+    {
+      "cve_id": "TEST-2021-PILLOW-001",
+      "vendor": "python-pillow",
+      "product": "pillow",
+      "version": "8.3.2",
+      "severity": "HIGH",
+      "cvss_score": 8.8,
+      "description": "Buffer overflow in image processing. Affects versions <8.3.2",
+      "test_case": "pillow_overflow",
+      "ecosystem": "pip"
+    }
+  ]
+}

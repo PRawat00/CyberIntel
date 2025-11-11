@@ -15,22 +15,109 @@ class NpmParser(BaseParser):
         super().__init__(ecosystem="npm")
         self.supported_files = ["package.json", "package-lock.json"]
 
-    def supports_file(self, file_name: str) -> bool:
+    def supports_file(self, file_name: str, content: str = None) -> bool:
         """Check if this parser supports the given file.
+
+        Uses intelligent detection: checks filename, extension, and content structure.
+        This allows users to upload files with ANY name (e.g., "my-app.json").
 
         Args:
             file_name: Name of the file
+            content: Optional file content for structure validation
 
         Returns:
-            True if file is package.json or package-lock.json
+            True if file is npm-compatible (package.json or package-lock.json structure)
         """
-        return file_name.lower() in self.supported_files
+        file_name_lower = file_name.lower()
 
-    def parse_file(self, file_path: Path) -> list[ParsedDependency]:
-        """Parse a package.json file and extract dependencies.
+        # Strategy 1: Check standard filenames (backwards compatibility)
+        if file_name_lower in self.supported_files:
+            return True
+
+        # Strategy 2: Check file extension and validate content
+        if file_name_lower.endswith(".json"):
+            # If content provided, validate JSON structure
+            if content is not None:
+                return self._is_npm_json_structure(content)
+            # Without content, optimistically assume it's npm (will fail later if not)
+            return True
+
+        return False
+
+    def _is_npm_json_structure(self, content: str) -> bool:
+        """Detect if JSON content is npm package.json or package-lock.json.
+
+        Checks for characteristic npm fields:
+        - package.json: "dependencies", "devDependencies", "name", "version"
+        - package-lock.json: "lockfileVersion", "packages"
 
         Args:
-            file_path: Path to package.json
+            content: File content as string
+
+        Returns:
+            True if content matches npm JSON structure
+        """
+        try:
+            data = json.loads(content)
+            if not isinstance(data, dict):
+                return False
+
+            # package.json indicators
+            has_pkg_json_fields = any(
+                key in data
+                for key in [
+                    "dependencies",
+                    "devDependencies",
+                    "peerDependencies",
+                    "optionalDependencies",
+                ]
+            )
+
+            # package-lock.json indicators
+            has_lock_fields = "lockfileVersion" in data or "packages" in data
+
+            return has_pkg_json_fields or has_lock_fields
+        except (json.JSONDecodeError, ValueError, TypeError):
+            return False
+
+    def _is_lock_file_structure(self, content: str) -> bool:
+        """Detect if JSON content is package-lock.json structure.
+
+        package-lock.json has specific fields that distinguish it from package.json:
+        - "lockfileVersion" field (always present)
+        - "packages" field with node_modules paths (lockfileVersion 2+)
+
+        Args:
+            content: File content as string
+
+        Returns:
+            True if content is package-lock.json structure
+        """
+        try:
+            data = json.loads(content)
+            if not isinstance(data, dict):
+                return False
+
+            # Lock file must have lockfileVersion
+            if "lockfileVersion" in data:
+                return True
+
+            # Or have packages field with node_modules structure
+            if "packages" in data and isinstance(data["packages"], dict):
+                # Check if any key starts with "node_modules/" (indicates lock file)
+                for key in data["packages"].keys():
+                    if key.startswith("node_modules/"):
+                        return True
+
+            return False
+        except (json.JSONDecodeError, ValueError, TypeError):
+            return False
+
+    def parse_file(self, file_path: Path) -> list[ParsedDependency]:
+        """Parse a package.json or package-lock.json file and extract dependencies.
+
+        Args:
+            file_path: Path to package.json or package-lock.json
 
         Returns:
             List of ParsedDependency objects
@@ -40,7 +127,13 @@ class NpmParser(BaseParser):
             ValueError: If JSON is invalid
         """
         content = self.read_file_content(file_path)
-        return self.parse_content(content)
+
+        # Detect if this is a lock file by content structure (not just filename)
+        # This allows files with ANY name to be correctly parsed
+        if self._is_lock_file_structure(content):
+            return self.parse_lock_file_content(content)
+        else:
+            return self.parse_content(content)
 
     def parse_content(self, content: str) -> list[ParsedDependency]:
         """Parse package.json content and extract dependencies.
@@ -200,6 +293,94 @@ class NpmParser(BaseParser):
             return match.group(1)
 
         return None
+
+    def parse_lock_file_content(self, content: str) -> list[ParsedDependency]:
+        """Parse package-lock.json content and extract all dependencies.
+
+        package-lock.json contains exact versions of all dependencies (including transitive).
+        This provides more accurate vulnerability scanning than package.json alone.
+
+        Supports lockfileVersion 2 and 3 (npm 7+).
+
+        Args:
+            content: String content of package-lock.json
+
+        Returns:
+            List of ParsedDependency objects with exact versions
+
+        Raises:
+            ValueError: If JSON is invalid or unsupported lock file version
+        """
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in package-lock.json: {str(e)}") from e
+
+        if not isinstance(data, dict):
+            raise ValueError("package-lock.json must contain a JSON object")
+
+        # Check lock file version
+        lockfile_version = data.get("lockfileVersion", 1)
+
+        if lockfile_version < 2:
+            # Legacy lockfileVersion 1 (npm 5-6) - not supported yet
+            raise ValueError(
+                f"Unsupported lockfileVersion {lockfile_version}. "
+                "Please upgrade to npm 7+ (lockfileVersion 2 or 3) "
+                "or use package.json instead."
+            )
+
+        dependencies = []
+
+        # Parse packages object (lockfileVersion 2 and 3)
+        packages = data.get("packages", {})
+
+        for pkg_path, pkg_info in packages.items():
+            # Skip root package (empty string key)
+            if pkg_path == "":
+                continue
+
+            # Extract package name from path (node_modules/package-name)
+            if not pkg_path.startswith("node_modules/"):
+                continue
+
+            # Handle scoped packages (@org/package) and regular packages
+            package_name = pkg_path.replace("node_modules/", "")
+
+            # Get exact version
+            version = pkg_info.get("version")
+            if not version:
+                continue
+
+            # Determine if dev dependency
+            is_dev = pkg_info.get("dev", False)
+
+            # Get integrity hash for verification (optional)
+            integrity = pkg_info.get("integrity")
+
+            metadata = {
+                "original_spec": f"={version}",  # Exact version from lock file
+                "dependency_type": "dev" if is_dev else "prod",
+                "from_lock_file": True,
+                "integrity": integrity,
+                "resolved": pkg_info.get("resolved"),
+            }
+
+            try:
+                dep = ParsedDependency(
+                    package_name=package_name,
+                    version=version,
+                    version_constraint=f"={version}",  # Exact version
+                    ecosystem=self.ecosystem,
+                    is_dev_dependency=is_dev,
+                    metadata=metadata,
+                )
+                dependencies.append(dep)
+            except ValueError:
+                # Skip invalid dependencies
+                continue
+
+        return dependencies
 
     def __repr__(self) -> str:
         return f"<NpmParser(ecosystem='{self.ecosystem}', supports={self.supported_files})>"

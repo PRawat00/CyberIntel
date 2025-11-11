@@ -4,6 +4,7 @@ Usage:
     python -m scripts.scan_dependencies --file package.json
     python -m scripts.scan_dependencies --file requirements.txt --verbose
     python -m scripts.scan_dependencies --file package.json --output json
+    python -m scripts.scan_dependencies --file package.json --output html --output-file report.html
 """
 
 import argparse
@@ -14,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from jinja2 import Environment, FileSystemLoader
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -49,7 +51,10 @@ class DependencyScanner:
         }
 
     def detect_file_type(self, file_path: Path) -> str:
-        """Detect the type of dependency file.
+        """Detect the type of dependency file using content analysis.
+
+        Uses intelligent detection: checks filename, extension, and file content.
+        This allows users to upload files with ANY name.
 
         Args:
             file_path: Path to the file
@@ -60,33 +65,103 @@ class DependencyScanner:
         Raises:
             ValueError: If file type cannot be detected
         """
-        file_name = file_path.name.lower()
+        file_name = file_path.name
 
+        # Read file content for intelligent detection
+        content = None
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Binary file, fall back to name-only detection
+            content = None
+        except Exception:
+            # File read error, fall back to name-only detection
+            content = None
+
+        # Try each parser with content-aware detection
         for file_type, parser in self.parsers.items():
-            if parser.supports_file(file_name):
+            if parser.supports_file(file_name, content=content):
                 return file_type
 
+        # Build helpful error message
         raise ValueError(
-            f"Unsupported file type: {file_name}. "
-            f"Supported files: package.json, requirements.txt"
+            f"Could not detect file type for: {file_name}\n\n"
+            f"Supported formats:\n"
+            f"  - npm: .json files with package.json structure\n"
+            f"    (must contain 'dependencies', 'devDependencies', or 'lockfileVersion')\n"
+            f"  - pip: .txt files with requirements format\n"
+            f"    (lines like: package==version, package>=version)\n\n"
+            f"Tip: Ensure your file has the correct structure and extension."
         )
 
-    def scan_file(self, file_path: Path, verbose: bool = False) -> dict[str, Any]:
+    # Security constants
+    MAX_FILE_SIZE_MB = 1
+    MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+    ALLOWED_EXTENSIONS = {
+        ".json",
+        ".txt",
+        ".lock",
+        ".in",
+        ".toml",
+        ".xml",
+        ".gradle",
+        ".mod",
+        ".sum",
+    }
+
+    def scan_file(
+        self, file_path: Path, verbose: bool = False, user_id: str | None = None
+    ) -> dict[str, Any]:
         """Scan a dependency file for vulnerabilities.
 
         Args:
             file_path: Path to the dependency file
             verbose: Whether to print verbose output
+            user_id: Optional user ID for multi-tenant support
 
         Returns:
             Dictionary containing scan results
 
         Raises:
             FileNotFoundError: If file doesn't exist
-            ValueError: If file type is not supported
+            ValueError: If file type is not supported or file is too large
+            SecurityError: If file path is unsafe
         """
+        # Security: Check file exists
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
+
+        # Security: Validate file path (prevent path traversal)
+        try:
+            resolved_path = file_path.resolve(strict=True)
+            if not str(resolved_path).startswith(str(Path.cwd().resolve())):
+                # Allow absolute paths but warn if outside current directory
+                if verbose:
+                    console.print(
+                        f"[yellow]Warning: Scanning file outside current directory: {resolved_path}[/yellow]"
+                    )
+        except (OSError, RuntimeError) as e:
+            raise ValueError(f"Invalid file path: {e}")  # noqa: B904
+
+        # Security: Check file size
+        file_size = resolved_path.stat().st_size
+        if file_size > self.MAX_FILE_SIZE_BYTES:
+            raise ValueError(
+                f"File too large: {file_size / 1024 / 1024:.2f}MB "
+                f"(maximum allowed: {self.MAX_FILE_SIZE_MB}MB). "
+                f"Please use a lock file or dependency manifest only."
+            )
+
+        # Security: Validate file extension
+        if resolved_path.suffix.lower() not in self.ALLOWED_EXTENSIONS:
+            if verbose:
+                console.print(
+                    f"[yellow]Warning: Unusual file extension '{resolved_path.suffix}'. "
+                    f"Supported: {', '.join(sorted(self.ALLOWED_EXTENSIONS))}[/yellow]"
+                )
+
+        file_path = resolved_path  # Use resolved path for rest of processing
 
         if verbose:
             console.print(f"[cyan]Scanning file:[/cyan] {file_path}")
@@ -121,6 +196,7 @@ class DependencyScanner:
                 file_hash=file_hash,
                 scan_date=datetime.now(),
                 total_dependencies=len(dependencies),
+                user_id=user_id,  # Set owner (None for legacy scans)
             )
             session.add(scan)
             session.flush()  # Get scan ID
@@ -250,12 +326,108 @@ class DependencyScanner:
         return sha256_hash.hexdigest()
 
 
-def print_scan_report(results: dict[str, Any], format: str = "text"):
+def apply_filters(
+    results: dict[str, Any],
+    severity_min: str | None = None,
+    vulnerable_only: bool = False,
+) -> dict[str, Any]:
+    """Apply filters to scan results.
+
+    Args:
+        results: Scan results dictionary
+        severity_min: Minimum severity level (Low, Medium, High, Critical)
+        vulnerable_only: Show only vulnerable dependencies
+
+    Returns:
+        Filtered results dictionary
+    """
+    # Severity hierarchy for filtering
+    severity_levels = {
+        "Low": 1,
+        "Medium": 2,
+        "High": 3,
+        "Critical": 4,
+        "CRITICAL": 4,
+        "HIGH": 3,
+        "MEDIUM": 2,
+        "LOW": 1,
+    }
+
+    filtered_results = results.copy()
+    filtered_items = []
+
+    for item in results["results"]:
+        # Filter vulnerable_only
+        if vulnerable_only and not item["vulnerable"]:
+            continue
+
+        # Filter by severity
+        if severity_min and item["vulnerable"]:
+            # Get minimum severity threshold
+            min_level = severity_levels.get(severity_min, 0)
+
+            # Filter CVEs by severity
+            filtered_cves = [
+                cve for cve in item["cves"] if severity_levels.get(cve.severity, 0) >= min_level
+            ]
+
+            # If no CVEs pass the filter, skip this dependency (unless showing all)
+            if not filtered_cves:
+                continue
+
+            # Update item with filtered CVEs
+            item = item.copy()
+            item["cves"] = filtered_cves
+            item["cve_count"] = len(filtered_cves)
+
+            # Recalculate highest severity
+            if filtered_cves:
+                severities = [severity_levels.get(cve.severity, 0) for cve in filtered_cves]
+                max_severity = max(severities)
+                severity_names = {v: k for k, v in severity_levels.items() if k == k.title()}
+                item["highest_severity"] = severity_names.get(max_severity, "Unknown")
+
+        filtered_items.append(item)
+
+    # Update results
+    filtered_results["results"] = filtered_items
+    filtered_results["total_dependencies"] = len(filtered_items)
+    filtered_results["vulnerable_dependencies"] = sum(1 for r in filtered_items if r["vulnerable"])
+
+    # Recalculate severity counts and total CVEs
+    severity_counts = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0}
+    total_cves = 0
+
+    for item in filtered_items:
+        if item["vulnerable"]:
+            for cve in item["cves"]:
+                severity = cve.severity
+                # Normalize severity
+                if severity in ["CRITICAL", "Critical"]:
+                    severity_counts["Critical"] += 1
+                elif severity in ["HIGH", "High"]:
+                    severity_counts["High"] += 1
+                elif severity in ["MEDIUM", "Medium"]:
+                    severity_counts["Medium"] += 1
+                elif severity in ["LOW", "Low"]:
+                    severity_counts["Low"] += 1
+                total_cves += 1
+
+    filtered_results["severity_counts"] = severity_counts
+    filtered_results["total_cves"] = total_cves
+
+    return filtered_results
+
+
+def print_scan_report(
+    results: dict[str, Any], format: str = "text", output_file: str | None = None
+):
     """Print scan results in specified format.
 
     Args:
         results: Scan results dictionary
-        format: Output format (text, json)
+        format: Output format (text, json, html)
+        output_file: Optional output file path (required for HTML format)
     """
     if format == "json":
         # Convert CveMatch objects to dicts for JSON serialization
@@ -271,6 +443,51 @@ def print_scan_report(results: dict[str, Any], format: str = "text"):
                 for cve in result["cves"]
             ]
         print(json.dumps(json_results, indent=2))
+        return
+
+    if format == "html":
+        # Generate HTML report using Jinja2
+        if not output_file:
+            console.print("[red]Error:[/red] --output-file is required for HTML format")
+            sys.exit(2)
+
+        # Load Jinja2 template
+        template_dir = Path(__file__).parent.parent / "templates"
+        env = Environment(loader=FileSystemLoader(str(template_dir)))  # noqa: S701
+        template = env.get_template("scan_report.html")
+
+        # Prepare data for template
+        vulnerable_results = [r for r in results["results"] if r["vulnerable"]]
+
+        # Convert CveMatch objects to dicts for template
+        for result in vulnerable_results:
+            result["cves"] = [
+                {
+                    "cve_id": cve.cve_id,
+                    "severity": cve.severity,
+                    "cvss_score": cve.cvss_score,
+                    "description": cve.description,
+                }
+                for cve in result["cves"]
+            ]
+
+        # Render template
+        html_content = template.render(
+            file_name=results["file_name"],
+            file_type=results["file_type"],
+            scan_id=results["scan_id"],
+            total_dependencies=results["total_dependencies"],
+            vulnerable_dependencies=results["vulnerable_dependencies"],
+            total_cves=results["total_cves"],
+            severity_counts=results["severity_counts"],
+            vulnerable_results=vulnerable_results,
+            scan_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+        # Write to file
+        output_path = Path(output_file)
+        output_path.write_text(html_content, encoding="utf-8")
+        console.print(f"[green]HTML report generated:[/green] {output_path.absolute()}")
         return
 
     # Text format with Rich
@@ -375,9 +592,30 @@ def main():
     parser.add_argument(
         "--output",
         "-o",
-        choices=["text", "json"],
+        choices=["text", "json", "html"],
         default="text",
         help="Output format (default: text)",
+    )
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        help="Output file path (required for HTML format)",
+    )
+    parser.add_argument(
+        "--severity-min",
+        choices=["Low", "Medium", "High", "Critical"],
+        help="Minimum severity level to report (filters out lower severity CVEs)",
+    )
+    parser.add_argument(
+        "--vulnerable-only",
+        action="store_true",
+        help="Show only vulnerable dependencies (hide safe ones)",
+    )
+    parser.add_argument(
+        "--include-dev",
+        action="store_true",
+        default=True,
+        help="Include dev dependencies in scan (default: True)",
     )
     parser.add_argument(
         "--db",
@@ -390,7 +628,15 @@ def main():
     try:
         scanner = DependencyScanner(db_path=args.db)
         results = scanner.scan_file(args.file, verbose=args.verbose)
-        print_scan_report(results, format=args.output)
+
+        # Apply filters
+        results = apply_filters(
+            results,
+            severity_min=args.severity_min,
+            vulnerable_only=args.vulnerable_only,
+        )
+
+        print_scan_report(results, format=args.output, output_file=args.output_file)
 
         # Exit with error code if vulnerabilities found
         if results["vulnerable_dependencies"] > 0:

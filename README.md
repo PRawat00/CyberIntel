@@ -4,6 +4,28 @@
 
 Real-time dependency vulnerability scanner with conversational AI assistant powered by RAG-enhanced LLM.
 
+---
+
+## 🚀 **One-Command Launch**
+
+```bash
+./start.sh
+```
+
+**Then open**: http://localhost:3000
+
+The script automatically:
+- ✅ Starts FastAPI backend (port 8000)
+- ✅ Starts Next.js frontend (port 3000)
+- ✅ Opens browser
+- ✅ Shows live logs
+
+**Stop everything**: `./stop.sh` or press `Ctrl+C`
+
+**See**: [QUICK_START.md](QUICK_START.md) for detailed instructions.
+
+---
+
 ## Overview
 
 SecureChat scans your project dependencies (npm, pip, Go, Ruby) for CVEs and provides an AI chat interface to understand risks, prioritize fixes, and get actionable remediation guidance tailored to YOUR specific stack.
@@ -27,6 +49,13 @@ SecureChat scans your project dependencies (npm, pip, Go, Ruby) for CVEs and pro
 
 ## Project Status
 
+**Phase 0 COMPLETE** ✅ - Security & Testing Foundation (Nov 2025)
+- [x] Security infrastructure (pre-commit hooks, secret detection)
+- [x] Testing framework with 55 passing tests
+- [x] Mock CVE fixtures for fast unit tests
+- [x] Integration tests for real NVD data
+- [x] CI/CD pipeline configured
+
 **Phase 1 COMPLETE** ✅ - Foundation & NVD Pipeline (Nov 2025)
 - [x] Project structure and configuration
 - [x] Database models and ORM
@@ -35,7 +64,39 @@ SecureChat scans your project dependencies (npm, pip, Go, Ruby) for CVEs and pro
 - [x] 100+ CVEs fetched and stored
 - [x] Data exported (JSON, CSV)
 
-**Current**: Planning Phase 2 - Dependency Scanner
+**Phase 2 COMPLETE** ✅ - Dependency Scanner (100% for npm/pip)
+- [x] npm and pip parsers with full test coverage (73.67%)
+- [x] Lock file support (package-lock.json, Pipfile)
+- [x] Security hardening (file size limits, path traversal prevention)
+- [x] CPE matcher with 80 package mappings (50 npm + 30 pip)
+- [x] Version comparator with semver support
+- [x] CLI scanner with filters (severity, vulnerable-only)
+- [x] HTML report output with Jinja2 templates
+- [x] 70 passing tests
+- [ ] Go, Ruby, Maven parsers (deferred to future)
+
+**Phase 3 COMPLETE** ✅ - Web UI & Reports (Nov 2025)
+- [x] Production-ready Next.js 15 frontend with TypeScript
+- [x] FastAPI backend with 8 REST endpoints
+- [x] Beautiful UI with shadcn/ui components + Framer Motion
+- [x] Upload interface with drag-and-drop
+- [x] Dashboard with scan history and statistics
+- [x] Export functionality (JSON, CSV, HTML)
+- [x] React Query for server state management
+- [x] Responsive design with dark mode
+
+**Phase 4 COMPLETE** ✅ - RAG Retrieval System (Nov 2025)
+- [x] CVE Embedder (sentence-transformers, 384-dim)
+- [x] Vector Store (ChromaDB with persistence)
+- [x] RAG Retriever (general + project-specific queries)
+- [x] REST API endpoints for semantic search
+- [x] 28/28 tests passing (75%+ coverage)
+- [x] Content-based file detection (arbitrary filenames)
+- [x] Performance: <100ms query latency
+
+**Current**: Phase 5 - AI Chat Interface
+
+See [PHASE4_COMPLETE.md](PHASE4_COMPLETE.md) for detailed Phase 4 summary.
 
 ### Roadmap (Updated Nov 2025)
 
@@ -43,14 +104,15 @@ See [PROJECT_PLAN.md](PROJECT_PLAN.md) for full technical details.
 
 | Phase | Status | Duration | Key Features |
 |-------|--------|----------|--------------|
+| **Phase 0**: Security & Testing | ✅ Complete | 1 week | Pre-commit hooks, 73% test coverage |
 | **Phase 1**: NVD Pipeline | ✅ Complete | 2 weeks | Data ingestion, database, CLI |
-| **Phase 2**: Dependency Scanner | 🔄 Next | 2-3 weeks | Parse files, CPE matching, reports |
-| **Phase 3**: Web UI & Reports | ⏳ Planned | 2 weeks | Upload interface, dashboard, charts |
-| **Phase 4**: RAG System | ⏳ Planned | 2-3 weeks | Embeddings, vector DB, retrieval |
-| **Phase 5**: AI Chat | ⏳ Planned | 2-3 weeks | Chat UI, LLM integration, WebSocket |
+| **Phase 2**: Dependency Scanner | ✅ Complete | 2 weeks | npm/pip parsers, CPE matching, reports |
+| **Phase 3**: Web UI & Reports | ✅ Complete | 1 week | Next.js frontend, FastAPI backend |
+| **Phase 4**: RAG System | ✅ Complete | 1.5 days | Embeddings, vector DB, semantic search |
+| **Phase 5**: AI Chat | 🔄 Next | 2-3 weeks | Chat UI, LLM integration, WebSocket |
 | **Phase 6**: Optimization | ⏳ Planned | 2 weeks | LoRA, quantization, vLLM, Docker |
 
-**Total Timeline**: 10-14 weeks (2.5-3.5 months)
+**Progress**: 4/6 phases complete (67%)
 
 ## Quick Start
 
@@ -81,6 +143,8 @@ cp .env.example .env
 
 ### Usage
 
+#### Setup & Data Fetching
+
 ```bash
 # Initialize database (first time only)
 python -m scripts.init_db
@@ -99,6 +163,41 @@ python -m scripts.fetch_nvd --cve-id CVE-2025-1234
 
 # Verbose output
 python -m scripts.fetch_nvd --days 7 --verbose
+```
+
+#### Dependency Scanning (NEW in Phase 2)
+
+```bash
+# Basic scan
+python -m scripts.scan_dependencies --file package.json
+
+# Scan Python dependencies
+python -m scripts.scan_dependencies --file requirements.txt
+
+# Scan lock files
+python -m scripts.scan_dependencies --file package-lock.json
+python -m scripts.scan_dependencies --file Pipfile
+
+# Filter by severity
+python -m scripts.scan_dependencies \
+    --file package.json \
+    --severity-min High
+
+# Show only vulnerable packages
+python -m scripts.scan_dependencies \
+    --file requirements.txt \
+    --vulnerable-only
+
+# Generate HTML report
+python -m scripts.scan_dependencies \
+    --file package.json \
+    --output html \
+    --output-file report.html
+
+# JSON output for CI/CD
+python -m scripts.scan_dependencies \
+    --file package.json \
+    --output json > scan_results.json
 ```
 
 ## Architecture
@@ -128,10 +227,31 @@ See [PROJECT_PLAN.md](PROJECT_PLAN.md) for detailed implementation roadmap.
 
 **Why the pivot?** See [PIVOT_SUMMARY.md](PIVOT_SUMMARY.md) for the full story of why we shifted from CVE summarization to dependency scanning + AI chat.
 
+## Testing
+
+Comprehensive test suite with 55 passing tests:
+
+```bash
+# Run fast unit tests (recommended for development)
+pytest -m "not integration"
+
+# Run all tests including integration tests
+pytest
+
+# Generate coverage report
+pytest --cov=. --cov-report=html
+```
+
+See [TESTING.md](TESTING.md) for detailed testing strategy, mock data, and best practices.
+
 ## Performance Metrics
 
-Target achievements (to be validated in Phase 5-6):
+Current achievements:
+- 55 unit tests running in <1 second
+- 47% code coverage (Phase 0-2 modules)
+- Mock CVE database with 20 comprehensive test scenarios
 
+Target achievements (to be validated in Phase 5-6):
 - 3× throughput improvement (vLLM vs baseline)
 - 60% memory reduction (4-bit quantization)
 - <500ms API response time

@@ -1,0 +1,334 @@
+"""CVE Vector Store - ChromaDB wrapper for semantic search."""
+
+import logging
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import chromadb
+import numpy as np
+from chromadb.config import Settings
+
+logger = logging.getLogger(__name__)
+
+
+class CVEVectorStore:
+    """Vector store for CVE embeddings using ChromaDB.
+
+    Stores CVE embeddings with rich metadata for filtering:
+    - cve_id, severity, cvss_score
+    - vendor, product
+    - published_date
+    - description (for reference)
+
+    Supports:
+    - Semantic search with cosine similarity
+    - Metadata filtering (severity, date range, vendor)
+    - Hybrid search (semantic + filters)
+    """
+
+    def __init__(self, persist_directory: str = "data/chromadb", collection_name: str = "cves"):
+        """Initialize ChromaDB vector store.
+
+        Args:
+            persist_directory: Directory to store ChromaDB data
+            collection_name: Name of the collection (default: "cves")
+        """
+        self.persist_directory = Path(persist_directory)
+        self.collection_name = collection_name
+
+        # Create directory if it doesn't exist
+        self.persist_directory.mkdir(parents=True, exist_ok=True)
+
+        logger.info(f"Initializing ChromaDB at {self.persist_directory}")
+
+        try:
+            # Initialize ChromaDB client with persistence
+            self.client = chromadb.PersistentClient(
+                path=str(self.persist_directory),
+                settings=Settings(anonymized_telemetry=False, allow_reset=True),
+            )
+
+            # Get or create collection
+            self.collection = self.client.get_or_create_collection(
+                name=collection_name, metadata={"hnsw:space": "cosine"}  # Use cosine similarity
+            )
+
+            count = self.collection.count()
+            logger.info(f"Collection '{collection_name}' initialized with {count} documents")
+
+        except Exception as e:
+            logger.error(f"Failed to initialize ChromaDB: {e}")
+            raise
+
+    def add_cve(
+        self,
+        cve_id: str,
+        embedding: np.ndarray,
+        description: str,
+        severity: str = "UNKNOWN",
+        cvss_score: float = 0.0,
+        vendor: str = "",
+        product: str = "",
+        published_date: datetime | None = None,
+        additional_metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Add a single CVE to the vector store.
+
+        Args:
+            cve_id: CVE identifier (e.g., "CVE-2024-1234")
+            embedding: Embedding vector (numpy array)
+            description: CVE description text
+            severity: Severity level (Critical, High, Medium, Low, None)
+            cvss_score: CVSS score (0.0-10.0)
+            vendor: Vendor name
+            product: Product name
+            published_date: Publication date
+            additional_metadata: Any additional metadata to store
+        """
+        metadata = {
+            "cve_id": cve_id,
+            "severity": severity.upper(),
+            "cvss_score": float(cvss_score),
+            "vendor": vendor or "unknown",
+            "product": product or "unknown",
+            "published_date": published_date.isoformat() if published_date else "",
+        }
+
+        # Add additional metadata if provided
+        if additional_metadata:
+            metadata.update(additional_metadata)
+
+        try:
+            self.collection.add(
+                ids=[cve_id],
+                embeddings=[embedding.tolist()],
+                documents=[description],
+                metadatas=[metadata],
+            )
+            logger.debug(f"Added CVE {cve_id} to vector store")
+
+        except Exception as e:
+            logger.error(f"Failed to add CVE {cve_id}: {e}")
+            raise
+
+    def add_cves_batch(
+        self,
+        cve_ids: list[str],
+        embeddings: np.ndarray,
+        descriptions: list[str],
+        severities: list[str],
+        cvss_scores: list[float],
+        vendors: list[str],
+        products: list[str],
+        published_dates: list[datetime | None],
+        batch_size: int = 100,
+    ) -> int:
+        """Add multiple CVEs in batches for better performance.
+
+        Args:
+            cve_ids: List of CVE identifiers
+            embeddings: Array of embeddings (shape: n x embedding_dim)
+            descriptions: List of descriptions
+            severities: List of severity levels
+            cvss_scores: List of CVSS scores
+            vendors: List of vendor names
+            products: List of product names
+            published_dates: List of publication dates
+            batch_size: Batch size for adding (default: 100)
+
+        Returns:
+            Number of CVEs successfully added
+        """
+        total = len(cve_ids)
+        added = 0
+
+        for i in range(0, total, batch_size):
+            batch_end = min(i + batch_size, total)
+
+            batch_ids = cve_ids[i:batch_end]
+            batch_embeddings = embeddings[i:batch_end].tolist()
+            batch_descriptions = descriptions[i:batch_end]
+
+            # Prepare metadata for batch
+            batch_metadata = []
+            for j in range(len(batch_ids)):
+                metadata = {
+                    "cve_id": batch_ids[j],
+                    "severity": severities[i + j].upper() if i + j < len(severities) else "UNKNOWN",
+                    "cvss_score": float(cvss_scores[i + j]) if i + j < len(cvss_scores) else 0.0,
+                    "vendor": vendors[i + j] if i + j < len(vendors) else "unknown",
+                    "product": products[i + j] if i + j < len(products) else "unknown",
+                    "published_date": (
+                        published_dates[i + j].isoformat()
+                        if i + j < len(published_dates) and published_dates[i + j]
+                        else ""
+                    ),
+                }
+                batch_metadata.append(metadata)
+
+            try:
+                self.collection.add(
+                    ids=batch_ids,
+                    embeddings=batch_embeddings,
+                    documents=batch_descriptions,
+                    metadatas=batch_metadata,
+                )
+                added += len(batch_ids)
+                logger.info(f"Added batch {i // batch_size + 1}: {added}/{total} CVEs")
+
+            except Exception as e:
+                logger.error(f"Failed to add batch starting at index {i}: {e}")
+                # Continue with next batch
+
+        return added
+
+    def search(
+        self,
+        query_embedding: np.ndarray,
+        top_k: int = 10,
+        severity_filter: list[str] | None = None,
+        min_cvss: float | None = None,
+        vendor_filter: str | None = None,
+        product_filter: str | None = None,
+        date_start: str | None = None,
+        date_end: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Search for similar CVEs with optional filters.
+
+        Args:
+            query_embedding: Query embedding vector
+            top_k: Number of results to return
+            severity_filter: List of severities to include (e.g., ["CRITICAL", "HIGH"])
+            min_cvss: Minimum CVSS score
+            vendor_filter: Filter by vendor name (partial match)
+            product_filter: Filter by product name (partial match)
+            date_start: Start date (ISO format)
+            date_end: End date (ISO format)
+
+        Returns:
+            List of search results with metadata and relevance scores
+        """
+        # Build where clause for filters
+        where = {}
+
+        if severity_filter:
+            where["severity"] = {"$in": [s.upper() for s in severity_filter]}
+
+        if min_cvss is not None:
+            where["cvss_score"] = {"$gte": min_cvss}
+
+        if vendor_filter:
+            where["vendor"] = {"$contains": vendor_filter.lower()}
+
+        if product_filter:
+            where["product"] = {"$contains": product_filter.lower()}
+
+        # Date filtering (ChromaDB metadata filters)
+        if date_start:
+            where["published_date"] = {"$gte": date_start}
+
+        if date_end:
+            if "published_date" in where:
+                # Combine with existing filter
+                where["published_date"]["$lte"] = date_end
+            else:
+                where["published_date"] = {"$lte": date_end}
+
+        try:
+            results = self.collection.query(
+                query_embeddings=[query_embedding.tolist()],
+                n_results=top_k,
+                where=where if where else None,
+                include=["documents", "metadatas", "distances"],
+            )
+
+            # Format results
+            formatted_results = []
+            if results and results["ids"] and results["ids"][0]:
+                for i, cve_id in enumerate(results["ids"][0]):
+                    formatted_results.append(
+                        {
+                            "cve_id": cve_id,
+                            "description": results["documents"][0][i],
+                            "metadata": results["metadatas"][0][i],
+                            "relevance_score": 1.0
+                            - results["distances"][0][i],  # Convert distance to similarity
+                        }
+                    )
+
+            logger.info(f"Search returned {len(formatted_results)} results")
+            return formatted_results
+
+        except Exception as e:
+            logger.error(f"Search failed: {e}")
+            raise
+
+    def get_cve(self, cve_id: str) -> dict[str, Any] | None:
+        """Retrieve a specific CVE by ID.
+
+        Args:
+            cve_id: CVE identifier
+
+        Returns:
+            CVE data with metadata, or None if not found
+        """
+        try:
+            result = self.collection.get(
+                ids=[cve_id], include=["documents", "metadatas", "embeddings"]
+            )
+
+            if result and result["ids"]:
+                return {
+                    "cve_id": result["ids"][0],
+                    "description": result["documents"][0],
+                    "metadata": result["metadatas"][0],
+                    "embedding": np.array(result["embeddings"][0]),
+                }
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Failed to get CVE {cve_id}: {e}")
+            return None
+
+    def delete_cve(self, cve_id: str) -> bool:
+        """Delete a CVE from the vector store.
+
+        Args:
+            cve_id: CVE identifier
+
+        Returns:
+            True if deleted successfully, False otherwise
+        """
+        try:
+            self.collection.delete(ids=[cve_id])
+            logger.info(f"Deleted CVE {cve_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to delete CVE {cve_id}: {e}")
+            return False
+
+    def count(self) -> int:
+        """Get total number of CVEs in the vector store.
+
+        Returns:
+            Count of CVEs
+        """
+        return self.collection.count()
+
+    def reset(self) -> None:
+        """Delete all CVEs from the vector store.
+
+        WARNING: This is irreversible!
+        """
+        logger.warning(f"Resetting collection '{self.collection_name}'")
+        self.client.delete_collection(self.collection_name)
+        self.collection = self.client.create_collection(
+            name=self.collection_name, metadata={"hnsw:space": "cosine"}
+        )
+        logger.info("Collection reset complete")
+
+    def __repr__(self) -> str:
+        count = self.count()
+        return f"CVEVectorStore(collection='{self.collection_name}', count={count})"

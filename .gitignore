@@ -44,6 +44,12 @@ secrets.toml
 .streamlit/secrets.toml
 !.streamlit/secrets.toml.example
 
+# Credentials files
+.credentials
+.credentials.backup
+credentials.*
+!.credentials.example
+
 # Database
 *.db
 *.sqlite
@@ -88,3 +94,14 @@ chroma_data/
 tmp/
 temp/
 *.tmp
+creds.txt
+
+# Data exports and analysis scripts
+cve_export.*
+analyze_*.py
+test_auth.py
+=*
+
+# Documentation (internal dev notes)
+documentation/
+data/

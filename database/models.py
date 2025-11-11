@@ -29,7 +29,7 @@ class CVE(Base):
     # Core CVE information
     description = Column(Text, nullable=False)
     published_date = Column(DateTime, nullable=False, index=True)
-    last_modified = Column(DateTime, nullable=False)
+    last_modified = Column(DateTime, nullable=False, index=True)  # Index for update detection
 
     # Severity and scoring
     severity = Column(String(20), index=True)  # Critical, High, Medium, Low, None
@@ -112,6 +112,9 @@ class Scan(Base):
     # Primary key
     id = Column(Integer, primary_key=True, autoincrement=True)
 
+    # User ownership (for multi-tenant support)
+    user_id = Column(String(36), nullable=True, index=True)  # UUID from Supabase auth
+
     # Scan metadata
     file_name = Column(String(255), nullable=False)  # e.g., package.json
     file_type = Column(String(50), nullable=False)  # npm, pip, go, ruby, maven
@@ -145,6 +148,7 @@ class Scan(Base):
         """Convert Scan object to dictionary."""
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "file_name": self.file_name,
             "file_type": self.file_type,
             "file_hash": self.file_hash,
@@ -220,4 +224,143 @@ class Dependency(Base):
             "package_metadata": self.package_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class ChatSession(Base):
+    """Model for storing chat sessions (Phase 5)."""
+
+    __tablename__ = "chat_sessions"
+
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # User ownership (for multi-tenant support)
+    user_id = Column(String(36), nullable=True, index=True)  # UUID from Supabase auth
+
+    # Foreign key to scan (optional - can have general chats)
+    scan_id = Column(Integer, ForeignKey("scans.id"), nullable=True, index=True)
+
+    # Session metadata
+    title = Column(String(255), nullable=True)  # Optional session title
+    session_type = Column(String(20), nullable=False, default="project")  # project or general
+
+    # Dependency context (Phase 5 enhancement)
+    selected_dependency_ids = Column(JSON, nullable=True)  # List of dependency IDs for focused chat
+    context_injected = Column(
+        Integer, nullable=False, default=0
+    )  # Boolean: has full context been injected (0=no, 1=yes)
+
+    # Smart context tracking (Phase 6 enhancement - conditional injection)
+    dependency_context_hash = Column(
+        String(64), nullable=True
+    )  # SHA256 hash of selected_dependency_ids for change detection
+    last_context_used_at = Column(
+        DateTime, nullable=True
+    )  # When dependency context was last injected
+    context_usage_count = Column(
+        Integer, nullable=False, default=0
+    )  # How many times context has been injected
+
+    # Unified chat architecture (Phase 6 - unified chat)
+    context_stack = Column(
+        Text, nullable=True
+    )  # JSON: Stack of ChatContext objects for rollback support
+    enabled_features = Column(
+        Text, nullable=True
+    )  # JSON: Set of enabled feature flags for this session
+
+    # Timestamps
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    last_message_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    # Relationships
+    scan = relationship("Scan", backref="chat_sessions")
+    messages = relationship(
+        "ChatMessage",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="ChatMessage.created_at",
+    )
+
+    def __repr__(self) -> str:
+        return f"<ChatSession(id={self.id}, type='{self.session_type}', scan_id={self.scan_id})>"
+
+    def to_dict(self) -> dict:
+        """Convert ChatSession object to dictionary."""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "scan_id": self.scan_id,
+            "title": self.title,
+            "session_type": self.session_type,
+            "selected_dependency_ids": self.selected_dependency_ids,
+            "context_injected": bool(self.context_injected),
+            "dependency_context_hash": self.dependency_context_hash,
+            "last_context_used_at": (
+                self.last_context_used_at.isoformat() if self.last_context_used_at else None
+            ),
+            "context_usage_count": self.context_usage_count,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_message_at": self.last_message_at.isoformat() if self.last_message_at else None,
+            "message_count": len(self.messages) if self.messages else 0,
+        }
+
+
+class ChatMessage(Base):
+    """Model for storing individual chat messages (Phase 5)."""
+
+    __tablename__ = "chat_messages"
+
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # Foreign key to session
+    session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=False, index=True)
+
+    # Message content
+    role = Column(String(20), nullable=False)  # 'user' or 'assistant'
+    content = Column(Text, nullable=False)
+
+    # Context used for this message (for debugging/audit)
+    context_cves = Column(JSON, nullable=True)  # List of CVE IDs used in context
+    rag_query = Column(Text, nullable=True)  # Original query sent to RAG
+
+    # Smart context tracking (Phase 6 enhancement - conditional injection)
+    context_injected = Column(
+        Integer, nullable=False, default=0
+    )  # Boolean: was dependency context injected for this message (0=no, 1=yes)
+    context_dependency_count = Column(
+        Integer, nullable=True
+    )  # How many dependencies were in context
+
+    # Token usage tracking
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
+
+    # Timestamp
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    # Relationships
+    session = relationship("ChatSession", back_populates="messages")
+
+    def __repr__(self) -> str:
+        preview = self.content[:50] + "..." if len(self.content) > 50 else self.content
+        return f"<ChatMessage(id={self.id}, role='{self.role}', content='{preview}')>"
+
+    def to_dict(self) -> dict:
+        """Convert ChatMessage object to dictionary."""
+        return {
+            "id": self.id,
+            "session_id": self.session_id,
+            "role": self.role,
+            "content": self.content,
+            "context_cves": self.context_cves,
+            "context_injected": bool(self.context_injected),
+            "context_dependency_count": self.context_dependency_count,
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }

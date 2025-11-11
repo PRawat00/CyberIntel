@@ -64,6 +64,62 @@ class TestNpmParser:
         with pytest.raises(FileNotFoundError):
             parser.parse_file(Path("/nonexistent/package.json"))
 
+    def test_parse_package_lock_json(self, temp_dir):
+        """Test parsing a package-lock.json file."""
+        parser = NpmParser()
+
+        # Create a simple package-lock.json
+        lock_file = temp_dir / "package-lock.json"
+        lock_content = """
+{
+  "name": "test-app",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "packages": {
+    "": {
+      "name": "test-app",
+      "dependencies": {
+        "lodash": "^4.17.21"
+      }
+    },
+    "node_modules/lodash": {
+      "version": "4.17.21",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
+    },
+    "node_modules/axios": {
+      "version": "0.27.2",
+      "dev": true
+    }
+  }
+}
+"""
+        lock_file.write_text(lock_content)
+
+        dependencies = parser.parse_file(lock_file)
+
+        assert len(dependencies) == 2
+        assert any(
+            dep.package_name == "lodash" and dep.version == "4.17.21" for dep in dependencies
+        )
+        assert any(dep.package_name == "axios" and dep.is_dev_dependency for dep in dependencies)
+
+        # Check that metadata indicates it's from lock file
+        lodash_dep = next(d for d in dependencies if d.package_name == "lodash")
+        assert lodash_dep.metadata["from_lock_file"] is True
+        assert lodash_dep.version_constraint == "=4.17.21"  # Exact version
+
+    def test_parse_legacy_package_lock_unsupported(self, temp_dir):
+        """Test that legacy lockfileVersion 1 is rejected."""
+        parser = NpmParser()
+
+        lock_file = temp_dir / "package-lock.json"
+        lock_content = '{"name": "test", "lockfileVersion": 1, "dependencies": {}}'
+        lock_file.write_text(lock_content)
+
+        with pytest.raises(ValueError, match="Unsupported lockfileVersion"):
+            parser.parse_file(lock_file)
+
 
 class TestPipParser:
     """Tests for PipParser."""
@@ -114,7 +170,77 @@ django==3.1.0
 
 flask>=1.1.0  # inline comment
 """
-        dependencies = parser.parse_content(content)
+        parser.parse_content(content)  # Result intentionally unused in this test
+
+    def test_parse_pipfile(self, temp_dir):
+        """Test parsing a Pipfile (TOML format)."""
+        parser = PipParser()
+
+        # Create a Pipfile
+        pipfile = temp_dir / "Pipfile"
+        pipfile_content = """
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2.0"
+requests = ">=2.25.0"
+flask = {version = "~=2.0.0"}
+
+[dev-packages]
+pytest = ">=7.0.0"
+black = "*"
+
+[requires]
+python_version = "3.9"
+"""
+        pipfile.write_text(pipfile_content)
+
+        dependencies = parser.parse_file(pipfile)
+
+        # Should get 4 dependencies (black with * is skipped)
+        assert len(dependencies) == 4
+
+        # Check exact version
+        django = next((d for d in dependencies if d.package_name == "django"), None)
+        assert django is not None
+        assert django.version == "3.2.0"
+        assert django.version_constraint == "==3.2.0"
+        assert django.is_dev_dependency is False
+        assert django.metadata["from_pipfile"] is True
+
+        # Check dev dependency
+        pytest_dep = next((d for d in dependencies if d.package_name == "pytest"), None)
+        assert pytest_dep is not None
+        assert pytest_dep.is_dev_dependency is True
+
+        # Check dict format with extras
+        flask = next((d for d in dependencies if d.package_name == "flask"), None)
+        assert flask is not None
+        assert flask.version == "2.0.0"
+
+    def test_pipfile_dict_format(self, temp_dir):
+        """Test Pipfile with dictionary-style package specifications."""
+        parser = PipParser()
+
+        pipfile = temp_dir / "Pipfile"
+        pipfile_content = """
+[packages]
+flask = {version = "==2.0.0", extras = ["security"]}
+requests = ">=2.25.0"
+"""
+        pipfile.write_text(pipfile_content)
+
+        dependencies = parser.parse_file(pipfile)
+
+        assert len(dependencies) == 2
+
+        # Check dictionary format with extras
+        flask = next(d for d in dependencies if d.package_name == "flask")
+        assert flask.version == "2.0.0"
+        assert flask.metadata["extras"] == ["security"]
         assert len(dependencies) == 2
 
 

@@ -1,7 +1,17 @@
 """Parser for pip requirements files and Python dependencies."""
 
 import re
+import sys
 from pathlib import Path
+
+# Python 3.11+ has built-in tomllib, earlier versions need tomli
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    try:
+        import tomli as tomllib
+    except ImportError:
+        tomllib = None
 
 from parsers.base_parser import BaseParser, ParsedDependency
 
@@ -23,27 +33,127 @@ class PipParser(BaseParser):
             "Pipfile",
         ]
 
-    def supports_file(self, file_name: str) -> bool:
+    def supports_file(self, file_name: str, content: str = None) -> bool:
         """Check if this parser supports the given file.
+
+        Uses intelligent detection: checks filename, extension, and content structure.
+        This allows users to upload files with ANY name (e.g., "prod-deps.txt").
 
         Args:
             file_name: Name of the file
+            content: Optional file content for structure validation
 
         Returns:
-            True if file is a supported Python dependency file
+            True if file is pip-compatible (requirements.txt or Pipfile structure)
         """
         file_name_lower = file_name.lower()
-        return (
-            file_name_lower in self.supported_files
-            or file_name_lower.startswith("requirements")
-            and file_name_lower.endswith(".txt")
-        )
 
-    def parse_file(self, file_path: Path) -> list[ParsedDependency]:
-        """Parse a pip requirements file and extract dependencies.
+        # Strategy 1: Check standard filenames (backwards compatibility)
+        if file_name_lower in self.supported_files:
+            return True
+
+        # Strategy 2: Check filename patterns
+        if file_name_lower.startswith("requirements") and file_name_lower.endswith(".txt"):
+            return True
+
+        # Strategy 3: Check .txt extension and validate content
+        if file_name_lower.endswith(".txt"):
+            # Plain text files - validate content if provided
+            if content is not None:
+                return self._is_pip_requirements_structure(content)
+            # Without content, optimistically assume it's pip
+            return True
+
+        # Strategy 4: Check for Pipfile (TOML)
+        if file_name_lower.endswith(".toml") or "pipfile" in file_name_lower:
+            if content is not None:
+                return self._is_pipfile_structure(content)
+            return True
+
+        return False
+
+    def _is_pip_requirements_structure(self, content: str) -> bool:
+        """Detect if text content is pip requirements format.
+
+        Looks for pip requirement patterns:
+        - package==1.2.3
+        - package>=1.2.3
+        - git+https://...
+        - Comments with #
 
         Args:
-            file_path: Path to requirements file
+            content: File content as string
+
+        Returns:
+            True if content looks like pip requirements
+        """
+        if not isinstance(content, str):
+            return False
+
+        lines = content.strip().split("\n")
+
+        # Count lines that look like pip requirements
+        valid_patterns = 0
+        total_non_empty = 0
+
+        for line in lines:
+            # Remove comments
+            if "#" in line:
+                line = line[: line.index("#")]
+            line = line.strip()
+
+            # Skip empty lines and pip options
+            if not line or line.startswith("-"):
+                continue
+
+            total_non_empty += 1
+
+            # Check for pip requirement patterns
+            if any(
+                [
+                    "==" in line,
+                    ">=" in line,
+                    "<=" in line,
+                    "~=" in line,
+                    "!=" in line,
+                    line.startswith("git+"),
+                    line.startswith("http"),
+                    # Simple package name (letters, numbers, hyphens, underscores)
+                    re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$", line),
+                ]
+            ):
+                valid_patterns += 1
+
+        # If >50% of non-empty lines look like pip requirements, accept it
+        if total_non_empty == 0:
+            return False
+
+        return (valid_patterns / total_non_empty) >= 0.5
+
+    def _is_pipfile_structure(self, content: str) -> bool:
+        """Detect if content is Pipfile TOML format.
+
+        Args:
+            content: File content as string
+
+        Returns:
+            True if content looks like a Pipfile
+        """
+        if not isinstance(content, str):
+            return False
+
+        # Check for TOML-like structure and Pipfile-specific sections
+        has_packages = "[packages]" in content or "[[source]]" in content
+        has_dev_packages = "[dev-packages]" in content
+        has_toml_syntax = "=" in content and ("[" in content or "[[" in content)
+
+        return has_packages or has_dev_packages or has_toml_syntax
+
+    def parse_file(self, file_path: Path) -> list[ParsedDependency]:
+        """Parse a pip requirements file or Pipfile and extract dependencies.
+
+        Args:
+            file_path: Path to requirements file or Pipfile
 
         Returns:
             List of ParsedDependency objects
@@ -52,6 +162,10 @@ class PipParser(BaseParser):
             FileNotFoundError: If file doesn't exist
             ValueError: If file format is invalid
         """
+        # Detect if this is a Pipfile
+        if file_path.name.lower() == "pipfile":
+            return self.parse_pipfile(file_path)
+
         content = self.read_file_content(file_path)
         is_dev = self._is_dev_file(file_path.name)
         return self.parse_content(content, is_dev=is_dev)
@@ -254,6 +368,122 @@ class PipParser(BaseParser):
         file_name_lower = file_name.lower()
         dev_indicators = ["dev", "test", "testing"]
         return any(indicator in file_name_lower for indicator in dev_indicators)
+
+    def parse_pipfile(self, file_path: Path) -> list[ParsedDependency]:
+        """Parse a Pipfile (TOML format) and extract dependencies.
+
+        Pipfile is used by Pipenv and contains both regular and dev dependencies.
+
+        Args:
+            file_path: Path to Pipfile
+
+        Returns:
+            List of ParsedDependency objects
+
+        Raises:
+            ValueError: If TOML parsing fails or tomllib is not available
+        """
+        if tomllib is None:
+            raise ValueError(
+                "TOML parsing not available. Install 'tomli' for Python <3.11 or upgrade to Python 3.11+"
+            )
+
+        try:
+            with open(file_path, "rb") as f:
+                data = tomllib.load(f)
+        except Exception as e:
+            raise ValueError(f"Failed to parse Pipfile: {e}") from e
+
+        dependencies = []
+
+        # Parse production packages
+        packages = data.get("packages", {})
+        for package_name, version_spec in packages.items():
+            dep = self._parse_pipfile_package(package_name, version_spec, is_dev=False)
+            if dep:
+                dependencies.append(dep)
+
+        # Parse dev packages
+        dev_packages = data.get("dev-packages", {})
+        for package_name, version_spec in dev_packages.items():
+            dep = self._parse_pipfile_package(package_name, version_spec, is_dev=True)
+            if dep:
+                dependencies.append(dep)
+
+        return dependencies
+
+    def _parse_pipfile_package(
+        self, package_name: str, version_spec: str | dict, is_dev: bool = False
+    ) -> ParsedDependency | None:
+        """Parse a package entry from Pipfile.
+
+        Pipfile packages can be specified as:
+        - Simple string: "==1.2.3" or ">=1.2.3"
+        - Dictionary: {version = "==1.2.3", extras = ["security"]}
+        - Wildcard: "*" (any version)
+
+        Args:
+            package_name: Name of the package
+            version_spec: Version specification (string or dict)
+            is_dev: Whether this is a dev dependency
+
+        Returns:
+            ParsedDependency object or None if cannot be parsed
+        """
+        # Handle dictionary format
+        if isinstance(version_spec, dict):
+            version_str = version_spec.get("version", "*")
+            extras = version_spec.get("extras", [])
+        else:
+            version_str = str(version_spec)
+            extras = []
+
+        # Handle wildcard (any version)
+        if version_str == "*":
+            # Skip packages without specific versions
+            return None
+
+        # Parse version specification
+        # Pipfile uses pip-style operators: ==, >=, <=, ~=, etc.
+        version_pattern = r"^(==|>=|<=|>|<|~=|!=)?\s*(.+)$"
+        match = re.match(version_pattern, version_str)
+
+        if not match:
+            return None
+
+        operator = match.group(1) or "=="
+        version = match.group(2).strip()
+
+        # Resolve to concrete version
+        if operator == "==":
+            resolved_version = version
+            constraint = f"=={version}"
+        elif operator in [">=", "<=", ">", "<", "~=", "!="]:
+            resolved_version = version
+            constraint = f"{operator}{version}"
+        else:
+            resolved_version = version
+            constraint = f"=={version}"
+
+        metadata = {
+            "original_spec": version_str,
+            "operator": operator,
+            "extras": extras,
+            "dependency_type": "dev" if is_dev else "prod",
+            "from_pipfile": True,
+        }
+
+        try:
+            return ParsedDependency(
+                package_name=package_name,
+                version=resolved_version,
+                version_constraint=constraint,
+                ecosystem=self.ecosystem,
+                is_dev_dependency=is_dev,
+                metadata=metadata,
+            )
+        except ValueError:
+            return None
 
     def __repr__(self) -> str:
         return f"<PipParser(ecosystem='{self.ecosystem}')>"
