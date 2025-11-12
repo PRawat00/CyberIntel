@@ -33,6 +33,7 @@ export function ChatDialog({ scanId, open, onOpenChange }: ChatDialogProps) {
     role: "assistant"
     content: string
   } | null>(null)
+  const [wsUrl, setWsUrl] = useState<string | null>(null)
 
   // Get or create chat session (single persistent session)
   const { data: session, isLoading: sessionLoading } = useChatSession()
@@ -85,8 +86,17 @@ export function ChatDialog({ scanId, open, onOpenChange }: ChatDialogProps) {
     }
   }, [streamingMessage, session])
 
+  // Resolve WebSocket URL asynchronously when session changes
+  useEffect(() => {
+    if (session) {
+      chatApi.getWebSocketUrl(session.id).then(setWsUrl)
+    } else {
+      setWsUrl(null)
+    }
+  }, [session?.id])
+
   const { sendMessage, isConnected, isConnecting, error: wsError } = useWebSocket(
-    session ? chatApi.getWebSocketUrl(session.id) : null,
+    wsUrl,
     {
       onMessage: handleWebSocketMessage,
     }

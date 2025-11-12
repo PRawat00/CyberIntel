@@ -101,8 +101,16 @@ class DirectDependencyStrategy(RetrievalStrategy):
                         "ecosystem": dep.ecosystem,
                         "severity": dep.highest_severity,
                         "cve_count": len(dep.cves),
+                        "is_vulnerable": dep.is_vulnerable,
                     }
                     dependency_info.append(dep_info)
+
+                    # Log safe packages explicitly
+                    if len(dep.cves) == 0:
+                        logger.info(
+                            f"Package {dep.package_name}@{dep.version} ({dep.ecosystem}) "
+                            "is SAFE - no known vulnerabilities"
+                        )
 
                     # Extract CVEs
                     for cve in dep.cves:

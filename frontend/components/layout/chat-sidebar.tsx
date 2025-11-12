@@ -29,6 +29,7 @@ export function ChatSidebar() {
     content: string
   } | null>(null)
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false)
+  const [wsUrl, setWsUrl] = useState<string | null>(null)
 
   // Generate unique temporary IDs using timestamp + random (negative to distinguish from real database IDs)
   const getTempId = useCallback(() => {
@@ -144,9 +145,18 @@ export function ChatSidebar() {
     [session, queryClient, getTempId]
   )
 
+  // Resolve WebSocket URL asynchronously when session or isOpen changes
+  useEffect(() => {
+    if (session && isOpen) {
+      chatApi.getWebSocketUrl(session.id).then(setWsUrl)
+    } else {
+      setWsUrl(null)
+    }
+  }, [session?.id, isOpen])
+
   // WebSocket connection (only connect when sidebar is open)
   const { sendMessage, setContext, clearContext: clearWSContext, isConnected } = useWebSocket(
-    session && isOpen ? chatApi.getWebSocketUrl(session.id) : null,
+    wsUrl,
     {
       onMessage: handleWebSocketMessage,
       onError: () => {

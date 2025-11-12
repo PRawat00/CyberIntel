@@ -33,7 +33,7 @@ ALLOWED_EXTENSIONS = {".json", ".txt", ".lock", ".in", ".toml", ".mod", ".sum"}
 
 
 @router.post("/scans", response_model=ScanDetail, status_code=201)
-async def create_scan(file: UploadFile = File(...), user: User = RequireAuth):
+async def create_scan(user: User = RequireAuth, file: UploadFile = File(...)):
     """
     Upload and scan a dependency file.
 
@@ -41,8 +41,12 @@ async def create_scan(file: UploadFile = File(...), user: User = RequireAuth):
     Returns: Scan results with vulnerabilities
 
     Requires authentication.
+
+    Note: Parameter order matters! Auth dependencies must come before File/Form parameters
+    to avoid FastAPI route resolution issues with multipart/form-data.
     """
     # Validate file extension
+
     file_ext = Path(file.filename or "").suffix.lower()
     if file_ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
@@ -65,36 +69,82 @@ async def create_scan(file: UploadFile = File(...), user: User = RequireAuth):
 
     # Save to temporary file for processing
     # Use original filename so parsers can detect file type
+    tmp_dir = None
+    tmp_path = None
+
     try:
         tmp_dir = tempfile.mkdtemp()
         tmp_path = os.path.join(tmp_dir, file.filename)
         with open(tmp_path, "wb") as f:
             f.write(content)
 
-        # Initialize scanner and scan file
-        scanner = DependencyScanner()
-        result = scanner.scan_file(Path(tmp_path), user_id=user.id)
-        scan_id = result["scan_id"]
+        # Use the same database session for scanning and fetching results
+        with get_db_session() as session:
+            # Get the global database manager (uses same config as session)
+            from database.db import get_db_manager
 
-        # Clean up temp file and directory
-        os.unlink(tmp_path)
-        os.rmdir(tmp_dir)
+            db_manager = get_db_manager()
+
+            # Log which database we're using
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.info(f"Using database engine: {db_manager.engine.url}")
+
+            # Initialize scanner with the session factory from global manager
+            scanner = DependencyScanner(session_factory=db_manager.SessionLocal)
+
+            # Scan the file using the provided session
+            result = scanner.scan_file(Path(tmp_path), user_id=user.id, session=session)
+            scan_id = result["scan_id"]
+
+            logger.info(f"Scan completed successfully with scan_id: {scan_id}")
+
+            # Commit the transaction to ensure data is persisted
+            session.commit()
 
     except Exception as e:
+        # Log the error details for debugging
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Scan failed: {type(e).__name__}: {str(e)}", exc_info=True)
+
         # Clean up temp file and directory if they exist
-        if "tmp_path" in locals():
+        if tmp_path and os.path.exists(tmp_path):
             try:
                 os.unlink(tmp_path)
             except Exception:  # noqa: S110
                 pass
-        if "tmp_dir" in locals():
+        if tmp_dir and os.path.exists(tmp_dir):
             try:
                 os.rmdir(tmp_dir)
             except Exception:  # noqa: S110
                 pass
-        raise HTTPException(status_code=500, detail=f"Scan failed: {str(e)}")  # noqa: B904
 
-    # Fetch scan results from database
+        # Provide more specific error messages based on exception type
+        if "database" in str(e).lower() or "connection" in str(e).lower():
+            detail = f"Database error during scan: {str(e)}"
+        elif "permission" in str(e).lower():
+            detail = f"Permission error during scan: {str(e)}"
+        else:
+            detail = f"Scan failed: {str(e)}"
+
+        raise HTTPException(status_code=500, detail=detail)  # noqa: B904
+    finally:
+        # Always clean up temp files
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception:  # noqa: S110
+                pass
+        if tmp_dir and os.path.exists(tmp_dir):
+            try:
+                os.rmdir(tmp_dir)
+            except Exception:  # noqa: S110
+                pass
+
+    # Fetch scan results from database using the same session management
     with get_db_session() as session:
         scan = (
             session.query(Scan)

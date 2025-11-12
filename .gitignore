@@ -105,3 +105,22 @@ test_auth.py
 # Documentation (internal dev notes)
 documentation/
 data/
+
+# Migration SQL dumps (large generated files)
+migration.sql
+migrations/
+**/migration*.sql
+migrate_*.sql
+
+# Debug and test scripts
+auth_debug.py
+test_auth.sh
+*_debug.py
+
+# Import/migration temporary scripts
+scripts/import_to_supabase.py
+scripts/migrate_direct.py
+scripts/migrate_fast.py
+
+# Documents directory (contains sensitive info)
+documents/

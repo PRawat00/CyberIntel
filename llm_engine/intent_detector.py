@@ -238,6 +238,14 @@ class DependencyIntentDetector:
         matched_entities = []
         confidence_score = 0.0
 
+        # Check if all selected dependencies are safe (no CVEs)
+        safe_only = all(
+            not hasattr(dep, "cves") or not dep.cves or len(dep.cves) == 0
+            for dep in selected_dependencies
+        )
+        if safe_only:
+            signals.append("Safe packages selected (no CVEs)")
+
         # 1. Check for explicit package name mentions
         package_names = [dep.package_name.lower() for dep in selected_dependencies]
         for pkg_name in package_names:
@@ -292,6 +300,13 @@ class DependencyIntentDetector:
         if pronoun_count > 0:
             signals.append(f"Demonstrative pronouns: {pronoun_count}")
             confidence_score += 0.2
+
+        # 6.5. Boost confidence for safe package queries
+        # If safe packages are selected and user is asking about dependencies/packages,
+        # give a small boost to ensure proper routing
+        if safe_only and (dep_keyword_count > 0 or pronoun_count > 0):
+            signals.append("Safe package query boost")
+            confidence_score += 0.15
 
         # 7. Check conversation context (if available)
         if conversation_history:

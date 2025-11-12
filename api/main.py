@@ -19,10 +19,15 @@ logger = logging.getLogger(__name__)
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Load environment variables from .env file
+# Load environment variables from .env files
+# Load project root .env first
 load_dotenv(project_root / ".env")
+# Then load API-specific .env (overrides project settings)
+api_env_path = Path(__file__).parent / ".env"
+if api_env_path.exists():
+    load_dotenv(api_env_path, override=True)
 
-from api.routes import chat, rag, scans  # noqa: E402
+from api.routes import auth, auth_debug, chat, rag, scans  # noqa: E402
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -59,6 +64,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Request logging middleware for debugging authentication
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all incoming requests and their headers for debugging."""
+    # Log request details
+    logger.info(f"{'='*60}")
+    logger.info(f"Request: {request.method} {request.url.path}")
+
+    # Log headers (excluding sensitive data)
+    headers = dict(request.headers)
+    auth_header = headers.get("authorization", "Not present")
+    if auth_header != "Not present" and auth_header.startswith("Bearer "):
+        # Mask the token for security but show it exists
+        auth_header = f"Bearer {auth_header[7:20]}..." if len(auth_header) > 27 else auth_header
+
+    logger.info(f"Authorization header: {auth_header}")
+    logger.info(f"Content-Type: {headers.get('content-type', 'Not set')}")
+    logger.info(f"Origin: {headers.get('origin', 'Not set')}")
+
+    # Special logging for file uploads
+    if request.method == "POST" and request.url.path == "/api/scans":
+        logger.info("FILE UPLOAD DETECTED - POST /api/scans")
+        logger.info(f"All headers: {list(headers.keys())}")
+
+    # Process the request
+    response = await call_next(request)
+
+    # Log response with more detail for errors
+    logger.info(f"Response status: {response.status_code}")
+    if response.status_code >= 400:
+        logger.warning(
+            f"ERROR Response: {response.status_code} for {request.method} {request.url.path}"
+        )
+    logger.info(f"{'='*60}")
+
+    return response
 
 
 # Global exception handler
@@ -103,9 +146,11 @@ async def root():
 
 
 # Include routers
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(scans.router, prefix="/api", tags=["scans"])
 app.include_router(rag.router)
 app.include_router(chat.router)
+app.include_router(auth_debug.router)  # Debug endpoints for testing auth
 
 
 # Startup event

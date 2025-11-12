@@ -37,14 +37,28 @@ console = Console()
 class DependencyScanner:
     """Main scanner class for dependency vulnerability scanning."""
 
-    def __init__(self, db_path: str = "cyberintel.db"):
+    def __init__(self, db_path: str = "cyberintel.db", session_factory=None):
         """Initialize the scanner.
 
         Args:
-            db_path: Path to the SQLite database
+            db_path: Path to the SQLite database (used if session_factory is None)
+            session_factory: Optional SQLAlchemy session factory to use instead of creating one
         """
-        self.engine = create_engine(f"sqlite:///{db_path}")
-        self.Session = sessionmaker(bind=self.engine)
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        if session_factory is not None:
+            # Use provided session factory (from API)
+            self.Session = session_factory
+            self.engine = None  # Not needed when using external session
+            logger.info("Scanner initialized with external session factory (API mode)")
+        else:
+            # Create own session factory (for CLI usage)
+            self.engine = create_engine(f"sqlite:///{db_path}")
+            self.Session = sessionmaker(bind=self.engine)
+            logger.info(f"Scanner initialized with SQLite database: {db_path}")
+
         self.parsers = {
             "npm": NpmParser(),
             "pip": PipParser(),
@@ -111,7 +125,7 @@ class DependencyScanner:
     }
 
     def scan_file(
-        self, file_path: Path, verbose: bool = False, user_id: str | None = None
+        self, file_path: Path, verbose: bool = False, user_id: str | None = None, session=None
     ) -> dict[str, Any]:
         """Scan a dependency file for vulnerabilities.
 
@@ -119,6 +133,7 @@ class DependencyScanner:
             file_path: Path to the dependency file
             verbose: Whether to print verbose output
             user_id: Optional user ID for multi-tenant support
+            session: Optional database session to use (if None, creates a new one)
 
         Returns:
             Dictionary containing scan results
@@ -185,8 +200,20 @@ class DependencyScanner:
         # Calculate file hash
         file_hash = self._calculate_file_hash(file_path)
 
-        # Create database session
-        session = self.Session()
+        # Create database session or use provided one
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        if session is None:
+            # Create own session (for CLI usage)
+            session = self.Session()
+            owns_session = True
+            logger.info("Creating new database session for scan")
+        else:
+            # Use provided session (from API)
+            owns_session = False
+            logger.info("Using provided database session for scan")
 
         try:
             # Create scan record
@@ -289,8 +316,12 @@ class DependencyScanner:
             scan.medium_count = severity_counts["Medium"]
             scan.low_count = severity_counts["Low"]
 
-            # Commit to database
-            session.commit()
+            # Commit to database only if we own the session
+            if owns_session:
+                session.commit()
+            else:
+                # For external sessions, just flush to ensure data is written
+                session.flush()
 
             return {
                 "scan_id": scan.id,
@@ -305,10 +336,12 @@ class DependencyScanner:
             }
 
         except Exception as e:
-            session.rollback()
+            if owns_session:
+                session.rollback()
             raise e
         finally:
-            session.close()
+            if owns_session:
+                session.close()
 
     def _calculate_file_hash(self, file_path: Path) -> str:
         """Calculate SHA-256 hash of file content.

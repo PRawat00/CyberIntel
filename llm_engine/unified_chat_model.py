@@ -214,7 +214,7 @@ class UnifiedChatModel:
             messages.extend(context.conversation_history)
 
         # Build user message with CVE context if available
-        if retrieval_result.cves:
+        if retrieval_result.cves or retrieval_result.dependency_info:
             cve_context = self._format_cve_context(
                 retrieval_result.cves, retrieval_result.scan_info, retrieval_result.dependency_info
             )
@@ -227,7 +227,7 @@ Relevant Information:
 
 Please provide a helpful, actionable response."""
         else:
-            # No CVEs - just the query
+            # No CVEs and no dependencies - just the query
             user_message = query
 
         messages.append({"role": "user", "content": user_message})
@@ -271,13 +271,34 @@ Please provide a helpful, actionable response."""
 
         # Add dependency info if available
         if dependency_info:
-            lines.append("Selected Dependencies:")
-            for dep in dependency_info:
+            # Separate safe and vulnerable packages
+            safe_packages = [dep for dep in dependency_info if dep.get("cve_count", 0) == 0]
+            vulnerable_packages = [dep for dep in dependency_info if dep.get("cve_count", 0) > 0]
+
+            # Display vulnerable packages
+            if vulnerable_packages:
+                lines.append("Vulnerable Dependencies:")
+                for dep in vulnerable_packages:
+                    lines.append(
+                        f"  - {dep['package_name']} @ {dep['version']} "
+                        f"({dep.get('severity', 'UNKNOWN')}) - {dep.get('cve_count', 0)} CVEs"
+                    )
+                lines.append("")
+
+            # Display safe packages
+            if safe_packages:
+                lines.append("Safe Dependencies (No Known Vulnerabilities):")
+                for dep in safe_packages:
+                    lines.append(
+                        f"  - {dep['package_name']} @ {dep['version']} ({dep['ecosystem']}) - SAFE"
+                    )
+                lines.append("")
                 lines.append(
-                    f"  - {dep['package_name']} @ {dep['version']} "
-                    f"({dep.get('severity', 'UNKNOWN')}) - {dep.get('cve_count', 0)} CVEs"
+                    "NOTE: For safe packages, provide general information about what the package "
+                    "does, its use cases, and explicitly confirm that this version has no known "
+                    "security vulnerabilities."
                 )
-            lines.append("")
+                lines.append("")
 
         # Add CVEs
         if cves:
