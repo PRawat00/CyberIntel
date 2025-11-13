@@ -42,7 +42,7 @@ cyberintel = "scripts.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "."}
-packages = ["data_ingestion", "database", "llm_engine", "api", "scripts"]
+packages = ["data_ingestion", "database", "llm_engine", "api", "scripts", "matching", "parsers"]
 
 [tool.black]
 line-length = 100

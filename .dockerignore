@@ -1,0 +1,111 @@
+# Virtual environments (1.1GB)
+venv/
+env/
+ENV/
+.venv
+*.egg-info/
+
+# Node modules (673MB)
+frontend/node_modules/
+node_modules/
+
+# Build artifacts
+frontend/.next/
+frontend/.turbo/
+frontend/out/
+build/
+dist/
+*.egg
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Database files (202MB migration.sql + 233MB cyberintel.db)
+*.db
+*.sqlite
+*.sqlite3
+cyberintel.db
+migration.sql
+**/migration*.sql
+migrate_*.sql
+
+# Data directories (371MB ChromaDB + other data)
+# This is local dev data - production uses Railway persistent volume at /app/data
+data/
+data_cache/
+cache/
+
+# Test and coverage reports
+htmlcov/
+.coverage
+.tox/
+test_samples/
+
+# Documentation and internal notes
+documentation/
+documents/
+
+# Logs (2.4MB)
+logs/
+*.log
+/tmp/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Model files (if any large ML models are cached locally)
+models/
+*.bin
+*.safetensors
+*.gguf
+.cache/
+
+# Development and migration scripts (not needed in production)
+scripts/import_to_supabase.py
+scripts/migrate_direct.py
+scripts/migrate_fast.py
+test_auth.sh
+*_debug.py
+api/routes/auth_debug.py
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# README and documentation
+README.md
+*.md
+!requirements.txt
+
+# Pre-commit hooks
+.pre-commit-config.yaml
