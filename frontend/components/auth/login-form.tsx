@@ -24,6 +24,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
+import CounterLoader from '@/components/ui/counter-loader'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -37,6 +38,7 @@ export function LoginForm() {
   const { signIn } = useAuth()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -55,17 +57,23 @@ export function LoginForm() {
 
       if (error) {
         setError(error.message)
+        setIsLoading(false)
         return
       }
 
-      // Success - redirect to dashboard
+      // Success - show loading animation and redirect to dashboard
+      setIsRedirecting(true)
       router.push('/dashboard')
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('Login error:', err)
-    } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show loading animation during redirect
+  if (isRedirecting) {
+    return <CounterLoader />
   }
 
   return (

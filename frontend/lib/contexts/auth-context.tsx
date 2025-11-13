@@ -99,12 +99,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.session) {
         setSession(data.session)
         setUser(data.session.user)
+        setSessionCookie(data.session)
       }
     } catch (error) {
       console.error('Failed to load session:', error)
+    } finally {
+      // Set loading to false after initial session check
+      // This ensures pages don't flash login screen while auth initializes
+      setLoading(false)
     }
-    // Note: Loading state is managed by onAuthStateChange listener
-    // to avoid race conditions. Do not set loading here.
   }
 
   async function signIn(email: string, password: string) {

@@ -1,8 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/contexts/auth-context"
 import { useStats } from "@/hooks/use-scans"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { SeverityChart } from "@/components/charts/severity-chart"
 import { RecentScans } from "@/components/dashboard/recent-scans"
+import { AuthLoadingWrapper } from "@/components/auth/auth-loading-wrapper"
 import {
   Upload,
   FileSearch,
@@ -19,40 +18,15 @@ import {
 } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
+  return (
+    <AuthLoadingWrapper>
+      <DashboardContent />
+    </AuthLoadingWrapper>
+  )
+}
+
+function DashboardContent() {
   const { data: stats, isLoading, error } = useStats()
-
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="space-y-8">
-          <div>
-            <Skeleton className="h-10 w-64 mb-2" />
-            <Skeleton className="h-6 w-96" />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <Skeleton className="h-[400px]" />
-            <Skeleton className="h-[400px]" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Redirect to login if not authenticated
-  if (!user) {
-    router.push('/auth/login')
-    return null
-  }
 
   if (error) {
     return (
