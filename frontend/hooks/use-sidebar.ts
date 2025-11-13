@@ -11,6 +11,7 @@ interface SidebarState {
   toggle: () => void
   open: () => void
   close: () => void
+  reset: () => void
 }
 
 export const useSidebar = create<SidebarState>()(
@@ -20,6 +21,7 @@ export const useSidebar = create<SidebarState>()(
       toggle: () => set((state) => ({ isOpen: !state.isOpen })),
       open: () => set({ isOpen: true }),
       close: () => set({ isOpen: false }),
+      reset: () => set({ isOpen: false }), // Reset to default state (used during logout)
     }),
     {
       name: "chat-sidebar-storage",
