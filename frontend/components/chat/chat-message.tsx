@@ -11,6 +11,12 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
+import type { ExtraProps } from "react-markdown"
+
+type CodeProps = React.HTMLAttributes<HTMLElement> &
+  ExtraProps & {
+    children?: React.ReactNode
+  }
 
 interface ChatMessageProps {
   message: ChatMessageType | { role: "user" | "assistant"; content: string }
@@ -113,16 +119,17 @@ export function ChatMessage({ message, isStreaming = false, onRegenerate, canReg
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                code({ node, inline, className, children, ...props }) {
+                code(props: CodeProps) {
+                  const { className, children, ...rest } = props
                   const match = /language-(\w+)/.exec(className || "")
                   const codeString = String(children).replace(/\n$/, "")
 
-                  return !inline && match ? (
+                  return match ? (
                     <CodeBlock language={match[1]}>
                       {codeString}
                     </CodeBlock>
                   ) : (
-                    <code className={className} {...props}>
+                    <code className={className} {...rest}>
                       {children}
                     </code>
                   )
