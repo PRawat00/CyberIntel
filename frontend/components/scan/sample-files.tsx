@@ -67,8 +67,8 @@ export function SampleFiles({ onFileSelect }: SampleFilesProps) {
             <motion.div
               key={file.name}
               draggable
-              onDragStart={(e) => handleDragStart(e, file.name)}
-              onDragEnd={handleDragEnd}
+              onDragStart={(e) => handleDragStart(e as any as React.DragEvent, file.name)}
+              onDragEnd={handleDragEnd as any}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`
