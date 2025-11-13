@@ -1,16 +1,16 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/upload', '/auth/profile']
 
-// Check if Supabase is configured
-const hasSupabaseConfig =
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-export async function proxy(request: NextRequest) {
+/**
+ * Next.js 16 Proxy Function
+ *
+ * Handles authentication for protected routes using cookie-based session validation.
+ * Works with both mock auth (development) and client-side Supabase auth (production).
+ */
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if this route needs protection
@@ -23,68 +23,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Use Supabase auth if configured, otherwise use mock auth
-  if (hasSupabaseConfig) {
-    return await handleSupabaseAuth(request)
-  } else {
-    return handleMockAuth(request)
-  }
-}
-
-// Supabase authentication (production)
-async function handleSupabaseAuth(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set(name, value)
-          response = NextResponse.next({
-            request,
-          })
-          response.cookies.set(name, value, options)
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set(name, '')
-          response = NextResponse.next({
-            request,
-          })
-          response.cookies.set(name, '', options)
-        },
-      },
-    }
-  )
-
-  // CRITICAL: Call getUser() immediately after creating client
-  // Do not run any code between createServerClient and getUser()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Redirect to login if not authenticated
-  if (!user) {
-    const loginUrl = new URL('/auth/login', request.url)
-    loginUrl.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // User is authenticated, allow access
-  return response
-}
-
-// Mock authentication (development)
-function handleMockAuth(request: NextRequest) {
-  const { pathname } = request.nextUrl
-
-  // Read session from cookie
+  // Read session from cookie (works for both mock and Supabase client-side auth)
   const sessionCookie = request.cookies.get('mock-auth-session')
 
   if (!sessionCookie) {
