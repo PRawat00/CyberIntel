@@ -27,7 +27,7 @@ api_env_path = Path(__file__).parent / ".env"
 if api_env_path.exists():
     load_dotenv(api_env_path, override=True)
 
-from api.routes import auth, auth_debug, chat, rag, scans  # noqa: E402
+from api.routes import auth, chat, rag, scans  # noqa: E402
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -150,7 +150,6 @@ app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(scans.router, prefix="/api", tags=["scans"])
 app.include_router(rag.router)
 app.include_router(chat.router)
-app.include_router(auth_debug.router)  # Debug endpoints for testing auth
 
 
 # Startup event
