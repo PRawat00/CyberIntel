@@ -52,39 +52,25 @@ function LoadingPageContent() {
         transition={{ duration: 0.3 }}
         className="text-center space-y-8 px-4"
       >
-        {/* Loading Spinner */}
-        <div className="relative w-24 h-24 mx-auto">
-          <motion.div
-            className="absolute inset-0 rounded-full border-4 border-primary/20"
-            animate={{
-              rotate: 360,
-            }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary"
-            animate={{
-              rotate: 360,
-            }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+        {/* Demo Video with Countdown Overlay */}
+        <div className="relative w-80 h-80 mx-auto">
+          {/* YouTube Video Embed */}
+          <iframe
+            className="w-full h-full rounded-lg shadow-2xl"
+            src="https://www.youtube.com/embed/C3VujZ9ij64?autoplay=1&mute=1&loop=1&playlist=C3VujZ9ij64&controls=0&showinfo=0&rel=0&modestbranding=1"
+            title="Demo Video"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
           />
 
-          {/* Countdown number in center */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* Countdown number overlay */}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg pointer-events-none">
             <motion.span
               key={countdown}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 1.2, opacity: 0 }}
-              className="text-3xl font-bold text-primary"
+              className="text-6xl font-bold text-white drop-shadow-lg"
             >
               {countdown}
             </motion.span>

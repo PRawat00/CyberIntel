@@ -68,6 +68,11 @@ models/
 *.safetensors
 *.gguf
 
+# Video files (large)
+*.mp4
+*.mov
+*.avi
+
 # Data cache
 data_cache/
 cache/
