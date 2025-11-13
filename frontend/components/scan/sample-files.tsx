@@ -24,7 +24,7 @@ const SAMPLE_FILES: SampleFile[] = [
     type: "npm",
   },
   {
-    name: "Pipfile",
+    name: "production-requirements.txt",
     icon: <Package className="w-6 h-6" />,
     type: "python",
   },

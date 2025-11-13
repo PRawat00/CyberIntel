@@ -1,0 +1,37 @@
+# Backend API Dependencies
+# Python 3.11+
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database & ORM
+sqlalchemy==1.4.25
+alembic==1.12.1
+psycopg2-binary==2.9.9
+
+# Security & Auth
+cryptography==41.0.0
+python-jose==3.3.0
+passlib==1.7.4
+
+# Template Engine
+jinja2==3.0.0
+
+# HTTP & API
+requests==2.31.0
+httpx==0.25.2
+
+# Data Processing
+pillow==9.5.0
+python-multipart==0.0.6
+
+# Admin & Management
+django==3.2.0
+django-cors-headers==4.3.0
+
+# Utilities
+python-dotenv==1.0.0
+click==8.1.7
