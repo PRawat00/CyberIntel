@@ -109,3 +109,8 @@ README.md
 
 # Pre-commit hooks
 .pre-commit-config.yaml
+
+# Python project config (prevents Nixpacks from trying to build as package)
+pyproject.toml
+setup.py
+setup.cfg
