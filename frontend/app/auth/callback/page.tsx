@@ -19,6 +19,12 @@ export default function AuthCallbackPage() {
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
+        // Check if Supabase is configured
+        if (!supabase) {
+          setError('Authentication service not configured')
+          return
+        }
+
         // Get the code from the URL
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const searchParams = new URLSearchParams(window.location.search)
