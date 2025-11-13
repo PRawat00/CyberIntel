@@ -17,9 +17,6 @@ build/
 dist/
 *.egg
 
-# Python packaging (prevent Nixpacks from trying to install with pip install .)
-pyproject.toml
-
 # Python cache files
 __pycache__/
 *.py[cod]
