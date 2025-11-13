@@ -317,27 +317,15 @@ export default function Home() {
               Watch how AI helps you understand and prioritize vulnerabilities in your supply chain
             </p>
 
-            {/* Video Placeholder */}
+            {/* Demo Video */}
             <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted shadow-2xl">
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                  <Play className="mx-auto mb-4 h-16 w-16 text-primary opacity-50" />
-                  <p className="text-muted-foreground">
-                    Demo video placeholder
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Add your demo video URL here
-                  </p>
-                </div>
-              </div>
-              {/* When you have a video, replace above with:
               <iframe
-                src="YOUR_VIDEO_URL"
+                src="https://www.youtube.com/embed/C3VujZ9ij64?rel=0&modestbranding=1"
                 className="h-full w-full"
+                title="CyberIntel Demo Video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-              */}
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
