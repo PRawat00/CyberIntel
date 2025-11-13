@@ -45,7 +45,6 @@ cache/
 htmlcov/
 .coverage
 .tox/
-test_samples/
 
 # Documentation and internal notes
 documentation/
