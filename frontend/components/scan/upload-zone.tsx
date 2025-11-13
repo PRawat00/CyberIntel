@@ -181,7 +181,7 @@ export function UploadZone() {
         e.dataTransfer.dropEffect = "copy"
       } else {
         // Let react-dropzone handle regular files
-        dropzoneProps.onDragOver?.(e)
+        dropzoneProps.onDragOver?.(e as React.DragEvent<HTMLElement>)
       }
     },
     onDrop: async (e: React.DragEvent) => {
@@ -194,7 +194,7 @@ export function UploadZone() {
         await handleSampleFileDrop(sampleFileName)
       } else {
         // Let react-dropzone handle regular files
-        dropzoneProps.onDrop?.(e)
+        dropzoneProps.onDrop?.(e as React.DragEvent<HTMLElement>)
       }
     },
   }

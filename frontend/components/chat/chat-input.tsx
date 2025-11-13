@@ -33,7 +33,10 @@ export function ChatInput({
     // Submit on Enter (without Shift)
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit(e as any)
+      if (message.trim() && !disabled) {
+        onSend(message.trim())
+        setMessage("")
+      }
     }
   }
 
