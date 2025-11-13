@@ -9,9 +9,9 @@ providers = ["python"]
 nixPkgs = ["python311", "gcc", "postgresql"]
 
 # Install phase: OVERRIDE auto-generated phase that tries "pip install ."
-# This explicitly tells Nixpacks to use our requirements file instead
+# Create venv and install from requirements file instead of running "pip install ."
 [phases.install]
-cmds = ["pip install --no-cache-dir -r requirements-prod.txt"]
+cmds = ["python -m venv --copies /opt/venv && . /opt/venv/bin/activate && pip install --no-cache-dir -r requirements-prod.txt"]
 
 # Start command: Run FastAPI with uvicorn
 [start]
