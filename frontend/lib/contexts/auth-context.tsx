@@ -102,9 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Failed to load session:', error)
-    } finally {
-      setLoading(false)
     }
+    // Note: Loading state is managed by onAuthStateChange listener
+    // to avoid race conditions. Do not set loading here.
   }
 
   async function signIn(email: string, password: string) {
