@@ -1,0 +1,51 @@
+# Production Dependencies Only
+# Optimized for Railway deployment (CPU-only, no dev tools)
+
+# Core dependencies
+requests>=2.31.0
+sqlalchemy>=2.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+click>=8.1.0
+pyyaml>=6.0
+rich>=13.7.0
+packaging>=23.0
+
+# API Server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+jinja2>=3.1.0
+
+# Production Server
+gunicorn>=21.2.0
+
+# PostgreSQL (Production Database)
+psycopg2-binary>=2.9.9
+
+# LLM Integration
+openai>=1.0.0
+websockets>=12.0
+tiktoken>=0.5.0
+
+# Supabase Authentication
+supabase==2.24.0
+pyjwt[crypto]>=2.8.0
+
+# RAG / Semantic Search (CPU-optimized)
+# Note: Using CPU-only versions to avoid 2-3GB of CUDA dependencies
+sentence-transformers>=5.0.0
+chromadb>=0.4.22
+numpy>=1.24.0
+
+# Torch CPU-only (much smaller than CUDA version)
+# This prevents installation of nvidia-cuda-* packages
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+
+# Note: Dev dependencies removed (saves ~200MB and build time):
+# - pytest, pytest-cov, pytest-asyncio, pytest-mock, faker, httpx (testing)
+# - ruff, black, mypy, pre-commit (code quality)
+# - bandit, safety, detect-secrets (security scanning)
+# These are only needed for local development, not production deployment
