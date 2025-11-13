@@ -23,7 +23,8 @@ function mapSupabaseUser(supabaseUser: SupabaseUser | null): User | null {
     id: supabaseUser.id,
     email: supabaseUser.email || '',
     user_metadata: {
-      name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+      provider: (supabaseUser.app_metadata?.provider as 'email' | 'google' | 'github') || 'email',
+      full_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
       avatar_url: supabaseUser.user_metadata?.avatar_url || null,
     },
     created_at: supabaseUser.created_at || new Date().toISOString(),
