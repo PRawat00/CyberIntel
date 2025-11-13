@@ -74,7 +74,16 @@ const stats = [
   { label: "Forever", value: "Free", icon: CheckCircle2 },
 ]
 
-const comparisonFeatures = [
+type ComparisonValue = boolean | "partial" | "auto-pr"
+
+interface ComparisonFeature {
+  name: string
+  traditional: ComparisonValue
+  dependabot: ComparisonValue
+  cyberintel: boolean
+}
+
+const comparisonFeatures: ComparisonFeature[] = [
   { name: "Detects Direct CVEs", traditional: true, dependabot: true, cyberintel: true },
   { name: "Shows Transitive Dependencies", traditional: false, dependabot: "partial", cyberintel: true },
   { name: "AI Impact Analysis", traditional: false, dependabot: false, cyberintel: true },
