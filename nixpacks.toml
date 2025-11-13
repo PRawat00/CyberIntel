@@ -1,5 +1,5 @@
 # Nixpacks Configuration for Railway Deployment
-# This explicitly defines the build process to prevent auto-detection conflicts
+# Explicitly override all phases to prevent auto-detection conflicts
 
 # Explicitly use Python provider
 providers = ["python"]
@@ -8,11 +8,9 @@ providers = ["python"]
 [phases.setup]
 nixPkgs = ["python311", "gcc", "postgresql"]
 
-# Skip install phase entirely (no auto-detection, no pip install .)
-# This prevents Nixpacks from trying to install the project as a package
-
-# Build phase: Install production dependencies only
-[phases.build]
+# Install phase: OVERRIDE auto-generated phase that tries "pip install ."
+# This explicitly tells Nixpacks to use our requirements file instead
+[phases.install]
 cmds = ["pip install --no-cache-dir -r requirements-prod.txt"]
 
 # Start command: Run FastAPI with uvicorn
