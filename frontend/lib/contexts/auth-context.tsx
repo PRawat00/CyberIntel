@@ -68,6 +68,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadSession()
   }, [])
 
+  // Subscribe to auth state changes (Supabase sessions)
+  useEffect(() => {
+    const { data: authListener } = authService.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state changed:', event, session?.user?.email)
+
+      if (session) {
+        setSession(session)
+        setUser(session.user)
+        setSessionCookie(session)
+      } else {
+        setSession(null)
+        setUser(null)
+        setSessionCookie(null)
+      }
+
+      // Auth state is now loaded
+      setLoading(false)
+    })
+
+    // Cleanup subscription on unmount
+    return () => {
+      authListener?.subscription?.unsubscribe()
+    }
+  }, [])
+
   async function loadSession() {
     try {
       const { data } = await authService.getSession()
