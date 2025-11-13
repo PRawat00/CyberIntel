@@ -61,14 +61,13 @@ export function LoginForm() {
         return
       }
 
-      // Success - show loading animation and wait for auth state to fully settle
+      // Success - redirect to loading page which provides 3-second buffer for auth to settle
       setIsRedirecting(true)
 
-      // Wait a bit for auth state to be written to localStorage and propagate
-      // This prevents race conditions where the dashboard loads before auth is ready
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      router.push('/dashboard')
+      // Redirect to loading page with intended destination
+      // The loading page will wait 3 seconds before navigating to the dashboard
+      // This ensures auth state is fully settled before accessing protected pages
+      router.push('/auth/loading?redirect=/dashboard')
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('Login error:', err)
