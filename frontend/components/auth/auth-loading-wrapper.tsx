@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import CounterLoader from '@/components/ui/counter-loader'
@@ -17,13 +17,23 @@ interface AuthLoadingWrapperProps {
 export function AuthLoadingWrapper({ children }: AuthLoadingWrapperProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
     // Only redirect after loading is complete and there's no user
-    if (!loading && !user) {
-      router.push('/auth/login')
+    // Add a small debounce to prevent premature redirects during auth initialization
+    if (!loading && !user && !isRedirecting) {
+      console.log('[AUTH WRAPPER] No user found after loading complete, redirecting to login...')
+      setIsRedirecting(true)
+
+      // Small delay to give auth state one final chance to settle
+      const timeout = setTimeout(() => {
+        router.push('/auth/login')
+      }, 100)
+
+      return () => clearTimeout(timeout)
     }
-  }, [loading, user, router])
+  }, [loading, user, router, isRedirecting])
 
   // Show loading animation while auth state is initializing
   if (loading) {

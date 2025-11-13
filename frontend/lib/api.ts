@@ -24,10 +24,18 @@ class APIError extends Error {
 }
 
 /**
+ * Helper to delay execution
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+/**
  * Get auth token from localStorage
  * Works with both mock auth and Supabase auth
+ * Includes retry mechanism to handle race conditions after login
  */
-async function getAuthToken(): Promise<string | null> {
+async function getAuthToken(retryCount = 0, maxRetries = 3): Promise<string | null> {
   if (typeof window === 'undefined') {
     console.log('[AUTH] Window is undefined, skipping auth')
     return null
@@ -70,7 +78,16 @@ async function getAuthToken(): Promise<string | null> {
     }
   }
 
-  console.log('[AUTH] No auth token found')
+  // If no token found and we haven't exhausted retries, wait and try again
+  // This handles race conditions where the token hasn't been written to storage yet
+  if (retryCount < maxRetries) {
+    const waitTime = Math.min(100 * Math.pow(2, retryCount), 500) // Exponential backoff: 100ms, 200ms, 400ms
+    console.log(`[AUTH] No token found, retrying in ${waitTime}ms (attempt ${retryCount + 1}/${maxRetries})`)
+    await delay(waitTime)
+    return getAuthToken(retryCount + 1, maxRetries)
+  }
+
+  console.log('[AUTH] No auth token found after all retries')
   return null
 }
 
@@ -150,7 +167,12 @@ export const api = {
       console.log('[UPLOAD] Auth header format:', authHeader.startsWith('Bearer ') ? 'Bearer token' : 'Unknown format')
       console.log('[UPLOAD] Token preview:', authHeader.substring(0, 50) + '...')
     } else {
-      console.warn('[UPLOAD] ⚠️ No Authorization header - request will likely fail with 401')
+      console.error('[UPLOAD] No Authorization header - cannot proceed with upload')
+      throw new APIError(
+        401,
+        'Authentication required. Please ensure you are logged in and try again.',
+        { reason: 'No auth token available after retries' }
+      )
     }
 
     console.log('[UPLOAD] Sending request...')

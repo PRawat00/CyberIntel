@@ -63,6 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const queryClient = useQueryClient()
 
+  // Track initialization state to prevent race conditions
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
+  const [authListenerReady, setAuthListenerReady] = useState(false)
+
   // Initialize auth state on mount
   useEffect(() => {
     loadSession()
@@ -83,8 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSessionCookie(null)
       }
 
-      // Auth state is now loaded
-      setLoading(false)
+      // Mark listener as ready (but don't set loading=false yet)
+      setAuthListenerReady(true)
     })
 
     // Cleanup subscription on unmount
@@ -104,11 +108,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Failed to load session:', error)
     } finally {
-      // Set loading to false after initial session check
-      // This ensures pages don't flash login screen while auth initializes
-      setLoading(false)
+      // Mark initial load as complete (but don't set loading=false yet)
+      // Will only set loading=false when BOTH initial load AND auth listener are ready
+      setInitialLoadComplete(true)
     }
   }
+
+  // Only set loading=false when BOTH initial load and auth listener are ready
+  // This prevents race conditions where the app redirects before session is fully loaded
+  useEffect(() => {
+    if (initialLoadComplete && authListenerReady) {
+      console.log('🔐 Auth initialization complete')
+      setLoading(false)
+    }
+  }, [initialLoadComplete, authListenerReady])
 
   async function signIn(email: string, password: string) {
     try {
