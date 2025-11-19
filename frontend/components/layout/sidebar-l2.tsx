@@ -32,7 +32,7 @@ export function SidebarL2({ children }: SidebarL2Props) {
     <aside
       className={cn(
         "fixed left-20 top-16 bottom-0 bg-card border-r border-border transition-all duration-300 ease-in-out z-30 flex flex-col",
-        isL2Collapsed ? "w-0 opacity-0" : "w-80 opacity-100"
+        isL2Collapsed ? "w-0 opacity-0 pointer-events-none" : "w-80 opacity-100"
       )}
     >
       {/* Header with collapse button */}
