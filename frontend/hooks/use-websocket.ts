@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react"
+import { logger } from "@/lib/logger"
 import type { WebSocketMessage } from "@/lib/types"
 
 interface UseWebSocketOptions {
@@ -67,12 +68,12 @@ export function useWebSocket(
 
     // If already connected or connecting, don't create new connection
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log("[WebSocket] Already connected, skipping")
+      logger.log("[WebSocket] Already connected, skipping")
       return
     }
 
     if (wsRef.current?.readyState === WebSocket.CONNECTING) {
-      console.log("[WebSocket] Already connecting, skipping")
+      logger.log("[WebSocket] Already connecting, skipping")
       return
     }
 
@@ -84,7 +85,7 @@ export function useWebSocket(
 
       ws.onopen = () => {
         if (!mountedRef.current) return
-        console.log("[WebSocket] Connected")
+        logger.log("[WebSocket] Connected")
         setIsConnected(true)
         setIsConnecting(false)
         setError(null)
@@ -98,14 +99,14 @@ export function useWebSocket(
           const data = JSON.parse(event.data) as WebSocketMessage
           onMessageRef.current?.(data)
         } catch (err) {
-          console.error("[WebSocket] Failed to parse message:", err)
+          logger.error("[WebSocket] Failed to parse message:", err)
         }
       }
 
       ws.onerror = (event) => {
         if (!mountedRef.current) return
         // Note: Browser ErrorEvent objects don't contain detailed error info for security
-        console.log("[WebSocket] Connection error (cosmetic - connection may still work)", {
+        logger.log("[WebSocket] Connection error (cosmetic - connection may still work)", {
           readyState: ws.readyState,
           url: url,
           timestamp: new Date().toISOString(),
@@ -117,7 +118,7 @@ export function useWebSocket(
 
       ws.onclose = (event) => {
         if (!mountedRef.current) return
-        console.log("[WebSocket] Disconnected", {
+        logger.log("[WebSocket] Disconnected", {
           code: event.code,
           reason: event.reason,
           wasClean: event.wasClean
@@ -130,7 +131,7 @@ export function useWebSocket(
         // Attempt reconnection if enabled and component is still mounted
         if (reconnect && reconnectAttemptsRef.current < 5 && mountedRef.current) {
           reconnectAttemptsRef.current += 1
-          console.log(
+          logger.log(
             `[WebSocket] Reconnecting... (attempt ${reconnectAttemptsRef.current})`
           )
 
@@ -144,7 +145,7 @@ export function useWebSocket(
 
       wsRef.current = ws
     } catch (err) {
-      console.error("[WebSocket] Connection failed:", err)
+      logger.error("[WebSocket] Connection failed:", err)
       setError("Failed to connect to chat server")
       setIsConnecting(false)
     }
@@ -164,7 +165,7 @@ export function useWebSocket(
 
       wsRef.current.send(JSON.stringify(message))
     } else {
-      console.warn("[WebSocket] Cannot send message: not connected")
+      logger.warn("[WebSocket] Cannot send message: not connected")
       setError("Not connected to chat server")
     }
   }, [])
@@ -178,7 +179,7 @@ export function useWebSocket(
         })
       )
     } else {
-      console.warn("[WebSocket] Cannot set context: not connected")
+      logger.warn("[WebSocket] Cannot set context: not connected")
       setError("Not connected to chat server")
     }
   }, [])
@@ -191,13 +192,13 @@ export function useWebSocket(
         })
       )
     } else {
-      console.warn("[WebSocket] Cannot clear context: not connected")
+      logger.warn("[WebSocket] Cannot clear context: not connected")
       setError("Not connected to chat server")
     }
   }, [])
 
   const close = useCallback(() => {
-    console.log("[WebSocket] Closing connection")
+    logger.log("[WebSocket] Closing connection")
     mountedRef.current = false // Mark as unmounted
 
     if (reconnectTimeoutRef.current) {
@@ -219,12 +220,12 @@ export function useWebSocket(
     mountedRef.current = true
 
     if (url) {
-      console.log("[WebSocket] URL changed, connecting...", url)
+      logger.log("[WebSocket] URL changed, connecting...", url)
       connect()
     }
 
     return () => {
-      console.log("[WebSocket] Component unmounting, cleaning up")
+      logger.log("[WebSocket] Component unmounting, cleaning up")
       mountedRef.current = false
 
       if (reconnectTimeoutRef.current) {

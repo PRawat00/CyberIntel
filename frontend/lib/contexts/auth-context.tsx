@@ -10,6 +10,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { logger } from '@/lib/logger'
 import { mockAuth } from '@/lib/auth/mock-auth'
 import { supabaseAuth } from '@/lib/auth/supabase-auth'
 import type { User, Session, AuthError } from '@/lib/types'
@@ -30,7 +31,7 @@ const authService = (hasSupabaseConfig && !isLocalhost) ? supabaseAuth : mockAut
 // Log which auth service is being used
 if (typeof window !== 'undefined') {
   const usingMock = !hasSupabaseConfig || isLocalhost
-  console.log(
+  logger.log(
     `🔐 Auth Service: ${usingMock ? 'Mock' : 'Supabase'} ${
       isLocalhost ? '(localhost detected - using mock auth)' :
       hasSupabaseConfig ? '' : '(Set NEXT_PUBLIC_SUPABASE_URL to use Supabase)'
@@ -67,15 +68,15 @@ async function setSessionCookie(session: Session | null): Promise<void> {
     // Verify cookie was set (defensive check)
     const cookieValue = document.cookie.split('; ').find(row => row.startsWith('mock-auth-session='))
     if (!cookieValue) {
-      console.warn('⚠️ Cookie was not set successfully')
+      logger.warn('⚠️ Cookie was not set successfully')
     } else {
-      console.log('✓ Session cookie set and verified')
+      logger.log('✓ Session cookie set and verified')
     }
   } else {
     // Clear cookie
     document.cookie = 'mock-auth-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     await new Promise(resolve => setTimeout(resolve, 50))
-    console.log('✓ Session cookie cleared')
+    logger.log('✓ Session cookie cleared')
   }
 }
 
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Subscribe to auth state changes (Supabase sessions)
   useEffect(() => {
     const { data: authListener } = authService.onAuthStateChange(async (event, session) => {
-      console.log('🔐 Auth state changed:', event, session?.user?.email)
+      logger.log('🔐 Auth state changed:', event, session?.user?.email)
 
       if (session) {
         setSession(session)
@@ -128,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setSessionCookie(data.session)
       }
     } catch (error) {
-      console.error('Failed to load session:', error)
+      logger.error('Failed to load session:', error)
     } finally {
       // Mark initial load as complete (but don't set loading=false yet)
       // Will only set loading=false when BOTH initial load AND auth listener are ready
@@ -140,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // This prevents race conditions where the app redirects before session is fully loaded
   useEffect(() => {
     if (initialLoadComplete && authListenerReady) {
-      console.log('🔐 Auth initialization complete')
+      logger.log('🔐 Auth initialization complete')
       setLoading(false)
     }
   }, [initialLoadComplete, authListenerReady])
@@ -164,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setSessionCookie(session)
       return { error: null }
     } catch (error) {
-      console.error('Sign in error:', error)
+      logger.error('Sign in error:', error)
       return {
         error: {
           message: 'An unexpected error occurred',
@@ -193,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setSessionCookie(session)
       return { error: null }
     } catch (error) {
-      console.error('Sign up error:', error)
+      logger.error('Sign up error:', error)
       return {
         error: {
           message: 'An unexpected error occurred',
@@ -221,7 +222,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setSessionCookie(session)
       return { error: null }
     } catch (error) {
-      console.error('OAuth sign in error:', error)
+      logger.error('OAuth sign in error:', error)
       return {
         error: {
           message: 'An unexpected error occurred',
@@ -233,23 +234,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signOut() {
     try {
-      console.log('🔐 Starting logout cleanup...')
+      logger.log('🔐 Starting logout cleanup...')
 
       // Clear all cached queries before signing out (AWAIT to ensure completion)
       await queryClient.clear()
-      console.log('🔐 React Query cache cleared')
+      logger.log('🔐 React Query cache cleared')
 
       // Clear dependency selection state
       useDependencySelection.getState().clearSelection()
 
       // Reset sidebar state
       useSidebar.getState().reset()
-      console.log('🔐 Sidebar state reset')
+      logger.log('🔐 Sidebar state reset')
 
       // Defensively clear ALL persisted state from localStorage
       // This prevents stale state from affecting the next login
       if (typeof window !== 'undefined') {
-        console.log('🔐 Clearing localStorage items...')
+        logger.log('🔐 Clearing localStorage items...')
         localStorage.removeItem('dependency-selection-storage')
         localStorage.removeItem('chat-sidebar-storage')
 
@@ -267,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
         keysToRemove.forEach(key => {
-          console.log(`🔐 Removing: ${key}`)
+          logger.log(`🔐 Removing: ${key}`)
           localStorage.removeItem(key)
         })
       }
@@ -283,9 +284,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Small delay to ensure all cleanup completes before navigation
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      console.log('🔐 Logout cleanup complete')
+      logger.log('🔐 Logout cleanup complete')
     } catch (error) {
-      console.error('Sign out error:', error)
+      logger.error('Sign out error:', error)
     }
   }
 

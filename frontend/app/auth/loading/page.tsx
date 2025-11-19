@@ -10,6 +10,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import CounterLoader from '@/components/ui/counter-loader'
 
 function LoadingPageContent() {
@@ -21,8 +22,8 @@ function LoadingPageContent() {
   const redirect = searchParams.get('redirect') || '/dashboard'
 
   useEffect(() => {
-    console.log('🔐 Auth loading page mounted, redirecting to:', redirect)
-    console.log('🔐 Countdown starting from 3 seconds...')
+    logger.log('🔐 Auth loading page mounted, redirecting to:', redirect)
+    logger.log('🔐 Countdown starting from 3 seconds...')
 
     // Start countdown timer
     const countdownInterval = setInterval(() => {
@@ -44,7 +45,7 @@ function LoadingPageContent() {
   // Navigate when countdown reaches 0 (separate effect to avoid setState during render)
   useEffect(() => {
     if (countdown === 0) {
-      console.log('🔐 Countdown complete, navigating to:', redirect)
+      logger.log('🔐 Countdown complete, navigating to:', redirect)
       router.push(redirect)
     }
   }, [countdown, redirect, router])

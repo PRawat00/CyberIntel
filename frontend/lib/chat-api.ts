@@ -2,6 +2,7 @@
  * Chat API client for Phase 5 chat functionality.
  */
 
+import { logger } from '@/lib/logger'
 import type { ChatSession, ChatMessage } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -11,47 +12,47 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
  */
 async function getAuthToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.log('[CHAT AUTH] Window is undefined, skipping auth')
+    logger.log('[CHAT AUTH] Window is undefined, skipping auth')
     return null
   }
 
   // Try Supabase auth first
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.log('[CHAT AUTH] Trying Supabase auth...')
+    logger.log('[CHAT AUTH] Trying Supabase auth...')
     try {
       const { supabase } = await import('@/lib/supabase')
       if (supabase) {
         const { data } = await supabase.auth.getSession()
-        console.log('[CHAT AUTH] Supabase session data:', data.session ? 'Session found' : 'No session')
+        logger.log('[CHAT AUTH] Supabase session data:', data.session ? 'Session found' : 'No session')
         if (data.session?.access_token) {
-          console.log('[CHAT AUTH] Supabase token found, length:', data.session.access_token.length)
+          logger.log('[CHAT AUTH] Supabase token found, length:', data.session.access_token.length)
           return data.session.access_token
         }
       } else {
-        console.log('[CHAT AUTH] Supabase client is null')
+        logger.log('[CHAT AUTH] Supabase client is null')
       }
     } catch (error) {
-      console.error('[CHAT AUTH] Failed to get Supabase session:', error)
+      logger.error('[CHAT AUTH] Failed to get Supabase session:', error)
     }
   } else {
-    console.log('[CHAT AUTH] Supabase not configured, env vars missing')
+    logger.log('[CHAT AUTH] Supabase not configured, env vars missing')
   }
 
   // Fallback to mock auth
-  console.log('[CHAT AUTH] Trying mock auth fallback...')
+  logger.log('[CHAT AUTH] Trying mock auth fallback...')
   const sessionData = localStorage.getItem('mock-auth-session')
   if (sessionData) {
     try {
       const session = JSON.parse(sessionData)
-      console.log('[CHAT AUTH] Mock token found')
+      logger.log('[CHAT AUTH] Mock token found')
       return session.token
     } catch {
-      console.log('[CHAT AUTH] Failed to parse mock session')
+      logger.log('[CHAT AUTH] Failed to parse mock session')
       return null
     }
   }
 
-  console.log('[CHAT AUTH] No auth token found')
+  logger.log('[CHAT AUTH] No auth token found')
   return null
 }
 
@@ -62,16 +63,16 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   const token = await getAuthToken()
 
   if (!token) {
-    console.warn('[CHAT AUTH HEADERS] No token available - request will be sent without authorization')
+    logger.warn('[CHAT AUTH HEADERS] No token available - request will be sent without authorization')
     return {}
   }
 
-  console.log('[CHAT AUTH HEADERS] Token obtained, creating Bearer header')
-  console.log('[CHAT AUTH HEADERS] Token preview:', token.substring(0, 30) + '...')
-  console.log('[CHAT AUTH HEADERS] Token length:', token.length)
+  logger.log('[CHAT AUTH HEADERS] Token obtained, creating Bearer header')
+  logger.log('[CHAT AUTH HEADERS] Token preview:', token.substring(0, 30) + '...')
+  logger.log('[CHAT AUTH HEADERS] Token length:', token.length)
 
   const headers = { Authorization: `Bearer ${token}` }
-  console.log('[CHAT AUTH HEADERS] Headers created:', Object.keys(headers))
+  logger.log('[CHAT AUTH HEADERS] Headers created:', Object.keys(headers))
 
   return headers
 }

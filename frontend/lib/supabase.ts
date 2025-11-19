@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -13,9 +14,9 @@ const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
 // Log configuration status
 if (!isSupabaseConfigured) {
-  console.warn('⚠️  Supabase not configured - using mock authentication')
-  console.warn('To use Supabase: Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
-  console.warn('See .env.example for details')
+  logger.warn('⚠️  Supabase not configured - using mock authentication')
+  logger.warn('To use Supabase: Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  logger.warn('See .env.example for details')
 }
 
 /**
@@ -47,7 +48,7 @@ export async function getSession() {
 
   const { data: { session }, error } = await supabase.auth.getSession()
   if (error) {
-    console.error('Error getting session:', error)
+    logger.error('Error getting session:', error)
     return null
   }
   return session
@@ -81,7 +82,7 @@ export async function signOut() {
 
   const { error } = await supabase.auth.signOut()
   if (error) {
-    console.error('Error signing out:', error)
+    logger.error('Error signing out:', error)
     throw error
   }
 }

@@ -156,26 +156,26 @@ app.include_router(chat.router)
 @app.on_event("startup")
 async def startup_event():
     """Log startup with smart context features enabled."""
-    print("=" * 80)
-    print("SecureChat API Starting - PHASE 6: SMART CONTEXT INJECTION")
-    print("=" * 80)
-    print("Features enabled:")
-    print("  - Intent-based dependency context injection")
-    print("  - Direct CVE retrieval (bypassing vector search)")
-    print("  - Hash-based state change detection")
-    print("  - Eager loading with selectinload(Dependency.cves)")
-    print("=" * 80)
+    logger.info("=" * 80)
+    logger.info("SecureChat API Starting - PHASE 6: SMART CONTEXT INJECTION")
+    logger.info("=" * 80)
+    logger.info("Features enabled:")
+    logger.info("  - Intent-based dependency context injection")
+    logger.info("  - Direct CVE retrieval (bypassing vector search)")
+    logger.info("  - Hash-based state change detection")
+    logger.info("  - Eager loading with selectinload(Dependency.cves)")
+    logger.info("=" * 80)
 
     # Verify intent detector module is importable
     try:
         from llm_engine.intent_detector import DependencyIntentDetector  # noqa: F401
 
-        print("✓ Intent detector module loaded successfully")
+        logger.info("✓ Intent detector module loaded successfully")
     except ImportError as e:
-        print(f"✗ FAILED to load intent detector: {e}")
+        logger.error(f"✗ FAILED to load intent detector: {e}")
 
-    print("API ready at http://localhost:8000")
-    print("=" * 80)
+    logger.info("API ready at http://localhost:8000")
+    logger.info("=" * 80)
 
 
 if __name__ == "__main__":

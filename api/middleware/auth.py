@@ -269,6 +269,7 @@ def verify_token_get_user(token: str) -> User:
     """
     Synchronous version of get_current_user for WebSocket authentication.
     Verifies JWT token and returns User object.
+    Supports both Supabase JWT and mock tokens based on AUTH_MODE.
 
     Args:
         token: JWT token string
@@ -279,11 +280,25 @@ def verify_token_get_user(token: str) -> User:
     Raises:
         HTTPException: If token is invalid
     """
-    try:
-        # Verify JWT token with Supabase API
-        user_data = verify_supabase_jwt(token)
+    # Check authentication mode
+    auth_mode = os.getenv("AUTH_MODE", "production")
 
-        # Extract user information from Supabase API response
+    logger.info(
+        f"WebSocket verify_token_get_user: auth_mode={auth_mode}, token_preview={token[:50]}..."
+    )
+    logger.info(f"WebSocket is_mock_token check: {is_mock_token(token)}")
+
+    try:
+        # In development mode, check if it's a mock token first
+        if auth_mode == "development" and is_mock_token(token):
+            logger.info("WebSocket: Development mode - Processing mock token")
+            user_data = verify_mock_token(token)
+        else:
+            # Verify JWT token with Supabase API
+            logger.info(f"WebSocket: Using Supabase JWT verification (auth_mode={auth_mode})")
+            user_data = verify_supabase_jwt(token)
+
+        # Extract user information
         user_id = user_data.get("id")
         email = user_data.get("email")
         user_metadata = user_data.get("user_metadata", {})
@@ -299,7 +314,7 @@ def verify_token_get_user(token: str) -> User:
             metadata=user_metadata,
         )
 
-        logger.info(f"Authenticated user (WebSocket): {user_id} ({email})")
+        logger.info(f"Authenticated user (WebSocket): {user_id} ({email}) [mode: {auth_mode}]")
         return user
 
     except HTTPException:

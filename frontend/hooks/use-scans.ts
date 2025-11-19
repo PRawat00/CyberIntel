@@ -64,8 +64,8 @@ export function useUploadScan() {
   return useMutation({
     mutationFn: (file: File) => api.uploadScan(file),
     onSuccess: () => {
-      // Invalidate scans list and stats for current user
-      queryClient.invalidateQueries({ queryKey: ["scans", user?.id] })
+      // Invalidate all scans queries (regardless of params) and stats for current user
+      queryClient.invalidateQueries({ queryKey: ["scans"] })
       queryClient.invalidateQueries({ queryKey: ["stats", user?.id] })
     },
   })
@@ -78,8 +78,8 @@ export function useDeleteScan() {
   return useMutation({
     mutationFn: (scanId: number) => api.deleteScan(scanId),
     onSuccess: () => {
-      // Invalidate scans list and stats for current user
-      queryClient.invalidateQueries({ queryKey: ["scans", user?.id] })
+      // Invalidate all scans queries (regardless of params) and stats for current user
+      queryClient.invalidateQueries({ queryKey: ["scans"] })
       queryClient.invalidateQueries({ queryKey: ["stats", user?.id] })
     },
   })

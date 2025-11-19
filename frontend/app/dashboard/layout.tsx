@@ -39,9 +39,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen grid" style={{
-      gridTemplateColumns: isL2Collapsed ? '80px 0px 1fr 380px' : '80px 320px 1fr 380px'
-    }}>
+    <div className="min-h-screen">
       {/* Level 1 Sidebar (Icon Navigation) */}
       <SidebarL1 />
 
@@ -50,9 +48,9 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <main className={cn(
-        "overflow-auto transition-[margin] duration-300 ease-in-out pt-16",
-        "mr-[380px]",
-        isL2Collapsed ? "ml-20" : "ml-[400px]"
+        "fixed top-16 bottom-0 overflow-hidden transition-all duration-300 ease-in-out",
+        "right-[380px]",
+        isL2Collapsed ? "left-20" : "left-[400px]"
       )}>
         {children}
       </main>

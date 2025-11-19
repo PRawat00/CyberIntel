@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { logger } from "@/lib/logger"
 
 export type NavSection = "dependencies" | "integrations" | "settings"
 
@@ -36,8 +37,11 @@ export const useNavigationState = create<NavigationState>()(
       setActiveSection: (section) =>
         set({ activeSection: section }),
 
-      setSelectedScanId: (id) =>
-        set({ selectedScanId: id }),
+      setSelectedScanId: (id) => {
+        logger.log('[NAVIGATION STATE] setSelectedScanId called:', id)
+        set({ selectedScanId: id })
+        logger.log('[NAVIGATION STATE] State updated to:', id)
+      },
 
       toggleL2Sidebar: () =>
         set((state) => ({ isL2Collapsed: !state.isL2Collapsed })),

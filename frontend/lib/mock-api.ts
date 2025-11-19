@@ -4,6 +4,7 @@
  * Enables full frontend testing without running the Python backend
  */
 
+import { logger } from '@/lib/logger'
 import type { Stats, ScanSummary, ScanDetail, ScanListResponse, Dependency } from './types'
 
 // Generate realistic mock scans
@@ -329,7 +330,7 @@ export const mockAPI = {
   // Delete scan
   async deleteScan(id: number): Promise<void> {
     await simulateDelay()
-    console.log(`[MOCK API] Deleted scan ${id}`)
+    logger.log(`[MOCK API] Deleted scan ${id}`)
   },
 
   // Health check

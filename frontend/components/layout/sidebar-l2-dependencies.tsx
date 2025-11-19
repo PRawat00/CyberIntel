@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns"
 import { useUploadScan, useScans } from "@/hooks/use-scans"
 import { useNavigationState } from "@/hooks/use-navigation-state"
 import { useToast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -25,7 +26,7 @@ interface UploadState {
 }
 
 export function SidebarL2Dependencies() {
-  const { data: scansResponse, isLoading } = useScans()
+  const { data: scansResponse, isLoading, error } = useScans()
   const uploadMutation = useUploadScan()
   const { toast } = useToast()
   const { selectedScanId, setSelectedScanId } = useNavigationState()
@@ -34,6 +35,17 @@ export function SidebarL2Dependencies() {
     progress: 0,
   })
   const hasAutoSelected = useRef(false)
+
+  // Debug logging
+  useEffect(() => {
+    logger.log('[SIDEBAR] Scans query state:', {
+      isLoading,
+      hasError: !!error,
+      error: error,
+      hasData: !!scansResponse,
+      scansCount: scansResponse?.scans?.length || 0
+    })
+  }, [isLoading, error, scansResponse])
 
   // Auto-select first scan when list loads and nothing is selected (only once)
   useEffect(() => {
@@ -210,7 +222,18 @@ export function SidebarL2Dependencies() {
             </div>
           )}
 
-          {!isLoading && scans.length === 0 && (
+          {!isLoading && error && (
+            <div className="text-center py-8">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+              <p className="text-sm text-red-400">Failed to load scans</p>
+              <p className="text-xs text-slate-600 mt-1">
+                {error instanceof Error ? error.message : 'Unknown error'}
+              </p>
+              <p className="text-xs text-slate-700 mt-2">Check browser console for details</p>
+            </div>
+          )}
+
+          {!isLoading && !error && scans.length === 0 && (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-slate-600 mx-auto mb-2" />
               <p className="text-sm text-slate-500">No scans yet</p>
@@ -225,7 +248,10 @@ export function SidebarL2Dependencies() {
                   key={scan.id}
                   scan={scan}
                   isSelected={selectedScanId === scan.id}
-                  onSelect={() => setSelectedScanId(scan.id)}
+                  onSelect={() => {
+                    logger.log('[SIDEBAR] Scan clicked:', scan.id, scan.file_name)
+                    setSelectedScanId(scan.id)
+                  }}
                 />
               ))}
             </div>

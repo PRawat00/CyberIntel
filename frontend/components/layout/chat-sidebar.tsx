@@ -13,6 +13,7 @@ import { useChatSession, useChatMessages } from "@/hooks/use-chat"
 import { useWebSocket } from "@/hooks/use-websocket"
 import { chatApi } from "@/lib/chat-api"
 import { useDependencySelection } from "@/hooks/use-dependency-selection"
+import { logger } from "@/lib/logger"
 import type { ChatMessage, WebSocketMessage } from "@/lib/types"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -108,7 +109,7 @@ export function ChatSidebar() {
 
           // Invalidate query to trigger refetch (works for both active and inactive queries)
           if (session) {
-            console.log("[Chat] Invalidating messages after assistant response completed")
+            logger.log("[Chat] Invalidating messages after assistant response completed")
             queryClient.invalidateQueries({
               queryKey: ["chat-messages", session.id],
               refetchType: "all", // Refetch both active and inactive queries
@@ -117,7 +118,7 @@ export function ChatSidebar() {
           break
 
         case "error":
-          console.error("[Chat] WebSocket error:", wsMessage.error)
+          logger.error("[Chat] WebSocket error:", wsMessage.error)
           setIsWaitingForResponse(false)
           setStreamingMessage(null)
 
@@ -156,12 +157,12 @@ export function ChatSidebar() {
     {
       onMessage: handleWebSocketMessage,
       onError: () => {
-        console.log("[Chat] WebSocket error, cleaning up UI state")
+        logger.log("[Chat] WebSocket error, cleaning up UI state")
         setIsWaitingForResponse(false)
         setStreamingMessage(null)
       },
       onClose: () => {
-        console.log("[Chat] WebSocket closed, cleaning up UI state")
+        logger.log("[Chat] WebSocket closed, cleaning up UI state")
         setIsWaitingForResponse(false)
         setStreamingMessage(null)
       },
@@ -172,7 +173,7 @@ export function ChatSidebar() {
   useEffect(() => {
     if (isConnected && session) {
       if (selectedDependencyIds.length > 0) {
-        console.log("[Chat] Updating context with selected dependencies:", selectedDependencyIds)
+        logger.log("[Chat] Updating context with selected dependencies:", selectedDependencyIds)
         setContext(selectedDependencyIds)
       }
     }
@@ -231,7 +232,7 @@ export function ChatSidebar() {
       }
 
       if (!userMessageContent) {
-        console.error("Could not find user message to regenerate")
+        logger.error("Could not find user message to regenerate")
         return
       }
 

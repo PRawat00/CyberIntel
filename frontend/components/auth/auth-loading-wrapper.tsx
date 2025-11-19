@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { logger } from '@/lib/logger'
 import CounterLoader from '@/components/ui/counter-loader'
 
 interface AuthLoadingWrapperProps {
@@ -23,7 +24,7 @@ export function AuthLoadingWrapper({ children }: AuthLoadingWrapperProps) {
     // Only redirect after loading is complete and there's no user
     // Add a small debounce to prevent premature redirects during auth initialization
     if (!loading && !user && !isRedirecting) {
-      console.log('[AUTH WRAPPER] No user found after loading complete, redirecting to login...')
+      logger.log('[AUTH WRAPPER] No user found after loading complete, redirecting to login...')
       setIsRedirecting(true)
 
       // Small delay to give auth state one final chance to settle

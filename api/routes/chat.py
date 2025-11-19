@@ -532,10 +532,10 @@ async def chat_websocket(websocket: WebSocket, session_id: int):
                     update_session_context(session_id, None)
                     logger.info(f"Cleared dependencies for session {session_id}")
 
-            print(f"\n{'='*80}")
-            print(f"🚨 MESSAGE RECEIVED IN SESSION {session_id}")
-            print(f"Content: {user_message[:100]}")
-            print(f"{'='*80}\n")
+            logger.debug(f"\n{'='*80}")
+            logger.debug(f"🚨 MESSAGE RECEIVED IN SESSION {session_id}")
+            logger.debug(f"Content: {user_message[:100]}")
+            logger.debug(f"{'='*80}\n")
             logger.info(f"Received message in session {session_id}: {user_message[:50]}...")
 
             try:

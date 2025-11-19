@@ -3,6 +3,7 @@
  * Automatically falls back to mock API when backend is unavailable.
  */
 
+import { logger } from '@/lib/logger'
 import type {
   ScanDetail,
   ScanListResponse,
@@ -32,43 +33,43 @@ class APIError extends Error {
 async function getAuthToken(retryCount = 0, maxRetries = 3): Promise<string | null> {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
   if (typeof window === 'undefined') {
-    console.log('[AUTH] Window is undefined, skipping auth')
+    logger.log('[AUTH] Window is undefined, skipping auth')
     return null
   }
 
   // Try Supabase auth first
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.log('[AUTH] Trying Supabase auth...')
+    logger.log('[AUTH] Trying Supabase auth...')
     try {
       const { supabase } = await import('@/lib/supabase')
       if (supabase) {
         const { data } = await supabase.auth.getSession()
-        console.log('[AUTH] Supabase session data:', data.session ? 'Session found' : 'No session')
+        logger.log('[AUTH] Supabase session data:', data.session ? 'Session found' : 'No session')
         if (data.session?.access_token) {
-          console.log('[AUTH] Supabase token found, length:', data.session.access_token.length)
+          logger.log('[AUTH] Supabase token found, length:', data.session.access_token.length)
           return data.session.access_token
         }
       } else {
-        console.log('[AUTH] Supabase client is null')
+        logger.log('[AUTH] Supabase client is null')
       }
     } catch (error) {
-      console.error('[AUTH] Failed to get Supabase session:', error)
+      logger.error('[AUTH] Failed to get Supabase session:', error)
       // Continue to mock auth fallback
     }
   } else {
-    console.log('[AUTH] Supabase not configured, env vars missing')
+    logger.log('[AUTH] Supabase not configured, env vars missing')
   }
 
   // Fallback to mock auth
-  console.log('[AUTH] Trying mock auth fallback...')
+  logger.log('[AUTH] Trying mock auth fallback...')
   const mockSession = localStorage.getItem('mock-auth-session')
   if (mockSession) {
     try {
       const session = JSON.parse(mockSession)
-      console.log('[AUTH] Mock token found')
+      logger.log('[AUTH] Mock token found')
       return session.token
     } catch {
-      console.log('[AUTH] Failed to parse mock session')
+      logger.log('[AUTH] Failed to parse mock session')
       return null
     }
   }
@@ -77,12 +78,12 @@ async function getAuthToken(retryCount = 0, maxRetries = 3): Promise<string | nu
   // This handles race conditions where the token hasn't been written to storage yet
   if (retryCount < maxRetries) {
     const waitTime = Math.min(100 * Math.pow(2, retryCount), 500) // Exponential backoff: 100ms, 200ms, 400ms
-    console.log(`[AUTH] No token found, retrying in ${waitTime}ms (attempt ${retryCount + 1}/${maxRetries})`)
+    logger.log(`[AUTH] No token found, retrying in ${waitTime}ms (attempt ${retryCount + 1}/${maxRetries})`)
     await delay(waitTime)
     return getAuthToken(retryCount + 1, maxRetries)
   }
 
-  console.log('[AUTH] No auth token found after all retries')
+  logger.log('[AUTH] No auth token found after all retries')
   return null
 }
 
@@ -93,42 +94,42 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   const token = await getAuthToken()
 
   if (!token) {
-    console.warn('[AUTH HEADERS] No token available - request will be sent without authorization')
+    logger.warn('[AUTH HEADERS] No token available - request will be sent without authorization')
     return {}
   }
 
   // Log token details for debugging
-  console.log('[AUTH HEADERS] Token obtained, creating Bearer header')
-  console.log('[AUTH HEADERS] Token preview:', token.substring(0, 30) + '...')
-  console.log('[AUTH HEADERS] Token length:', token.length)
+  logger.log('[AUTH HEADERS] Token obtained, creating Bearer header')
+  logger.log('[AUTH HEADERS] Token preview:', token.substring(0, 30) + '...')
+  logger.log('[AUTH HEADERS] Token length:', token.length)
 
   const headers = { Authorization: `Bearer ${token}` }
-  console.log('[AUTH HEADERS] Headers created:', Object.keys(headers))
+  logger.log('[AUTH HEADERS] Headers created:', Object.keys(headers))
 
   return headers
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    console.error('[API] Request failed:')
-    console.error('[API]   Status:', response.status)
-    console.error('[API]   Status Text:', response.statusText)
-    console.error('[API]   URL:', response.url)
+    logger.error('[API] Request failed:')
+    logger.error('[API]   Status:', response.status)
+    logger.error('[API]   Status Text:', response.statusText)
+    logger.error('[API]   URL:', response.url)
 
     const error = await response.json().catch(() => ({
       error: "Unknown error",
       message: `HTTP ${response.status}: ${response.statusText}`,
     }))
 
-    console.error('[API]   Error details:', error)
+    logger.error('[API]   Error details:', error)
 
     // Special handling for authentication errors
     if (response.status === 401) {
-      console.error('[API] Authentication failed - token may be expired or invalid')
+      logger.error('[API] Authentication failed - token may be expired or invalid')
     } else if (response.status === 403) {
-      console.error('[API] Authorization failed - insufficient permissions')
+      logger.error('[API] Authorization failed - insufficient permissions')
     } else if (response.status === 404) {
-      console.error('[API] 404 Not Found - this could be a routing issue or auth dependency failure')
+      logger.error('[API] 404 Not Found - this could be a routing issue or auth dependency failure')
     }
 
     throw new APIError(response.status, error.message || error.detail, error.details)
@@ -148,21 +149,21 @@ export const api = {
     const authHeaders = await getAuthHeaders()
     const url = `${API_BASE_URL}/api/scans`
 
-    console.log('[UPLOAD] ====== FILE UPLOAD DEBUG ======')
-    console.log('[UPLOAD] Starting file upload...')
-    console.log('[UPLOAD] File name:', file.name)
-    console.log('[UPLOAD] File size:', file.size, 'bytes')
-    console.log('[UPLOAD] File type:', file.type || 'not specified')
-    console.log('[UPLOAD] API URL:', url)
-    console.log('[UPLOAD] Auth headers present:', Object.keys(authHeaders))
-    console.log('[UPLOAD] Has Authorization header:', 'Authorization' in authHeaders)
+    logger.log('[UPLOAD] ====== FILE UPLOAD DEBUG ======')
+    logger.log('[UPLOAD] Starting file upload...')
+    logger.log('[UPLOAD] File name:', file.name)
+    logger.log('[UPLOAD] File size:', file.size, 'bytes')
+    logger.log('[UPLOAD] File type:', file.type || 'not specified')
+    logger.log('[UPLOAD] API URL:', url)
+    logger.log('[UPLOAD] Auth headers present:', Object.keys(authHeaders))
+    logger.log('[UPLOAD] Has Authorization header:', 'Authorization' in authHeaders)
 
     if ('Authorization' in authHeaders) {
       const authHeader = (authHeaders as any).Authorization
-      console.log('[UPLOAD] Auth header format:', authHeader.startsWith('Bearer ') ? 'Bearer token' : 'Unknown format')
-      console.log('[UPLOAD] Token preview:', authHeader.substring(0, 50) + '...')
+      logger.log('[UPLOAD] Auth header format:', authHeader.startsWith('Bearer ') ? 'Bearer token' : 'Unknown format')
+      logger.log('[UPLOAD] Token preview:', authHeader.substring(0, 50) + '...')
     } else {
-      console.error('[UPLOAD] No Authorization header - cannot proceed with upload')
+      logger.error('[UPLOAD] No Authorization header - cannot proceed with upload')
       throw new APIError(
         401,
         'Authentication required. Please ensure you are logged in and try again.',
@@ -170,7 +171,7 @@ export const api = {
       )
     }
 
-    console.log('[UPLOAD] Sending request...')
+    logger.log('[UPLOAD] Sending request...')
 
     const response = await fetch(url, {
       method: "POST",
@@ -180,11 +181,11 @@ export const api = {
       body: formData,
     })
 
-    console.log('[UPLOAD] Response received:')
-    console.log('[UPLOAD]   Status:', response.status)
-    console.log('[UPLOAD]   Status Text:', response.statusText)
-    console.log('[UPLOAD]   Response Type:', response.type)
-    console.log('[UPLOAD] ================================')
+    logger.log('[UPLOAD] Response received:')
+    logger.log('[UPLOAD]   Status:', response.status)
+    logger.log('[UPLOAD]   Status Text:', response.statusText)
+    logger.log('[UPLOAD]   Response Type:', response.type)
+    logger.log('[UPLOAD] ================================')
 
     return handleResponse<ScanDetail>(response)
   },
@@ -289,17 +290,17 @@ export const api = {
    */
   async getStats(): Promise<Stats> {
     const headers = await getAuthHeaders()
-    console.log('[API] Getting stats from:', `${API_BASE_URL}/api/stats`)
-    console.log('[API] Auth headers:', headers)
+    logger.log('[API] Getting stats from:', `${API_BASE_URL}/api/stats`)
+    logger.log('[API] Auth headers:', headers)
 
     const response = await fetch(`${API_BASE_URL}/api/stats`, {
       headers,
     })
 
-    console.log('[API] Stats response status:', response.status)
+    logger.log('[API] Stats response status:', response.status)
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[API] Stats error response:', errorText)
+      logger.error('[API] Stats error response:', errorText)
     }
 
     return handleResponse<Stats>(response)

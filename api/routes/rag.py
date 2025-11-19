@@ -5,6 +5,9 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from api.middleware.auth import RequireAuth, User
+from database.db import get_db_session
+from database.models import Scan
 from llm_engine.rag_retriever import RAGRetriever
 
 logger = logging.getLogger(__name__)
@@ -78,7 +81,7 @@ router = APIRouter(prefix="/api/rag", tags=["RAG"])
 
 
 @router.post("/query", response_model=QueryResponse)
-async def query_general(request: QueryRequest):
+async def query_general(request: QueryRequest, user: User = RequireAuth):
     """Query CVEs with semantic search (General Mode).
 
     Use cases:
@@ -119,7 +122,7 @@ async def query_general(request: QueryRequest):
 
 
 @router.post("/scan/{scan_id}/query", response_model=QueryResponse)
-async def query_project(scan_id: int, request: ProjectQueryRequest):
+async def query_project(scan_id: int, request: ProjectQueryRequest, user: User = RequireAuth):
     """Query CVEs relevant to a specific project/scan (Project Mode).
 
     Use cases:
@@ -141,6 +144,17 @@ async def query_project(scan_id: int, request: ProjectQueryRequest):
           }'
         ```
     """
+    # Validate scan ownership
+    with get_db_session() as session:
+        scan = session.query(Scan).filter(Scan.id == scan_id).first()
+
+        if not scan:
+            raise HTTPException(status_code=404, detail="Scan not found")
+
+        # Verify user owns this scan
+        if scan.user_id != user.id:
+            raise HTTPException(status_code=403, detail="Access denied: You don't own this scan")
+
     try:
         retriever = get_rag_retriever()
 
@@ -168,6 +182,7 @@ async def find_similar(
     cve_id: str,
     top_k: int = Query(5, description="Number of similar CVEs to return", ge=1, le=20),
     exclude_self: bool = Query(True, description="Exclude the reference CVE from results"),
+    user: User = RequireAuth,
 ):
     """Find CVEs similar to a given CVE.
 
@@ -200,7 +215,7 @@ async def find_similar(
 
 
 @router.get("/stats")
-async def get_stats():
+async def get_stats(user: User = RequireAuth):
     """Get statistics about the RAG system.
 
     Returns:
@@ -226,7 +241,7 @@ async def get_stats():
 
 
 @router.get("/health")
-async def health_check():
+async def health_check(user: User = RequireAuth):
     """Check if RAG system is healthy and ready.
 
     Returns:
