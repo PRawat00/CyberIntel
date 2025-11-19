@@ -168,17 +168,6 @@ export function NodeDetailsPanel({ nodes, onClose, position, chatSidebarOpen }: 
 
       <ScrollArea className="h-[600px]">
         <CardContent className="space-y-4">
-          {/* Description */}
-          {data.description && (
-            <div>
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                Description
-              </h4>
-              <p className="text-sm text-muted-foreground">{data.description}</p>
-            </div>
-          )}
-
           <Separator />
 
           {/* Vulnerabilities */}
@@ -232,11 +221,6 @@ export function NodeDetailsPanel({ nodes, onClose, position, chatSidebarOpen }: 
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mb-2">{cve.description}</p>
-                    {cve.fixed_version && (
-                      <p className="text-xs text-green-600 dark:text-green-400">
-                        Fixed in: v{cve.fixed_version}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>
