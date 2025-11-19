@@ -4,7 +4,8 @@ import "./globals.css"
 import { Providers } from "./providers"
 import { Toaster } from "@/components/ui/sonner"
 import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
+import { ConditionalFooter } from "@/components/layout/conditional-footer"
+import { DemoModeBadge } from "@/components/ui/demo-mode-badge"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,8 +29,9 @@ export default function RootLayout({
           <div className="flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <ConditionalFooter />
           </div>
+          <DemoModeBadge />
         </Providers>
         <Toaster />
       </body>

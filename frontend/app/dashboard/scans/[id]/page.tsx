@@ -10,9 +10,12 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { VulnerabilityTable } from "@/components/scan/vulnerability-table"
 import { SeverityBreakdown } from "@/components/scan/severity-breakdown"
 import { CveDetailsDialog } from "@/components/scan/cve-details-dialog"
+import { NetworkGraph } from "@/components/graph/NetworkGraph"
+import { transformToGraphData } from "@/components/graph/graph-utils"
 import {
   ArrowLeft,
   Download,
@@ -22,7 +25,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react"
-import type { Dependency } from "@/lib/types"
+import type { Dependency, GraphNode } from "@/lib/types"
 
 export default function ScanDetailPage({
   params,
@@ -36,6 +39,7 @@ export default function ScanDetailPage({
   const deleteMutation = useDeleteScan()
   const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
 
   // Clear checkbox selections when entering this page
   useEffect(() => {
@@ -45,6 +49,21 @@ export default function ScanDetailPage({
   const handleRowClick = (dependency: Dependency) => {
     setSelectedDependency(dependency)
     setDialogOpen(true)
+  }
+
+  const handleNodeClick = (node: GraphNode, isMultiSelect: boolean) => {
+    setSelectedDependency(node.data)
+    setDialogOpen(true)
+
+    if (isMultiSelect) {
+      setSelectedNodeIds((prev) =>
+        prev.includes(node.id)
+          ? prev.filter((id) => id !== node.id)
+          : [...prev, node.id]
+      )
+    } else {
+      setSelectedNodeIds([node.id])
+    }
   }
 
   const handleDelete = async () => {
@@ -101,6 +120,9 @@ export default function ScanDetailPage({
   if (!scan) {
     return null
   }
+
+  // Transform dependencies to graph data
+  const graphData = transformToGraphData(scan.dependencies, scan.file_name)
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -267,17 +289,37 @@ export default function ScanDetailPage({
         </div>
       </div>
 
-      {/* Dependencies Table */}
+      {/* Dependencies - Table & Graph View */}
       <Card>
         <CardHeader>
           <CardTitle>Dependencies ({scan.dependencies.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <VulnerabilityTable
-            dependencies={scan.dependencies}
-            scanId={scan.id}
-            onRowClick={handleRowClick}
-          />
+          <Tabs defaultValue="table" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
+              <TabsTrigger value="table">Table View</TabsTrigger>
+              <TabsTrigger value="graph">Graph View</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="table" className="mt-0">
+              <VulnerabilityTable
+                dependencies={scan.dependencies}
+                scanId={scan.id}
+                onRowClick={handleRowClick}
+              />
+            </TabsContent>
+
+            <TabsContent value="graph" className="mt-0">
+              <div className="w-full h-[600px]">
+                <NetworkGraph
+                  nodes={graphData.nodes}
+                  links={graphData.links}
+                  selectedNodeIds={selectedNodeIds}
+                  onNodeClick={handleNodeClick}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 

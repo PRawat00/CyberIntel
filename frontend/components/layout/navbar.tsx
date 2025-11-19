@@ -11,7 +11,6 @@ import { UserMenu } from "@/components/auth/user-menu"
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Upload", href: "/upload" },
   { name: "Dashboard", href: "/dashboard" },
 ]
 

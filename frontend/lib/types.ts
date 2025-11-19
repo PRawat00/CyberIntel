@@ -2,6 +2,8 @@
  * TypeScript types for the SecureChat application.
  */
 
+import { SimulationNodeDatum, SimulationLinkDatum } from 'd3'
+
 export interface CVE {
   cve_id: string
   severity: string
@@ -13,6 +15,19 @@ export interface CVE {
   affected_version?: string
 }
 
+// Usage Analysis Types (for Code Impact feature)
+export interface CodeUsage {
+  isUsed: boolean
+  impactScore: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE'
+  locations: UsageLocation[]
+}
+
+export interface UsageLocation {
+  file: string
+  line: number
+  snippet: string
+}
+
 export interface Dependency {
   id: number
   package_name: string
@@ -22,6 +37,10 @@ export interface Dependency {
   cve_count: number
   highest_severity?: string
   cves: CVE[]
+  // Extended fields for new features
+  usage?: CodeUsage
+  license?: string
+  type?: 'direct' | 'transitive' | 'dev'
 }
 
 export interface SeverityCount {
@@ -124,4 +143,62 @@ export interface Session {
 export interface AuthError {
   message: string
   status?: number
+}
+
+// Graph Visualization Types (for D3 Network Graph)
+export interface GraphNode extends SimulationNodeDatum {
+  id: string
+  group: number // 1: Root, 2: Direct, 3: Transitive
+  status: 'safe' | 'warning' | 'critical'
+  data: Dependency
+  // Explicitly defining these for stricter type safety with D3
+  x?: number
+  y?: number
+  vx?: number
+  vy?: number
+  fx?: number | null
+  fy?: number | null
+  index?: number
+}
+
+export interface GraphLink extends SimulationLinkDatum<GraphNode> {
+  source: string | GraphNode
+  target: string | GraphNode
+}
+
+export interface GraphData {
+  nodes: GraphNode[]
+  links: GraphLink[]
+}
+
+// Reports Types (for License Analysis and Compliance)
+export interface LicenseDistribution {
+  license: string
+  count: number
+  percentage: number
+}
+
+export interface RiskFactor {
+  title: string
+  description: string
+  severity: 'high' | 'medium' | 'low'
+  count: number
+}
+
+export interface SecurityReport {
+  security_score: number
+  license_risk: 'low' | 'medium' | 'high'
+  policy_status: 'passed' | 'failed' | 'warning'
+  license_distribution: LicenseDistribution[]
+  risk_factors: RiskFactor[]
+}
+
+// Integration Types
+export interface Integration {
+  id: string
+  name: string
+  type: 'github' | 'slack' | 'jira' | 'other'
+  status: 'connected' | 'disconnected' | 'error'
+  config?: Record<string, unknown>
+  last_sync?: string
 }

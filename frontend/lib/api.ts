@@ -1,5 +1,6 @@
 /**
  * API client for communicating with the FastAPI backend.
+ * Automatically falls back to mock API when backend is unavailable.
  */
 
 import type {
@@ -24,18 +25,12 @@ class APIError extends Error {
 }
 
 /**
- * Helper to delay execution
- */
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-/**
  * Get auth token from localStorage
  * Works with both mock auth and Supabase auth
  * Includes retry mechanism to handle race conditions after login
  */
 async function getAuthToken(retryCount = 0, maxRetries = 3): Promise<string | null> {
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
   if (typeof window === 'undefined') {
     console.log('[AUTH] Window is undefined, skipping auth')
     return null

@@ -4,23 +4,19 @@
 
 "use client"
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react"
-import { X, MessageSquare, XCircle } from "lucide-react"
+import { useEffect, useState, useCallback, useMemo } from "react"
+import { MessageSquare, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { ChatMessages } from "@/components/chat/chat-messages"
 import { ChatInput } from "@/components/chat/chat-input"
 import { useChatSession, useChatMessages } from "@/hooks/use-chat"
 import { useWebSocket } from "@/hooks/use-websocket"
 import { chatApi } from "@/lib/chat-api"
-import { useSidebar } from "@/hooks/use-sidebar"
 import { useDependencySelection } from "@/hooks/use-dependency-selection"
-import { cn } from "@/lib/utils"
 import type { ChatMessage, WebSocketMessage } from "@/lib/types"
 import { useQueryClient } from "@tanstack/react-query"
 
 export function ChatSidebar() {
-  const { isOpen, close } = useSidebar()
   const queryClient = useQueryClient()
   const { selectedDependencyIds, clearSelection, getSelectedCount } = useDependencySelection()
 
@@ -145,16 +141,16 @@ export function ChatSidebar() {
     [session, queryClient, getTempId]
   )
 
-  // Resolve WebSocket URL asynchronously when session or isOpen changes
+  // Resolve WebSocket URL asynchronously when session changes
   useEffect(() => {
-    if (session && isOpen) {
+    if (session) {
       chatApi.getWebSocketUrl(session.id).then(setWsUrl)
     } else {
       setWsUrl(null)
     }
-  }, [session?.id, isOpen])
+  }, [session?.id])
 
-  // WebSocket connection (only connect when sidebar is open)
+  // WebSocket connection
   const { sendMessage, setContext, clearContext: clearWSContext, isConnected } = useWebSocket(
     wsUrl,
     {
@@ -256,44 +252,11 @@ export function ChatSidebar() {
   )
 
   return (
-    <>
-      {/* Mobile/Tablet Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-          onClick={close}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed right-0 top-0 h-full bg-card border-l border-border shadow-xl z-50",
-          "flex flex-col",
-          "transition-transform duration-300 ease-in-out",
-          // Mobile: full width
-          "w-full sm:w-[380px]",
-          // Desktop: fixed width
-          "lg:w-[380px]",
-          // Transform based on open state
-          isOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
+    <aside className="fixed right-0 top-16 bottom-0 w-[380px] bg-card border-l border-border shadow-xl flex flex-col z-20">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Security Assistant</h2>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={close}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close sidebar</span>
-          </Button>
+        <div className="flex items-center gap-2 p-4 border-b border-border">
+          <MessageSquare className="h-5 w-5 text-primary" />
+          <h2 className="font-semibold">Security Assistant</h2>
         </div>
 
         {/* Connection Status */}
@@ -363,6 +326,5 @@ export function ChatSidebar() {
           />
         </div>
       </aside>
-    </>
   )
 }

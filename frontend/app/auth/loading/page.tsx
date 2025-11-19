@@ -29,9 +29,6 @@ function LoadingPageContent() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(countdownInterval)
-          console.log('🔐 Countdown complete, navigating to:', redirect)
-          // Navigate to the intended destination
-          router.push(redirect)
           return 0
         }
         return prev - 1
@@ -42,7 +39,15 @@ function LoadingPageContent() {
     return () => {
       clearInterval(countdownInterval)
     }
-  }, [redirect, router])
+  }, [redirect])
+
+  // Navigate when countdown reaches 0 (separate effect to avoid setState during render)
+  useEffect(() => {
+    if (countdown === 0) {
+      console.log('🔐 Countdown complete, navigating to:', redirect)
+      router.push(redirect)
+    }
+  }, [countdown, redirect, router])
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/20">

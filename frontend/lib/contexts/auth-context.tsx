@@ -21,12 +21,18 @@ const hasSupabaseConfig =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-const authService = hasSupabaseConfig ? supabaseAuth : mockAuth
+// Force mock auth on localhost to avoid OAuth redirect issues
+const isLocalhost = typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+const authService = (hasSupabaseConfig && !isLocalhost) ? supabaseAuth : mockAuth
 
 // Log which auth service is being used
 if (typeof window !== 'undefined') {
+  const usingMock = !hasSupabaseConfig || isLocalhost
   console.log(
-    `🔐 Auth Service: ${hasSupabaseConfig ? 'Supabase' : 'Mock'} ${
+    `🔐 Auth Service: ${usingMock ? 'Mock' : 'Supabase'} ${
+      isLocalhost ? '(localhost detected - using mock auth)' :
       hasSupabaseConfig ? '' : '(Set NEXT_PUBLIC_SUPABASE_URL to use Supabase)'
     }`
   )
