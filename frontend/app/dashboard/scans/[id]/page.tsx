@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { useScan, useDeleteScan } from "@/hooks/use-scans"
 import { useDependencySelection } from "@/hooks/use-dependency-selection"
+import { useNavigationState } from "@/hooks/use-navigation-state"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -37,9 +38,18 @@ export default function ScanDetailPage({
   const router = useRouter()
   const { data: scan, isLoading, error } = useScan(scanId)
   const deleteMutation = useDeleteScan()
+  const { setSelectedScanId } = useNavigationState()
   const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
+
+  // Sync scan ID to navigation state when viewing this page
+  // This ensures the sidebar selection stays in sync when navigating directly via URL
+  useEffect(() => {
+    if (scanId) {
+      setSelectedScanId(scanId)
+    }
+  }, [scanId, setSelectedScanId])
 
   // Clear checkbox selections when entering this page
   useEffect(() => {

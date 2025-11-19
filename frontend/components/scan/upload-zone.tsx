@@ -7,6 +7,7 @@ import { Upload, File as FileIcon, CheckCircle2, XCircle, Loader2 } from "lucide
 import { motion, AnimatePresence } from "framer-motion"
 import { useUploadScan } from "@/hooks/use-scans"
 import { useToast } from "@/hooks/use-toast"
+import { useNavigationState } from "@/hooks/use-navigation-state"
 import { api } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -29,6 +30,7 @@ export function UploadZone() {
   const router = useRouter()
   const uploadMutation = useUploadScan()
   const { toast } = useToast()
+  const { setSelectedScanId } = useNavigationState()
   const [uploadState, setUploadState] = useState<UploadState>({
     status: "idle",
     progress: 0,
@@ -90,9 +92,12 @@ export function UploadZone() {
           variant: "success",
         })
 
-        // Redirect to scan results after 1 second
+        // Set the selected scan ID in navigation state so it's selected in the sidebar
+        setSelectedScanId(scan.id)
+
+        // Redirect to dependencies page where the file list sidebar is shown
         setTimeout(() => {
-          router.push(`/dashboard/scans/${scan.id}`)
+          router.push(`/dashboard/dependencies`)
         }, 1000)
       } catch (error) {
         clearInterval(progressInterval)
@@ -111,7 +116,7 @@ export function UploadZone() {
         })
       }
     },
-    [uploadMutation, router, toast]
+    [uploadMutation, router, toast, setSelectedScanId]
   )
 
   const onDrop = useCallback(
