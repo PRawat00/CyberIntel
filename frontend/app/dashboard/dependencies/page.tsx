@@ -17,9 +17,7 @@ import type { GraphNode } from "@/lib/types"
 
 export default function DependenciesPage() {
   const { selectedScanId } = useNavigationState()
-  const { data: scan, isLoading, error } = useScan(selectedScanId || 0, {
-    enabled: !!selectedScanId,
-  })
+  const { data: scan, isLoading, error } = useScan(selectedScanId || 0)
 
   const [viewMode, setViewMode] = useState<"graph" | "table">("graph")
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
