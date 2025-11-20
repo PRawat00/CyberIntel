@@ -5,7 +5,7 @@ import { useNavigationState } from "@/hooks/use-navigation-state"
 import { useScan } from "@/hooks/use-scans"
 import { NetworkGraph } from "@/components/graph/NetworkGraph"
 import { VulnerabilityTable } from "@/components/scan/vulnerability-table"
-import { NodeDetailsPanel } from "@/components/graph/node-details-panel"
+import { CveDetailsDialog } from "@/components/scan/cve-details-dialog"
 import { transformToGraphData } from "@/components/graph/graph-utils"
 import { logger } from "@/lib/logger"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,7 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Network, Table2, Upload, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { GraphNode } from "@/lib/types"
+import type { GraphNode, Dependency } from "@/lib/types"
 
 export default function DependenciesPage() {
   const { selectedScanId } = useNavigationState()
@@ -37,38 +37,34 @@ export default function DependenciesPage() {
 
   const [viewMode, setViewMode] = useState<"graph" | "table">("graph")
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
-  const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | undefined>()
+  const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   // Reset selection when scan changes
   useEffect(() => {
     setSelectedNodeIds([])
-    setClickPosition(undefined)
   }, [selectedScanId])
 
-  // Handle node selection from graph
-  const handleNodeClick = (node: GraphNode, isMultiSelect: boolean, position?: { x: number; y: number }) => {
+  // Handle node selection from graph - open CVE details dialog
+  const handleNodeClick = (node: GraphNode, isMultiSelect: boolean) => {
+    // Open CVE details dialog with the node's dependency data
+    setSelectedDependency(node.data)
+    setDialogOpen(true)
+
+    // Keep node highlighted in graph for visual feedback
     if (isMultiSelect) {
       setSelectedNodeIds((prev) =>
         prev.includes(node.id) ? prev.filter((id) => id !== node.id) : [...prev, node.id]
       )
     } else {
-      // Toggle logic: if node is already selected as the only selection, deselect it
-      setSelectedNodeIds((prev) =>
-        prev.includes(node.id) && prev.length === 1 ? [] : [node.id]
-      )
-    }
-    if (position) {
-      setClickPosition(position)
+      setSelectedNodeIds([node.id])
     }
   }
 
-  // Handle table row click - show same popup as graph node
-  const handleTableRowClick = (dependency: any) => {
-    const node = graphData.nodes.find((n) => n.id === dependency.package_name)
-    if (node) {
-      setSelectedNodeIds([node.id])
-      setClickPosition(undefined) // Use default positioning
-    }
+  // Handle table row click - open CVE details dialog
+  const handleTableRowClick = (dependency: Dependency) => {
+    setSelectedDependency(dependency)
+    setDialogOpen(true)
   }
 
   // Empty state - no scan selected
@@ -118,9 +114,6 @@ export default function DependenciesPage() {
 
   // Transform scan data for graph
   const graphData = transformToGraphData(scan.dependencies, scan.file_name)
-
-  // Get selected nodes for details panel
-  const selectedNodes = graphData.nodes.filter((node) => selectedNodeIds.includes(node.id))
 
   logger.log('[DEPENDENCIES PAGE] Rendering graph:', {
     scanId: scan.id,
@@ -205,7 +198,7 @@ export default function DependenciesPage() {
 
             <CardContent className="flex-1 min-h-0 flex flex-col p-0">
               {viewMode === "graph" ? (
-                <div className="flex-1 border-t border-border">
+                <div className="relative h-[600px] border-t border-border overflow-hidden">
                   <NetworkGraph
                     nodes={graphData.nodes}
                     links={graphData.links}
@@ -213,7 +206,7 @@ export default function DependenciesPage() {
                     onNodeClick={handleNodeClick}
                   />
                   {selectedNodeIds.length > 0 && (
-                    <div className="mx-6 mb-6 p-4 border border-brand-500/30 rounded-lg bg-brand-500/5">
+                    <div className="absolute bottom-4 left-6 right-6 p-4 border border-brand-500/30 rounded-lg bg-brand-500/5 backdrop-blur-sm shadow-lg">
                       <p className="text-sm text-slate-300">
                         {selectedNodeIds.length} node(s) selected •{" "}
                         <button
@@ -239,18 +232,18 @@ export default function DependenciesPage() {
           </Card>
       </div>
 
-      {/* Node Details Panel */}
-      {selectedNodes.length > 0 && (
-        <NodeDetailsPanel
-          nodes={selectedNodes}
-          onClose={() => {
+      {/* CVE Details Dialog */}
+      <CveDetailsDialog
+        dependency={selectedDependency}
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open)
+          // Clear node selection when dialog closes to prevent graph shifting
+          if (!open) {
             setSelectedNodeIds([])
-            setClickPosition(undefined)
-          }}
-          position={clickPosition}
-          chatSidebarOpen={true}
-        />
-      )}
+          }
+        }}
+      />
     </>
   )
 }

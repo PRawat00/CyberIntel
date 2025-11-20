@@ -123,11 +123,25 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html,
+  body {
+    height: 100vh;
+    width: 100vw;
+  }
+
   body {
     @apply bg-background text-foreground;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
+
+    /* Prevent ANY padding-right on body (from Radix Dialog or elsewhere) */
+    /* Our scrollbar is already hidden via CSS above, so we never need padding compensation */
+    /* This prevents layout shifts in fixed-positioned elements when dialogs open/close */
+    /* Using !important to override inline styles that Radix may apply */
+    padding-right: 0 !important;
   }
+
   body::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
   }
