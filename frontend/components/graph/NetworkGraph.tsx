@@ -12,42 +12,18 @@ interface NetworkGraphProps {
 }
 
 /**
- * Calculate gradient color based on vulnerability severity
- * Green (safe) → Yellow (warning) → Orange → Red (critical)
+ * Calculate binary color based on vulnerability presence
+ * Red if any CVEs exist, Green if none
  */
 function getSeverityColor(node: GraphNode): string {
   const { data } = node
 
-  // Calculate severity score
-  let score = 0
+  // Binary: Red if any CVEs exist, Green if none
   if (data.cves && data.cves.length > 0) {
-    data.cves.forEach((cve) => {
-      switch (cve.severity) {
-        case 'CRITICAL':
-          score += 10
-          break
-        case 'HIGH':
-          score += 5
-          break
-        case 'MEDIUM':
-          score += 2
-          break
-        case 'LOW':
-          score += 1
-          break
-      }
-    })
+    return '#ef4444' // Red
   }
 
-  // Normalize score to 0-1 range (max score of 50 for gradient calculation)
-  const normalizedScore = Math.min(score / 50, 1)
-
-  // Define color stops: green → yellow → orange → red
-  const colorScale = d3.scaleLinear<string>()
-    .domain([0, 0.3, 0.6, 1])
-    .range(['#10b981', '#eab308', '#f97316', '#ef4444']) // green → yellow → orange → red
-
-  return colorScale(normalizedScore)
+  return '#10b981' // Green
 }
 
 export function NetworkGraph({ nodes, links, selectedNodeIds, onNodeClick }: NetworkGraphProps) {
@@ -210,22 +186,14 @@ export function NetworkGraph({ nodes, links, selectedNodeIds, onNodeClick }: Net
     >
       <svg ref={svgRef} className="w-full h-full block"></svg>
       <div className="absolute bottom-4 right-4 bg-card/80 p-3 rounded-lg text-xs text-muted-foreground border backdrop-blur-sm pointer-events-none select-none">
-        <div className="font-semibold mb-2 text-slate-300">Severity Gradient</div>
+        <div className="font-semibold mb-2 text-slate-300">Vulnerability Status</div>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#10b981' }}></span>
-          <span>Safe</span>
-        </div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#eab308' }}></span>
-          <span>Low Risk</span>
-        </div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#f97316' }}></span>
-          <span>High Risk</span>
+          <span>No Vulnerabilities</span>
         </div>
         <div className="flex items-center gap-2 mb-2">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ef4444' }}></span>
-          <span>Critical</span>
+          <span>Has Vulnerabilities</span>
         </div>
         <div className="text-[10px] opacity-60 pt-2 border-t">
           <div>Click: Select node</div>
