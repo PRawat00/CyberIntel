@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useDropzone } from "react-dropzone"
-import { Upload, File as FileIcon, CheckCircle2, XCircle, Loader2 } from "lucide-react"
+import { Upload, File as FileIcon, CheckCircle2, XCircle, Loader2, Github } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUploadScan } from "@/hooks/use-scans"
 import { useToast } from "@/hooks/use-toast"
@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { fadeIn, smooth } from "@/lib/animations"
+import { GitHubRepoBrowser } from "@/components/github/repo-browser"
 
 const ALLOWED_EXTENSIONS = [".json", ".txt", ".lock", ".in", ".toml", ".mod", ".sum"]
 const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB
@@ -164,6 +165,80 @@ export function UploadZone() {
       }
     },
     [processFile, toast]
+  )
+
+  const handleGitHubImport = useCallback(
+    async (repo: any, file: any) => {
+      // Start the import process
+      setUploadState({
+        status: "uploading",
+        progress: 0,
+        fileName: `${repo.name}/${file.name}`,
+      })
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setUploadState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }))
+      }, 200)
+
+      try {
+        // Import and scan the file from GitHub
+        const response = await api.post("/github/scan", {
+          owner: repo.owner,
+          repo: repo.name,
+          file_path: file.path,
+          branch: repo.default_branch,
+        })
+
+        clearInterval(progressInterval)
+
+        if (response.success) {
+          setUploadState({
+            status: "success",
+            progress: 100,
+            fileName: `${repo.name}/${file.name}`,
+          })
+
+          toast({
+            title: "GitHub import successful!",
+            description: `Found ${response.total_cves || 0} vulnerabilities in ${response.total_dependencies} dependencies`,
+            variant: "success",
+          })
+
+          // Set the selected scan ID
+          if (response.scan_id) {
+            setSelectedScanId(response.scan_id)
+          }
+
+          // Redirect to dependencies page
+          setTimeout(() => {
+            router.push(`/dashboard/dependencies`)
+          }, 1000)
+        } else {
+          throw new Error(response.message || "Import failed")
+        }
+      } catch (error) {
+        clearInterval(progressInterval)
+        const errorMessage = error instanceof Error ? error.message : "GitHub import failed"
+
+        setUploadState({
+          status: "error",
+          progress: 0,
+          fileName: `${repo.name}/${file.name}`,
+          error: errorMessage,
+        })
+
+        toast({
+          title: "Import failed",
+          description: errorMessage,
+          variant: "destructive",
+        })
+      }
+    },
+    [router, toast, setSelectedScanId]
   )
 
   const resetUpload = () => {
@@ -342,20 +417,38 @@ export function UploadZone() {
       </motion.div>
 
       {uploadState.status === "idle" && (
-        <div className="text-center text-sm text-muted-foreground">
-          <p className="font-medium mb-2">Supported file types:</p>
-          <div className="space-y-1">
-            <p>
-              <strong>npm:</strong> package.json, package-lock.json
-            </p>
-            <p>
-              <strong>Python:</strong> requirements.txt, Pipfile
-            </p>
-            <p>
-              <strong>Go:</strong> go.mod, go.sum (coming soon)
-            </p>
+        <>
+          {/* GitHub Import Button */}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">or</span>
+              <GitHubRepoBrowser
+                onImport={handleGitHubImport}
+                trigger={
+                  <Button variant="outline" className="gap-2">
+                    <Github className="h-4 w-4" />
+                    Import from GitHub
+                  </Button>
+                }
+              />
+            </div>
           </div>
-        </div>
+
+          <div className="text-center text-sm text-muted-foreground">
+            <p className="font-medium mb-2">Supported file types:</p>
+            <div className="space-y-1">
+              <p>
+                <strong>npm:</strong> package.json, package-lock.json
+              </p>
+              <p>
+                <strong>Python:</strong> requirements.txt, Pipfile
+              </p>
+              <p>
+                <strong>Go:</strong> go.mod, go.sum (coming soon)
+              </p>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

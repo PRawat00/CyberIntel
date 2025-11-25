@@ -43,7 +43,8 @@ export default function AuthCallbackPage() {
           const accessToken = hashParams.get('access_token')
           if (accessToken) {
             // Session already set by Supabase client
-            router.replace('/dashboard')
+            // Use loading page to give auth context time to initialize
+            router.replace('/auth/loading?redirect=/dashboard')
             return
           }
 
@@ -60,8 +61,8 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
-          // Success! Redirect to dashboard
-          router.replace('/dashboard')
+          // Success! Redirect through loading page to give auth context time to initialize
+          router.replace('/auth/loading?redirect=/dashboard')
         } else {
           setError('Failed to create session')
         }

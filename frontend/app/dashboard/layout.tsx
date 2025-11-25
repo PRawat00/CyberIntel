@@ -14,6 +14,7 @@ import { SidebarL2Integrations } from "@/components/layout/sidebar-l2-integratio
 import { SidebarL2Settings } from "@/components/layout/sidebar-l2-settings"
 import { useNavigationState } from "@/hooks/use-navigation-state"
 import { cn } from "@/lib/utils"
+import { AuthLoadingWrapper } from "@/components/auth/auth-loading-wrapper"
 
 export default function DashboardLayout({
   children,
@@ -39,24 +40,26 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen overflow-hidden h-screen">
-      {/* Level 1 Sidebar (Icon Navigation) */}
-      <SidebarL1 />
+    <AuthLoadingWrapper>
+      <div className="min-h-screen overflow-hidden h-screen">
+        {/* Level 1 Sidebar (Icon Navigation) */}
+        <SidebarL1 />
 
-      {/* Level 2 Sidebar (Context-Aware Content) */}
-      <SidebarL2>{getL2Content()}</SidebarL2>
+        {/* Level 2 Sidebar (Context-Aware Content) */}
+        <SidebarL2>{getL2Content()}</SidebarL2>
 
-      {/* Main Content Area */}
-      <main className={cn(
-        "fixed top-16 bottom-0 overflow-hidden transition-all duration-300 ease-in-out",
-        "right-[380px]",
-        isL2Collapsed ? "left-20" : "left-[400px]"
-      )}>
-        {children}
-      </main>
+        {/* Main Content Area */}
+        <main className={cn(
+          "fixed top-16 bottom-0 overflow-hidden transition-all duration-300 ease-in-out",
+          "right-[380px]",
+          isL2Collapsed ? "left-20" : "left-[400px]"
+        )}>
+          {children}
+        </main>
 
-      {/* Chat Sidebar */}
-      <ChatSidebar />
-    </div>
+        {/* Chat Sidebar */}
+        <ChatSidebar />
+      </div>
+    </AuthLoadingWrapper>
   )
 }

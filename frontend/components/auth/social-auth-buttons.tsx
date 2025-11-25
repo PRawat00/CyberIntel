@@ -34,8 +34,8 @@ export function SocialAuthButtons() {
         return
       }
 
-      // Success - redirect to dashboard
-      router.push('/dashboard')
+      // Success - redirect through loading page for consistent auth flow
+      router.push('/auth/loading?redirect=/dashboard')
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('OAuth error:', err)
