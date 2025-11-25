@@ -214,16 +214,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error) {
-        return { error }
+        return { user: null, error }
       }
 
       setUser(user)
       setSession(session)
       await setSessionCookie(session)
-      return { error: null }
+      return { user, error: null }
     } catch (error) {
       logger.error('OAuth sign in error:', error)
       return {
+        user: null,
         error: {
           message: 'An unexpected error occurred',
           status: 500,
