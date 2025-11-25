@@ -27,15 +27,19 @@ export function SocialAuthButtons() {
     setError(null)
 
     try {
-      const { error } = await signInWithOAuth(provider)
+      const { user, error } = await signInWithOAuth(provider)
 
       if (error) {
         setError(error.message)
         return
       }
 
-      // Success - redirect to dashboard
-      router.push('/dashboard')
+      // Only redirect if user was returned (mock auth)
+      // For real OAuth, Supabase handles the redirect to the provider
+      if (user) {
+        router.push('/dashboard')
+      }
+      // Otherwise, browser will be redirected to OAuth provider by Supabase
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('OAuth error:', err)
