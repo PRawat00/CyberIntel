@@ -61,13 +61,9 @@ export function LoginForm() {
         return
       }
 
-      // Success - redirect to loading page which provides 3-second buffer for auth to settle
+      // Success - redirect to dashboard
       setIsRedirecting(true)
-
-      // Redirect to loading page with intended destination
-      // The loading page will wait 3 seconds before navigating to the dashboard
-      // This ensures auth state is fully settled before accessing protected pages
-      router.push('/auth/loading?redirect=/dashboard')
+      router.push('/dashboard')
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('Login error:', err)

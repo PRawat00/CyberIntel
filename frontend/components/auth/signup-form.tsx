@@ -65,8 +65,8 @@ export function SignupForm() {
         return
       }
 
-      // Success - redirect to loading page which provides 3-second buffer for auth to settle
-      router.push('/auth/loading?redirect=/dashboard')
+      // Success - redirect to dashboard
+      router.push('/dashboard')
     } catch (err) {
       setError('An unexpected error occurred')
       console.error('Signup error:', err)

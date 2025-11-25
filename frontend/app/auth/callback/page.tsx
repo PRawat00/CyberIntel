@@ -42,9 +42,8 @@ export default function AuthCallbackPage() {
 
     // Auth has finished loading
     if (user) {
-      // Success - redirect to loading page for buffer
-      // The loading page provides a 3-second delay to ensure auth state is fully settled
-      router.replace('/auth/loading?redirect=/dashboard')
+      // Success - redirect to dashboard
+      router.replace('/dashboard')
     } else {
       // No user after loading completed - this might happen if:
       // 1. The code was invalid/expired
