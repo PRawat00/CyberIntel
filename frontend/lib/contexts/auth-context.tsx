@@ -8,11 +8,12 @@
  * based on environment variables.
  */
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { logger } from '@/lib/logger'
 import { mockAuth } from '@/lib/auth/mock-auth'
 import { supabaseAuth } from '@/lib/auth/supabase-auth'
+import { api } from '@/lib/api'
 import type { User, Session, AuthError } from '@/lib/types'
 import { useDependencySelection } from '@/hooks/use-dependency-selection'
 import { useSidebar } from '@/hooks/use-sidebar'
@@ -90,6 +91,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
   const [authListenerReady, setAuthListenerReady] = useState(false)
 
+  // Track if we've already attempted auto-sync this session
+  const hasAutoSynced = useRef(false)
+
+  // Auto-sync GitHub on login if enabled
+  async function triggerGitHubAutoSync() {
+    if (hasAutoSynced.current) return
+    hasAutoSynced.current = true
+
+    try {
+      // Check if GitHub is connected and auto-sync is enabled
+      const connection = await api.getGitHubConnection()
+
+      if (connection.is_active && connection.auto_sync_enabled && connection.repo_full_name) {
+        logger.log('[AUTH] GitHub auto-sync triggered for', connection.repo_full_name)
+
+        // Trigger sync in background (don't await)
+        api.syncGitHub().then(result => {
+          if (result.success) {
+            logger.log('[AUTH] GitHub auto-sync complete:', result.files_found, 'files,', result.scans_created, 'scans')
+            // Invalidate scans query to refresh the list
+            queryClient.invalidateQueries({ queryKey: ['scans'] })
+          } else {
+            logger.warn('[AUTH] GitHub auto-sync failed:', result.error)
+          }
+        }).catch(err => {
+          logger.error('[AUTH] GitHub auto-sync error:', err)
+        })
+      }
+    } catch (err) {
+      // Silently fail - user may not have GitHub connected
+      logger.log('[AUTH] GitHub connection check failed (user may not have GitHub connected)')
+    }
+  }
+
   // Initialize auth state on mount
   useEffect(() => {
     loadSession()
@@ -127,6 +162,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(data.session)
         setUser(data.session.user)
         await setSessionCookie(data.session)
+        // Trigger GitHub auto-sync on session load (returning user)
+        triggerGitHubAutoSync()
       }
     } catch (error) {
       logger.error('Failed to load session:', error)
@@ -163,6 +200,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(user)
       setSession(session)
       await setSessionCookie(session)
+      // Trigger GitHub auto-sync on sign in
+      triggerGitHubAutoSync()
       return { error: null }
     } catch (error) {
       logger.error('Sign in error:', error)

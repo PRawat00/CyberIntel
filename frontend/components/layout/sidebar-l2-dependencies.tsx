@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useEffect, useRef } from "react"
 import { useDropzone } from "react-dropzone"
-import { Upload, FileText, AlertTriangle, CheckCircle2, Loader2, XCircle } from "lucide-react"
+import { Upload, FileText, AlertTriangle, CheckCircle2, Loader2, XCircle, Github } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { useUploadScan, useScans } from "@/hooks/use-scans"
 import { useNavigationState } from "@/hooks/use-navigation-state"
@@ -283,7 +283,9 @@ function ScanItem({ scan, isSelected, onSelect }: ScanItemProps) {
     >
       <div className="flex items-start gap-2">
         <div className="mt-0.5">
-          {hasVulnerabilities ? (
+          {scan.source === "github" ? (
+            <Github className="h-4 w-4 text-slate-400" />
+          ) : hasVulnerabilities ? (
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           ) : (
             <CheckCircle2 className="h-4 w-4 text-green-500" />

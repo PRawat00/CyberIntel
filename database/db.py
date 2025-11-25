@@ -47,8 +47,14 @@ class DatabaseManager:
         database_url = os.getenv("DATABASE_URL")
 
         if database_url:
-            # Use environment variable if set
-            engine = create_engine(database_url)
+            # Use environment variable if set (typically PostgreSQL in production)
+            engine = create_engine(
+                database_url,
+                pool_pre_ping=True,  # Test connection health before use
+                pool_recycle=300,  # Recycle connections every 5 minutes
+                pool_size=2,  # Minimal persistent connections (cost-conscious)
+                max_overflow=3,  # Allow up to 5 total connections under load
+            )
         elif db_type == "sqlite":
             # SQLite configuration
             db_path = db_config.get("sqlite", {}).get("path", "cyberintel.db")
@@ -69,7 +75,13 @@ class DatabaseManager:
             password = pg_config.get("password", "")
 
             database_url = f"postgresql://{user}:{password}@{host}:{port}/{database}"
-            engine = create_engine(database_url)
+            engine = create_engine(
+                database_url,
+                pool_pre_ping=True,
+                pool_recycle=300,
+                pool_size=2,
+                max_overflow=3,
+            )
         else:
             raise ValueError(f"Unsupported database type: {db_type}")
 

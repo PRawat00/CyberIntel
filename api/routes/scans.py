@@ -473,6 +473,9 @@ def _build_scan_summary(scan: Scan) -> ScanSummary:
             medium=scan.medium_count or 0,
             low=scan.low_count or 0,
         ),
+        source=scan.source or "upload",
+        github_repo=scan.github_repo,
+        github_path=scan.github_path,
     )
 
 

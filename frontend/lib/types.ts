@@ -59,6 +59,10 @@ export interface ScanSummary {
   vulnerable_dependencies: number
   total_cves: number
   severity_counts: SeverityCount
+  // GitHub source tracking
+  source: 'upload' | 'github'
+  github_repo?: string
+  github_path?: string
 }
 
 export interface ScanDetail extends ScanSummary {
@@ -201,4 +205,33 @@ export interface Integration {
   status: 'connected' | 'disconnected' | 'error'
   config?: Record<string, unknown>
   last_sync?: string
+}
+
+// GitHub Integration Types
+export interface GitHubConnection {
+  id: number | null
+  github_username: string | null
+  github_avatar_url?: string | null
+  is_active: boolean
+  auto_sync_enabled: boolean
+  last_sync_at?: string | null
+  repo_full_name?: string | null
+  sync_error?: string | null
+}
+
+export interface GitHubRepoOption {
+  full_name: string
+  name: string
+  owner: string
+  is_private: boolean
+  default_branch: string
+  description?: string | null
+}
+
+export interface GitHubSyncResult {
+  success: boolean
+  message?: string
+  error?: string
+  files_found: number
+  scans_created: number
 }

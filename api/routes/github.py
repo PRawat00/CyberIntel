@@ -1,17 +1,17 @@
-"""GitHub integration API routes."""
+"""GitHub integration API routes with OAuth support."""
 
 import logging
 import os
-from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from api.dependencies import get_current_user, get_db
+from api.middleware.auth import RequireAuth, User
+from api.services.github_oauth_service import get_github_oauth_service
 from api.services.github_service import GitHubService, decrypt_token, encrypt_token
-from scripts.scan_dependencies import DependencyScanner
+from api.services.github_sync_service import get_github_sync_service
+from database.db import get_db_session
+from database.models import GitHubConnection
 
 logger = logging.getLogger(__name__)
 
@@ -20,568 +20,397 @@ router = APIRouter(
     tags=["github"],
 )
 
-# Get encryption key from environment or use default (change in production)
-ENCRYPTION_KEY = os.getenv("GITHUB_TOKEN_ENCRYPTION_KEY", "change_this_in_production_123456")
+# Get encryption key from environment
+ENCRYPTION_KEY = os.getenv("GITHUB_TOKEN_ENCRYPTION_KEY", "default-dev-key-change-in-prod")
 
 
 # Pydantic models for request/response
-class GitHubTokenRequest(BaseModel):
-    """Request model for saving GitHub token."""
+class OAuthAuthorizeResponse(BaseModel):
+    """Response for OAuth authorize endpoint."""
 
-    token: str = Field(..., description="GitHub Personal Access Token")
+    url: str
+    state: str
 
 
-class GitHubTokenResponse(BaseModel):
-    """Response model for token operations."""
+class OAuthCallbackRequest(BaseModel):
+    """Request for OAuth callback."""
+
+    code: str = Field(..., description="Authorization code from GitHub")
+    state: str = Field(..., description="State parameter for CSRF protection")
+
+
+class OAuthCallbackResponse(BaseModel):
+    """Response for OAuth callback."""
 
     success: bool
     message: str
-    username: str | None = None
+    github_username: str | None = None
 
 
-class GitHubRepoRequest(BaseModel):
-    """Request model for repository operations."""
+class GitHubConnectionResponse(BaseModel):
+    """Response for connection status."""
 
+    id: int | None = None
+    github_username: str | None = None
+    github_avatar_url: str | None = None
+    is_active: bool = False
+    auto_sync_enabled: bool = True
+    last_sync_at: str | None = None
+    repo_full_name: str | None = None
+    sync_error: str | None = None
+
+
+class SetRepoRequest(BaseModel):
+    """Request for setting which repo to track."""
+
+    repo_full_name: str = Field(..., description="Repository in 'owner/repo' format")
+
+
+class SetRepoResponse(BaseModel):
+    """Response for setting repo."""
+
+    success: bool
+    message: str
+    repo_full_name: str | None = None
+
+
+class SyncResponse(BaseModel):
+    """Response for sync operation."""
+
+    success: bool
+    message: str | None = None
+    error: str | None = None
+    files_found: int = 0
+    scans_created: int = 0
+
+
+class RepoOption(BaseModel):
+    """Repository option for selection dropdown."""
+
+    full_name: str
+    name: str
     owner: str
-    repo: str
-    branch: str | None = None
+    is_private: bool
+    default_branch: str
+    description: str | None = None
 
 
-class GitHubImportRequest(BaseModel):
-    """Request model for importing dependency file from GitHub."""
+class RepoListResponse(BaseModel):
+    """Response for listing repos."""
 
-    owner: str
-    repo: str
-    file_path: str
-    branch: str | None = None
+    success: bool
+    repositories: list[RepoOption]
 
 
-class GitHubScanRequest(BaseModel):
-    """Request model for scanning a GitHub repository file."""
-
-    owner: str
-    repo: str
-    file_path: str
-    branch: str | None = None
+# OAuth state storage (in production, use Redis or database)
+_oauth_states: dict[str, str] = {}
 
 
-@router.post("/save-token", response_model=GitHubTokenResponse)
-async def save_github_token(
-    request: GitHubTokenRequest,
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-) -> GitHubTokenResponse:
-    """Save GitHub Personal Access Token for the user.
+@router.get("/oauth/authorize", response_model=OAuthAuthorizeResponse)
+async def get_oauth_authorize_url(user: User = RequireAuth):
+    """Get GitHub OAuth authorization URL.
 
-    Args:
-        request: Token request containing the PAT
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        Response with success status and username
+    Returns the URL to redirect the user to for GitHub OAuth authorization.
     """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
+    oauth_service = get_github_oauth_service()
 
-        # Test the token first
-        async with GitHubService(request.token) as github:
-            test_result = await github.test_connection()
-
-        if not test_result["success"]:
-            raise HTTPException(
-                status_code=401,
-                detail=f"Invalid GitHub token: {test_result.get('error', 'Unknown error')}",
-            )
-
-        # Encrypt the token
-        encrypted_token = encrypt_token(request.token, ENCRYPTION_KEY)
-
-        # Check if user already has a token
-        existing = db.execute(
-            text("SELECT id FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if existing:
-            # Update existing token
-            db.execute(
-                text(
-                    """
-                    UPDATE github_integrations
-                    SET github_token = :token,
-                        github_username = :username,
-                        updated_at = :updated_at
-                    WHERE user_id = :user_id
-                """
-                ),
-                {
-                    "token": encrypted_token,
-                    "username": test_result["username"],
-                    "updated_at": datetime.utcnow(),
-                    "user_id": user_id,
-                },
-            )
-        else:
-            # Insert new token
-            db.execute(
-                text(
-                    """
-                    INSERT INTO github_integrations
-                    (user_id, github_token, github_username, created_at, updated_at)
-                    VALUES (:user_id, :token, :username, :created_at, :updated_at)
-                """
-                ),
-                {
-                    "user_id": user_id,
-                    "token": encrypted_token,
-                    "username": test_result["username"],
-                    "created_at": datetime.utcnow(),
-                    "updated_at": datetime.utcnow(),
-                },
-            )
-
-        db.commit()
-
-        return GitHubTokenResponse(
-            success=True,
-            message="GitHub token saved successfully",
-            username=test_result["username"],
+    if not oauth_service.is_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.",
         )
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error saving GitHub token: {e}")
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+    # Generate state for CSRF protection
+    state = oauth_service.generate_state()
+
+    # Store state with user ID (in production, use Redis with TTL)
+    _oauth_states[state] = user.id
+
+    # Get authorization URL
+    url = oauth_service.get_authorization_url(state)
+
+    return OAuthAuthorizeResponse(url=url, state=state)
 
 
-@router.get("/test-connection", response_model=GitHubTokenResponse)
-async def test_github_connection(
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-) -> GitHubTokenResponse:
-    """Test the stored GitHub token connection.
+@router.post("/oauth/callback", response_model=OAuthCallbackResponse)
+async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = RequireAuth):
+    """Handle GitHub OAuth callback.
 
-    Args:
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        Response with connection status
+    Exchanges the authorization code for an access token and saves the connection.
     """
+    # Verify state
+    stored_user_id = _oauth_states.get(request.state)
+    if not stored_user_id or stored_user_id != user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid state parameter. Please try connecting again.",
+        )
+
+    # Remove used state
+    del _oauth_states[request.state]
+
+    oauth_service = get_github_oauth_service()
+
     try:
-        user_id = current_user.get("id") if current_user else "anonymous"
+        # Exchange code for token
+        token_data = await oauth_service.exchange_code_for_token(request.code)
+        access_token = token_data["access_token"]
 
-        # Get stored token
-        result = db.execute(
-            text(
-                "SELECT github_token, github_username FROM github_integrations WHERE user_id = :user_id"
-            ),
-            {"user_id": user_id},
-        ).fetchone()
+        # Get GitHub user info
+        github_user = await oauth_service.get_github_user(access_token)
 
-        if not result:
-            return GitHubTokenResponse(
-                success=False,
-                message="No GitHub token found. Please configure your token first.",
+        # Encrypt token for storage
+        encrypted_token = encrypt_token(access_token, ENCRYPTION_KEY)
+
+        with get_db_session() as session:
+            # Check if connection already exists
+            existing = (
+                session.query(GitHubConnection).filter(GitHubConnection.user_id == user.id).first()
             )
 
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
+            if existing:
+                # Update existing connection
+                existing.access_token = encrypted_token
+                existing.github_user_id = github_user["id"]
+                existing.github_username = github_user["login"]
+                existing.github_avatar_url = github_user.get("avatar_url")
+                existing.is_active = 1
+                existing.sync_error = None
+            else:
+                # Create new connection
+                connection = GitHubConnection(
+                    user_id=user.id,
+                    access_token=encrypted_token,
+                    github_user_id=github_user["id"],
+                    github_username=github_user["login"],
+                    github_avatar_url=github_user.get("avatar_url"),
+                    is_active=1,
+                    auto_sync_enabled=1,
+                )
+                session.add(connection)
 
-        # Test connection
-        async with GitHubService(decrypted_token) as github:
-            test_result = await github.test_connection()
+            session.commit()
 
-        if test_result["success"]:
-            return GitHubTokenResponse(
-                success=True,
-                message="GitHub connection successful",
-                username=test_result["username"],
-            )
-        else:
-            return GitHubTokenResponse(
-                success=False,
-                message=f"GitHub connection failed: {test_result.get('error', 'Unknown error')}",
-            )
+        return OAuthCallbackResponse(
+            success=True,
+            message="GitHub connected successfully",
+            github_username=github_user["login"],
+        )
 
     except Exception as e:
-        logger.error(f"Error testing GitHub connection: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"OAuth callback failed: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/repos")
-async def list_repositories(
-    type: str = "all",
-    sort: str = "updated",
-    page: int = 1,
-    per_page: int = 30,
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """List repositories accessible to the authenticated user.
+@router.get("/connection", response_model=GitHubConnectionResponse)
+async def get_connection_status(user: User = RequireAuth):
+    """Get the current GitHub connection status."""
+    with get_db_session() as session:
+        connection = (
+            session.query(GitHubConnection).filter(GitHubConnection.user_id == user.id).first()
+        )
 
-    Args:
-        type: Type of repositories to list
-        sort: Sort order
-        page: Page number
-        per_page: Results per page
-        db: Database session
-        current_user: Current authenticated user
+        if not connection:
+            return GitHubConnectionResponse(is_active=False)
 
-    Returns:
-        List of repositories
+        return GitHubConnectionResponse(
+            id=connection.id,
+            github_username=connection.github_username,
+            github_avatar_url=connection.github_avatar_url,
+            is_active=bool(connection.is_active),
+            auto_sync_enabled=bool(connection.auto_sync_enabled),
+            last_sync_at=connection.last_sync_at.isoformat() if connection.last_sync_at else None,
+            repo_full_name=connection.repo_full_name,
+            sync_error=connection.sync_error,
+        )
+
+
+@router.delete("/connection")
+async def disconnect_github(user: User = RequireAuth):
+    """Disconnect GitHub integration."""
+    with get_db_session() as session:
+        connection = (
+            session.query(GitHubConnection).filter(GitHubConnection.user_id == user.id).first()
+        )
+
+        if not connection:
+            return {"success": False, "message": "No GitHub connection found"}
+
+        session.delete(connection)
+        session.commit()
+
+        return {"success": True, "message": "GitHub disconnected successfully"}
+
+
+@router.get("/repos", response_model=RepoListResponse)
+async def list_repositories(user: User = RequireAuth):
+    """List repositories accessible to the connected GitHub account.
+
+    Used for the repository selection dropdown.
     """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
+    with get_db_session() as session:
+        connection = (
+            session.query(GitHubConnection)
+            .filter(GitHubConnection.user_id == user.id)
+            .filter(GitHubConnection.is_active == 1)
+            .first()
+        )
 
-        # Get stored token
-        result = db.execute(
-            text("SELECT github_token FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if not result:
+        if not connection:
             raise HTTPException(
                 status_code=401,
-                detail="No GitHub token found. Please configure your token first.",
+                detail="No active GitHub connection. Please connect GitHub first.",
             )
-
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
-
-        # Get repositories
-        async with GitHubService(decrypted_token) as github:
-            repos = await github.list_repositories(
-                type=type,
-                sort=sort,
-                per_page=per_page,
-                page=page,
-            )
-
-        return {"success": True, "repositories": repos}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error listing repositories: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/repo/{owner}/{repo}/dependencies")
-async def find_dependency_files(
-    owner: str,
-    repo: str,
-    branch: str | None = None,
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """Find dependency files in a GitHub repository.
-
-    Args:
-        owner: Repository owner
-        repo: Repository name
-        branch: Branch name (optional)
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        List of dependency files found
-    """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
-
-        # Get stored token
-        result = db.execute(
-            text("SELECT github_token FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if not result:
-            raise HTTPException(
-                status_code=401,
-                detail="No GitHub token found. Please configure your token first.",
-            )
-
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
-
-        # Find dependency files
-        async with GitHubService(decrypted_token) as github:
-            dependency_files = await github.find_dependency_files(
-                owner=owner,
-                repo=repo,
-                ref=branch,
-            )
-
-        return {
-            "success": True,
-            "repository": f"{owner}/{repo}",
-            "branch": branch or "default",
-            "dependency_files": dependency_files,
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error finding dependency files: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/import")
-async def import_from_github(
-    request: GitHubImportRequest,
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """Import a dependency file from GitHub.
-
-    Args:
-        request: Import request with repository and file details
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        Import result with file content
-    """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
-
-        # Get stored token
-        result = db.execute(
-            text("SELECT github_token FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if not result:
-            raise HTTPException(
-                status_code=401,
-                detail="No GitHub token found. Please configure your token first.",
-            )
-
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
-
-        # Import file
-        async with GitHubService(decrypted_token) as github:
-            import_result = await github.import_dependency_file(
-                owner=request.owner,
-                repo=request.repo,
-                file_path=request.file_path,
-                ref=request.branch,
-            )
-
-        if not import_result["success"]:
-            raise HTTPException(
-                status_code=400,
-                detail=import_result.get("error", "Failed to import file"),
-            )
-
-        return import_result
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error importing from GitHub: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/scan")
-async def scan_github_file(
-    request: GitHubScanRequest,
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """Scan a dependency file from GitHub for vulnerabilities.
-
-    Args:
-        request: Scan request with repository and file details
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        Scan results with vulnerabilities
-    """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
-
-        # Get stored token
-        result = db.execute(
-            text("SELECT github_token FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if not result:
-            raise HTTPException(
-                status_code=401,
-                detail="No GitHub token found. Please configure your token first.",
-            )
-
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
-
-        # Import file from GitHub
-        async with GitHubService(decrypted_token) as github:
-            import_result = await github.import_dependency_file(
-                owner=request.owner,
-                repo=request.repo,
-                file_path=request.file_path,
-                ref=request.branch,
-            )
-
-        if not import_result["success"]:
-            raise HTTPException(
-                status_code=400,
-                detail=import_result.get("error", "Failed to import file"),
-            )
-
-        # Create temporary file for scanning
-        import tempfile
-
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            suffix=f"_{import_result['file_name']}",
-            delete=False,
-        ) as tmp_file:
-            tmp_file.write(import_result["content"])
-            tmp_file_path = tmp_file.name
 
         try:
-            # Use existing scanner
-            scanner = DependencyScanner(db)
-            scan_result = scanner.scan_file(
-                file_path=tmp_file_path,
-                file_type=import_result["ecosystem"],
-                user_id=user_id,
-                # Store GitHub metadata
-                metadata={
-                    "source": "github",
-                    "github_repo": f"{request.owner}/{request.repo}",
-                    "github_path": request.file_path,
-                    "github_branch": request.branch or "main",
-                },
+            # Decrypt token
+            access_token = decrypt_token(connection.access_token, ENCRYPTION_KEY)
+
+            async with GitHubService(access_token) as github:
+                repos = await github.list_repositories(
+                    type="all",
+                    sort="updated",
+                    per_page=100,
+                )
+
+            return RepoListResponse(
+                success=True,
+                repositories=[
+                    RepoOption(
+                        full_name=repo["full_name"],
+                        name=repo["name"],
+                        owner=repo["owner"],
+                        is_private=repo["private"],
+                        default_branch=repo["default_branch"],
+                        description=repo.get("description"),
+                    )
+                    for repo in repos
+                ],
             )
-
-            # Clean up temp file
-            os.unlink(tmp_file_path)
-
-            return {
-                "success": True,
-                "scan_id": scan_result["scan_id"],
-                "file_name": import_result["file_name"],
-                "github_repo": f"{request.owner}/{request.repo}",
-                "total_dependencies": scan_result["total_dependencies"],
-                "vulnerable_dependencies": scan_result["vulnerable_dependencies"],
-                "critical_count": scan_result["critical_count"],
-                "high_count": scan_result["high_count"],
-                "medium_count": scan_result["medium_count"],
-                "low_count": scan_result["low_count"],
-            }
 
         except Exception as e:
-            # Clean up temp file on error
-            if os.path.exists(tmp_file_path):
-                os.unlink(tmp_file_path)
-            raise e
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error scanning GitHub file: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+            logger.error(f"Error listing repositories: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/rate-limit")
-async def get_rate_limit(
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """Get GitHub API rate limit status.
+@router.post("/repo", response_model=SetRepoResponse)
+async def set_repository(request: SetRepoRequest, user: User = RequireAuth):
+    """Set which repository to track for syncing."""
+    # Validate format
+    if "/" not in request.repo_full_name:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid repository format. Use 'owner/repo'.",
+        )
 
-    Args:
-        db: Database session
-        current_user: Current authenticated user
+    with get_db_session() as session:
+        connection = (
+            session.query(GitHubConnection)
+            .filter(GitHubConnection.user_id == user.id)
+            .filter(GitHubConnection.is_active == 1)
+            .first()
+        )
 
-    Returns:
-        Rate limit information
-    """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
-
-        # Get stored token
-        result = db.execute(
-            text("SELECT github_token FROM github_integrations WHERE user_id = :user_id"),
-            {"user_id": user_id},
-        ).fetchone()
-
-        if not result:
+        if not connection:
             raise HTTPException(
                 status_code=401,
-                detail="No GitHub token found. Please configure your token first.",
+                detail="No active GitHub connection. Please connect GitHub first.",
             )
 
-        # Decrypt token
-        decrypted_token = decrypt_token(result[0], ENCRYPTION_KEY)
+        try:
+            # Verify access to the repository
+            access_token = decrypt_token(connection.access_token, ENCRYPTION_KEY)
+            owner, repo = request.repo_full_name.split("/")
 
-        # Get rate limit
-        async with GitHubService(decrypted_token) as github:
-            rate_limit = await github.get_rate_limit()
+            async with GitHubService(access_token) as github:
+                # Try to get repo info to verify access
+                repo_info = await github._make_request("GET", f"/repos/{owner}/{repo}")
+
+            # Update connection with repo info
+            connection.repo_full_name = request.repo_full_name
+            connection.repo_default_branch = repo_info.get("default_branch", "main")
+            connection.repo_is_private = 1 if repo_info.get("private") else 0
+            connection.last_commit_sha = None  # Reset to trigger full sync
+            session.commit()
+
+            return SetRepoResponse(
+                success=True,
+                message=f"Repository set to {request.repo_full_name}",
+                repo_full_name=request.repo_full_name,
+            )
+
+        except Exception as e:
+            logger.error(f"Error setting repository: {e}")
+            if "404" in str(e) or "not found" in str(e).lower():
+                raise HTTPException(
+                    status_code=404,
+                    detail="Repository not found or you don't have access.",
+                )
+            raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sync", response_model=SyncResponse)
+async def sync_repository(user: User = RequireAuth):
+    """Sync the connected repository.
+
+    Fetches dependency files from the connected repo and creates/updates scans.
+    """
+    sync_service = get_github_sync_service()
+
+    try:
+        result = await sync_service.sync_user_repository(user.id)
+
+        if result["success"]:
+            return SyncResponse(
+                success=True,
+                message=result.get("message", "Sync completed"),
+                files_found=result["files_found"],
+                scans_created=result["scans_created"],
+            )
+        else:
+            return SyncResponse(
+                success=False,
+                error=result.get("error", "Sync failed"),
+                files_found=0,
+                scans_created=0,
+            )
+
+    except Exception as e:
+        logger.error(f"Sync failed: {e}")
+        return SyncResponse(
+            success=False,
+            error=str(e),
+            files_found=0,
+            scans_created=0,
+        )
+
+
+@router.post("/sync/toggle-auto")
+async def toggle_auto_sync(user: User = RequireAuth):
+    """Toggle auto-sync on login setting."""
+    with get_db_session() as session:
+        connection = (
+            session.query(GitHubConnection).filter(GitHubConnection.user_id == user.id).first()
+        )
+
+        if not connection:
+            raise HTTPException(status_code=404, detail="No GitHub connection found")
+
+        # Toggle
+        connection.auto_sync_enabled = 0 if connection.auto_sync_enabled else 1
+        session.commit()
 
         return {
             "success": True,
-            "rate_limit": {
-                "limit": rate_limit["limit"],
-                "remaining": rate_limit["remaining"],
-                "used": rate_limit["used"],
-                "reset": rate_limit["reset"].isoformat(),
-            },
+            "auto_sync_enabled": bool(connection.auto_sync_enabled),
         }
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting rate limit: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.delete("/token")
-async def delete_github_token(
-    db: Session = Depends(get_db),
-    current_user: dict | None = Depends(get_current_user),
-):
-    """Delete the stored GitHub token for the user.
-
-    Args:
-        db: Database session
-        current_user: Current authenticated user
-
-    Returns:
-        Success status
-    """
-    try:
-        user_id = current_user.get("id") if current_user else "anonymous"
-
-        # Delete token
-        result = db.execute(
-            text("DELETE FROM github_integrations WHERE user_id = :user_id"), {"user_id": user_id}
-        )
-
-        db.commit()
-
-        if result.rowcount > 0:
-            return {
-                "success": True,
-                "message": "GitHub token deleted successfully",
-            }
-        else:
-            return {
-                "success": False,
-                "message": "No GitHub token found to delete",
-            }
-
-    except Exception as e:
-        logger.error(f"Error deleting GitHub token: {e}")
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/oauth/status")
+async def get_oauth_status():
+    """Check if GitHub OAuth is configured."""
+    oauth_service = get_github_oauth_service()
+    return {
+        "configured": oauth_service.is_configured(),
+        "callback_url": oauth_service.callback_url if oauth_service.is_configured() else None,
+    }

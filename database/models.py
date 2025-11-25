@@ -133,6 +133,12 @@ class Scan(Base):
     # Raw file content (optional, for debugging)
     raw_content = Column(Text, nullable=True)
 
+    # GitHub source tracking
+    source = Column(String(20), default="upload", index=True)  # "upload" | "github"
+    github_repo = Column(String(255), nullable=True)  # "owner/repo"
+    github_path = Column(String(500), nullable=True)  # path to file in repo
+    github_commit_sha = Column(String(40), nullable=True)
+
     # Relationships
     dependencies = relationship("Dependency", back_populates="scan", cascade="all, delete-orphan")
     cves = relationship("CVE", secondary=scan_cves, backref="scans")
@@ -160,6 +166,10 @@ class Scan(Base):
             "high_count": self.high_count,
             "medium_count": self.medium_count,
             "low_count": self.low_count,
+            "source": self.source or "upload",
+            "github_repo": self.github_repo,
+            "github_path": self.github_path,
+            "github_commit_sha": self.github_commit_sha,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
@@ -363,4 +373,64 @@ class ChatMessage(Base):
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class GitHubConnection(Base):
+    """Model for storing GitHub OAuth connections (single repo per user)."""
+
+    __tablename__ = "github_connections"
+
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # User ownership (one connection per user)
+    user_id = Column(String(36), nullable=False, unique=True, index=True)
+
+    # OAuth tokens (encrypted)
+    access_token = Column(Text, nullable=False)
+    refresh_token = Column(Text, nullable=True)
+    token_expires_at = Column(DateTime, nullable=True)
+
+    # GitHub user info
+    github_user_id = Column(Integer, nullable=False)
+    github_username = Column(String(100), nullable=False)
+    github_avatar_url = Column(String(500), nullable=True)
+
+    # Connected repository (single repo mode)
+    repo_full_name = Column(String(255), nullable=True)  # "owner/repo"
+    repo_default_branch = Column(String(100), default="main")
+    repo_is_private = Column(Integer, default=0)
+    last_commit_sha = Column(String(40), nullable=True)
+
+    # Settings
+    is_active = Column(Integer, default=1)
+    auto_sync_enabled = Column(Integer, default=1)
+    last_sync_at = Column(DateTime, nullable=True)
+    sync_error = Column(Text, nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<GitHubConnection(id={self.id}, user='{self.github_username}', repo='{self.repo_full_name}')>"
+
+    def to_dict(self) -> dict:
+        """Convert GitHubConnection object to dictionary."""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "github_user_id": self.github_user_id,
+            "github_username": self.github_username,
+            "github_avatar_url": self.github_avatar_url,
+            "repo_full_name": self.repo_full_name,
+            "repo_default_branch": self.repo_default_branch,
+            "repo_is_private": bool(self.repo_is_private),
+            "is_active": bool(self.is_active),
+            "auto_sync_enabled": bool(self.auto_sync_enabled),
+            "last_sync_at": self.last_sync_at.isoformat() if self.last_sync_at else None,
+            "sync_error": self.sync_error,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

@@ -10,6 +10,9 @@ import type {
   Stats,
   Dependency,
   SeverityLevel,
+  GitHubConnection,
+  GitHubRepoOption,
+  GitHubSyncResult,
 } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -356,6 +359,111 @@ export const api = {
     }
 
     return response.blob()
+  },
+
+  // =====================
+  // GitHub Integration
+  // =====================
+
+  /**
+   * Get GitHub OAuth authorization URL.
+   */
+  async getGitHubAuthUrl(): Promise<{ url: string; state: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/oauth/authorize`, {
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Handle GitHub OAuth callback.
+   */
+  async handleGitHubCallback(code: string, state: string): Promise<{ success: boolean; message: string; github_username?: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/oauth/callback`, {
+      method: "POST",
+      headers: {
+        ...await getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, state }),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Get GitHub connection status.
+   */
+  async getGitHubConnection(): Promise<GitHubConnection> {
+    const response = await fetch(`${API_BASE_URL}/api/github/connection`, {
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Disconnect GitHub integration.
+   */
+  async disconnectGitHub(): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/connection`, {
+      method: "DELETE",
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * List available GitHub repositories.
+   */
+  async getGitHubRepos(): Promise<{ success: boolean; repositories: GitHubRepoOption[] }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/repos`, {
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Set which repository to track.
+   */
+  async setGitHubRepo(repoFullName: string): Promise<{ success: boolean; message: string; repo_full_name?: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/repo`, {
+      method: "POST",
+      headers: {
+        ...await getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ repo_full_name: repoFullName }),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Sync GitHub repository.
+   */
+  async syncGitHub(): Promise<GitHubSyncResult> {
+    const response = await fetch(`${API_BASE_URL}/api/github/sync`, {
+      method: "POST",
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Toggle auto-sync on login setting.
+   */
+  async toggleGitHubAutoSync(): Promise<{ success: boolean; auto_sync_enabled: boolean }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/sync/toggle-auto`, {
+      method: "POST",
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
+   * Check if GitHub OAuth is configured.
+   */
+  async getGitHubOAuthStatus(): Promise<{ configured: boolean; callback_url?: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/oauth/status`)
+    return handleResponse(response)
   },
 }
 

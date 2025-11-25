@@ -58,6 +58,10 @@ class ScanSummary(BaseModel):
     vulnerable_dependencies: int
     total_cves: int
     severity_counts: SeverityCount
+    # GitHub source tracking
+    source: str = "upload"  # "upload" | "github"
+    github_repo: str | None = None
+    github_path: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
