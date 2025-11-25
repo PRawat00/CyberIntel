@@ -2,84 +2,69 @@
  * OAuth Callback Page
  *
  * Handles OAuth redirects from Supabase (Google, GitHub, etc.)
- * Exchanges the auth code for a session and redirects to dashboard
+ *
+ * IMPORTANT: This page does NOT manually exchange the auth code.
+ * Supabase's detectSessionInUrl (enabled in supabase.ts) automatically
+ * detects and processes the OAuth code when the page loads.
+ *
+ * This page simply waits for the auth context to update and then redirects.
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
+  const { user, loading } = useAuth()
   const [error, setError] = useState<string | null>(null)
+  const [hasCheckedUrl, setHasCheckedUrl] = useState(false)
 
   useEffect(() => {
-    // Handle the OAuth callback
-    const handleCallback = async () => {
-      try {
-        // Check if Supabase is configured
-        if (!supabase) {
-          setError('Authentication service not configured')
-          return
-        }
+    // Check for error in URL (only once)
+    if (!hasCheckedUrl) {
+      const searchParams = new URLSearchParams(window.location.search)
+      const errorCode = searchParams.get('error')
+      const errorDescription = searchParams.get('error_description')
 
-        // Get the code from the URL
-        const hashParams = new URLSearchParams(window.location.hash.substring(1))
-        const searchParams = new URLSearchParams(window.location.search)
-
-        const code = searchParams.get('code')
-        const errorCode = searchParams.get('error')
-        const errorDescription = searchParams.get('error_description')
-
-        if (errorCode) {
-          setError(errorDescription || 'Authentication failed')
-          return
-        }
-
-        if (!code) {
-          // If no code, check for hash-based tokens (older OAuth flow)
-          const accessToken = hashParams.get('access_token')
-          if (accessToken) {
-            // Session already set by Supabase client
-            // Use loading page to give auth context time to initialize
-            router.replace('/auth/loading?redirect=/dashboard')
-            return
-          }
-
-          setError('No authentication code received')
-          return
-        }
-
-        // Exchange code for session
-        const { data, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
-
-        if (sessionError) {
-          setError(sessionError.message)
-          return
-        }
-
-        if (data.session) {
-          // Success! Redirect through loading page to give auth context time to initialize
-          router.replace('/auth/loading?redirect=/dashboard')
-        } else {
-          setError('Failed to create session')
-        }
-      } catch (err) {
-        console.error('Callback error:', err)
-        setError('An unexpected error occurred')
+      if (errorCode) {
+        setError(errorDescription || 'Authentication failed')
       }
+      setHasCheckedUrl(true)
     }
+  }, [hasCheckedUrl])
 
-    handleCallback()
-  }, [router])
+  useEffect(() => {
+    // Don't do anything if there's an error or still loading
+    if (error || loading) return
+
+    // Auth has finished loading
+    if (user) {
+      // Success - redirect to loading page for buffer
+      // The loading page provides a 3-second delay to ensure auth state is fully settled
+      router.replace('/auth/loading?redirect=/dashboard')
+    } else {
+      // No user after loading completed - this might happen if:
+      // 1. The code was invalid/expired
+      // 2. The user cancelled the OAuth flow
+      // 3. There was a network issue
+      // Give it a moment in case auth state is still propagating
+      const timeout = setTimeout(() => {
+        // Still no user, show error
+        setError('Authentication failed. Please try again.')
+      }, 2000) // 2 second grace period
+
+      return () => clearTimeout(timeout)
+    }
+  }, [loading, user, router, error])
 
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="mx-auto max-w-md rounded-lg border border-destructive bg-destructive/10 p-8 text-center">
-          <div className="mb-4 text-4xl">⚠️</div>
+          <div className="mb-4 text-4xl">!</div>
           <h1 className="mb-2 text-xl font-semibold text-destructive">Authentication Failed</h1>
           <p className="mb-4 text-sm text-muted-foreground">{error}</p>
           <button

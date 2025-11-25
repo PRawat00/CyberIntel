@@ -33,6 +33,7 @@ ENV/
 *.swp
 *.swo
 *~
+*.md
 
 # Environment variables (CRITICAL!)
 .env
@@ -61,6 +62,7 @@ logs/
 
 # MacOS
 .DS_Store
+exp_ignore_thoughts.env
 
 # Model files (large)
 models/
