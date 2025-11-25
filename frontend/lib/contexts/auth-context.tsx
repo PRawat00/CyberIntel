@@ -45,7 +45,7 @@ interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signInWithOAuth: (provider: 'google' | 'github') => Promise<{ error: AuthError | null }>
+  signInWithOAuth: (provider: 'google' | 'github') => Promise<{ user: User | null; error: AuthError | null }>
   signOut: () => Promise<void>
 }
 
