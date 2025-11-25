@@ -24,6 +24,7 @@ function generateMockScans(): ScanSummary[] {
         medium: 7,
         low: 3,
       },
+      source: 'upload',
     },
     {
       id: 2,
@@ -39,6 +40,7 @@ function generateMockScans(): ScanSummary[] {
         medium: 2,
         low: 1,
       },
+      source: 'upload',
     },
     {
       id: 3,
@@ -54,6 +56,7 @@ function generateMockScans(): ScanSummary[] {
         medium: 15,
         low: 8,
       },
+      source: 'upload',
     },
   ]
 }
@@ -321,6 +324,7 @@ export const mockAPI = {
         medium: 3,
         low: 1,
       },
+      source: 'upload',
       dependencies: generateMockDependencies(1).slice(0, 5),
     }
 
