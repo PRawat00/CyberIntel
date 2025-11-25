@@ -198,7 +198,7 @@ class SupabaseAuthAdapter {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
@@ -210,8 +210,12 @@ class SupabaseAuthAdapter {
         }
       }
 
-      // OAuth sign-in redirects immediately, so we won't have user/session here
-      // The callback page will handle the session
+      // Manually redirect to OAuth provider (recommended for Next.js)
+      // Auto-redirect doesn't work reliably in Next.js
+      if (data?.url) {
+        window.location.href = data.url
+      }
+
       return {
         user: null,
         session: null,
