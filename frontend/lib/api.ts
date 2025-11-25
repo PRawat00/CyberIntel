@@ -140,6 +140,34 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const api = {
   /**
+   * Generic GET request.
+   */
+  async get<T = any>(endpoint: string): Promise<T> {
+    const url = endpoint.startsWith('/') ? `${API_BASE_URL}/api${endpoint}` : `${API_BASE_URL}${endpoint}`
+    const response = await fetch(url, {
+      method: "GET",
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse<T>(response)
+  },
+
+  /**
+   * Generic POST request.
+   */
+  async post<T = any>(endpoint: string, data?: unknown): Promise<T> {
+    const url = endpoint.startsWith('/') ? `${API_BASE_URL}/api${endpoint}` : `${API_BASE_URL}${endpoint}`
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        ...await getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    })
+    return handleResponse<T>(response)
+  },
+
+  /**
    * Upload and scan a dependency file.
    */
   async uploadScan(file: File): Promise<ScanDetail> {
