@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { api } from "@/lib/api"
 import { Loader2, CheckCircle2, XCircle } from "lucide-react"
 
 type CallbackStatus = "processing" | "success" | "error"
 
-export default function GitHubCallbackPage() {
+function GitHubCallbackContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [status, setStatus] = useState<CallbackStatus>("processing")
@@ -110,5 +110,26 @@ export default function GitHubCallbackPage() {
         )}
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-dark-bg">
+      <div className="text-center p-8 rounded-lg bg-dark-surface border border-dark-border max-w-md w-full mx-4">
+        <Loader2 className="h-12 w-12 animate-spin text-brand-500 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-slate-100 mb-2">
+          Loading...
+        </h2>
+      </div>
+    </div>
+  )
+}
+
+export default function GitHubCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <GitHubCallbackContent />
+    </Suspense>
   )
 }
