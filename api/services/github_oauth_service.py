@@ -28,11 +28,11 @@ class GitHubOAuthService:
 
     def __init__(self):
         """Initialize OAuth service with GitHub App credentials from environment."""
-        # GitHub App credentials
+        # GitHub App credentials (use _APP suffix to distinguish from legacy OAuth App)
         self.app_id = os.getenv("GITHUB_APP_ID")
         self.private_key = os.getenv("GITHUB_APP_PRIVATE_KEY", "").replace("\\n", "\n")
-        self.client_id = os.getenv("GITHUB_CLIENT_ID")
-        self.client_secret = os.getenv("GITHUB_CLIENT_SECRET")
+        self.client_id = os.getenv("GITHUB_CLIENT_ID_APP")
+        self.client_secret = os.getenv("GITHUB_CLIENT_SECRET_APP")
         self.callback_url = os.getenv(
             "GITHUB_OAUTH_CALLBACK_URL", "http://localhost:3000/auth/github/callback"
         )
@@ -77,7 +77,7 @@ class GitHubOAuthService:
             raise ValueError("GitHub App ID not configured")
 
         # GitHub App installation URL - users select repos here
-        return "https://github.com/apps/cyberintel-summarizer/installations/new"
+        return "https://github.com/apps/repo_cyber_intel_prod/installations/new"
 
     def get_authorization_url(self, state: str, installation_id: int | None = None) -> str:
         """Generate the GitHub OAuth authorization URL.
