@@ -12,6 +12,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
+from api.services.github_oauth_service import get_github_oauth_service
 from api.services.github_service import GitHubService, decrypt_token
 from database.db import get_db_manager, get_db_session
 from database.models import GitHubConnection, Scan
@@ -62,8 +63,18 @@ class GitHubSyncService:
                 }
 
             try:
-                # Decrypt access token
-                access_token = decrypt_token(connection.access_token, self.encryption_key)
+                # Get access token - prefer installation token if available
+                oauth_service = get_github_oauth_service()
+
+                if connection.installation_id and oauth_service.is_app_configured():
+                    # Use installation token for fine-grained access
+                    token_data = await oauth_service.get_installation_access_token(
+                        connection.installation_id
+                    )
+                    access_token = token_data["token"]
+                else:
+                    # Fall back to user OAuth token
+                    access_token = decrypt_token(connection.access_token, self.encryption_key)
 
                 # Parse repo info
                 owner, repo = connection.repo_full_name.split("/")

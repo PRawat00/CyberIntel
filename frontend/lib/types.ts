@@ -210,6 +210,7 @@ export interface Integration {
 // GitHub Integration Types
 export interface GitHubConnection {
   id: number | null
+  installation_id?: number | null  // GitHub App installation ID for fine-grained access
   github_username: string | null
   github_avatar_url?: string | null
   is_active: boolean
@@ -222,7 +223,6 @@ export interface GitHubConnection {
 export interface GitHubRepoOption {
   full_name: string
   name: string
-  owner: string
   is_private: boolean
   default_branch: string
   description?: string | null

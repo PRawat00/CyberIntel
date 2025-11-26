@@ -292,18 +292,21 @@ export default function IntegrationsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {!oauthStatus?.configured && (
+                {!oauthStatus?.oauth_configured && (
                   <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-lg text-yellow-600">
                     <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     <p className="text-sm">
-                      GitHub OAuth is not configured. Contact your administrator.
+                      GitHub integration is not configured. Contact your administrator.
                     </p>
                   </div>
                 )}
+                <p className="text-sm text-muted-foreground">
+                  You will be able to select which repositories to grant access to.
+                </p>
                 <Button
                   className="w-full"
                   onClick={handleConnect}
-                  disabled={connectGitHub.isPending || !oauthStatus?.configured}
+                  disabled={connectGitHub.isPending || !oauthStatus?.oauth_configured}
                 >
                   {connectGitHub.isPending ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />

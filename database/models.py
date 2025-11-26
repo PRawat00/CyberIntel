@@ -2,6 +2,7 @@
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Column,
     DateTime,
     Float,
@@ -377,7 +378,7 @@ class ChatMessage(Base):
 
 
 class GitHubConnection(Base):
-    """Model for storing GitHub OAuth connections (single repo per user)."""
+    """Model for storing GitHub App connections (single repo per user)."""
 
     __tablename__ = "github_connections"
 
@@ -387,7 +388,10 @@ class GitHubConnection(Base):
     # User ownership (one connection per user)
     user_id = Column(String(36), nullable=False, unique=True, index=True)
 
-    # OAuth tokens (encrypted)
+    # GitHub App Installation
+    installation_id = Column(BigInteger, nullable=True)  # GitHub App installation ID
+
+    # OAuth tokens (encrypted) - still needed for user context
     access_token = Column(Text, nullable=False)
     refresh_token = Column(Text, nullable=True)
     token_expires_at = Column(DateTime, nullable=True)
@@ -421,6 +425,7 @@ class GitHubConnection(Base):
         return {
             "id": self.id,
             "user_id": self.user_id,
+            "installation_id": self.installation_id,
             "github_user_id": self.github_user_id,
             "github_username": self.github_username,
             "github_avatar_url": self.github_avatar_url,

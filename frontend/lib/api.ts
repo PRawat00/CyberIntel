@@ -366,6 +366,17 @@ export const api = {
   // =====================
 
   /**
+   * Get GitHub App installation URL.
+   * This is where users select which repositories to grant access to.
+   */
+  async getGitHubInstallUrl(): Promise<{ url: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/github/install`, {
+      headers: await getAuthHeaders(),
+    })
+    return handleResponse(response)
+  },
+
+  /**
    * Get GitHub OAuth authorization URL.
    */
   async getGitHubAuthUrl(): Promise<{ url: string; state: string }> {
@@ -377,15 +388,20 @@ export const api = {
 
   /**
    * Handle GitHub OAuth callback.
+   * installation_id is provided when user comes from GitHub App installation.
    */
-  async handleGitHubCallback(code: string, state: string): Promise<{ success: boolean; message: string; github_username?: string }> {
+  async handleGitHubCallback(
+    code: string,
+    state: string,
+    installation_id?: number
+  ): Promise<{ success: boolean; message: string; github_username?: string; installation_id?: number }> {
     const response = await fetch(`${API_BASE_URL}/api/github/oauth/callback`, {
       method: "POST",
       headers: {
         ...await getAuthHeaders(),
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ code, state }),
+      body: JSON.stringify({ code, state, installation_id }),
     })
     return handleResponse(response)
   },
@@ -459,9 +475,13 @@ export const api = {
   },
 
   /**
-   * Check if GitHub OAuth is configured.
+   * Check if GitHub OAuth and App are configured.
    */
-  async getGitHubOAuthStatus(): Promise<{ configured: boolean; callback_url?: string }> {
+  async getGitHubOAuthStatus(): Promise<{
+    oauth_configured: boolean
+    app_configured: boolean
+    callback_url?: string
+  }> {
     const response = await fetch(`${API_BASE_URL}/api/github/oauth/status`)
     return handleResponse(response)
   },

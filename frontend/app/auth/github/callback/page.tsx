@@ -19,11 +19,32 @@ function GitHubCallbackContent() {
       const state = searchParams.get("state")
       const error = searchParams.get("error")
 
+      // GitHub App installation parameters
+      const installationId = searchParams.get("installation_id")
+      const setupAction = searchParams.get("setup_action")
+
       // Check for OAuth errors from GitHub
       if (error) {
         const errorDescription = searchParams.get("error_description") || error
         setStatus("error")
         setMessage(`GitHub authorization failed: ${errorDescription}`)
+        return
+      }
+
+      // If this is a GitHub App installation without code, redirect to OAuth
+      if (installationId && setupAction && !code) {
+        // Store installation_id for use after OAuth
+        sessionStorage.setItem("github-installation-id", installationId)
+
+        // Now initiate OAuth flow to get user token
+        try {
+          const { url, state: oauthState } = await api.getGitHubAuthUrl()
+          sessionStorage.setItem("github-oauth-state", oauthState)
+          window.location.href = url
+        } catch (err) {
+          setStatus("error")
+          setMessage("Failed to initiate GitHub authorization.")
+        }
         return
       }
 
@@ -41,11 +62,20 @@ function GitHubCallbackContent() {
         return
       }
 
-      // Clear stored state
+      // Get stored installation_id if available
+      const storedInstallationId = sessionStorage.getItem("github-installation-id")
+      const finalInstallationId = installationId || storedInstallationId
+
+      // Clear stored state and installation_id
       sessionStorage.removeItem("github-oauth-state")
+      sessionStorage.removeItem("github-installation-id")
 
       try {
-        const result = await api.handleGitHubCallback(code, state)
+        const result = await api.handleGitHubCallback(
+          code,
+          state,
+          finalInstallationId ? parseInt(finalInstallationId, 10) : undefined
+        )
 
         if (result.success) {
           setStatus("success")

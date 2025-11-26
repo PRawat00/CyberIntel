@@ -1,4 +1,4 @@
-"""GitHub integration API routes with OAuth support."""
+"""GitHub App integration API routes with fine-grained repo access."""
 
 import logging
 import os
@@ -25,6 +25,12 @@ ENCRYPTION_KEY = os.getenv("GITHUB_TOKEN_ENCRYPTION_KEY", "default-dev-key-chang
 
 
 # Pydantic models for request/response
+class InstallResponse(BaseModel):
+    """Response for GitHub App installation URL."""
+
+    url: str
+
+
 class OAuthAuthorizeResponse(BaseModel):
     """Response for OAuth authorize endpoint."""
 
@@ -37,6 +43,7 @@ class OAuthCallbackRequest(BaseModel):
 
     code: str = Field(..., description="Authorization code from GitHub")
     state: str = Field(..., description="State parameter for CSRF protection")
+    installation_id: int | None = Field(None, description="GitHub App installation ID")
 
 
 class OAuthCallbackResponse(BaseModel):
@@ -45,12 +52,14 @@ class OAuthCallbackResponse(BaseModel):
     success: bool
     message: str
     github_username: str | None = None
+    installation_id: int | None = None
 
 
 class GitHubConnectionResponse(BaseModel):
     """Response for connection status."""
 
     id: int | None = None
+    installation_id: int | None = None
     github_username: str | None = None
     github_avatar_url: str | None = None
     is_active: bool = False
@@ -89,7 +98,6 @@ class RepoOption(BaseModel):
 
     full_name: str
     name: str
-    owner: str
     is_private: bool
     default_branch: str
     description: str | None = None
@@ -106,11 +114,30 @@ class RepoListResponse(BaseModel):
 _oauth_states: dict[str, str] = {}
 
 
+@router.get("/install", response_model=InstallResponse)
+async def get_install_url(user: User = RequireAuth):
+    """Get GitHub App installation URL.
+
+    Returns the URL to redirect user to for GitHub App installation.
+    Users will select which repositories to grant access to on this page.
+    """
+    oauth_service = get_github_oauth_service()
+
+    if not oauth_service.is_app_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="GitHub App is not configured. Set GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY.",
+        )
+
+    return InstallResponse(url=oauth_service.get_installation_url())
+
+
 @router.get("/oauth/authorize", response_model=OAuthAuthorizeResponse)
 async def get_oauth_authorize_url(user: User = RequireAuth):
     """Get GitHub OAuth authorization URL.
 
     Returns the URL to redirect the user to for GitHub OAuth authorization.
+    This is typically called after the user has installed the GitHub App.
     """
     oauth_service = get_github_oauth_service()
 
@@ -137,9 +164,20 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
     """Handle GitHub OAuth callback.
 
     Exchanges the authorization code for an access token and saves the connection.
+    If installation_id is provided (from GitHub App install), it's stored for fine-grained access.
     """
+    # Extract state and optional installation_id from state parameter
+    state_parts = request.state.split(":")
+    state = state_parts[0]
+    installation_id = request.installation_id
+    if len(state_parts) > 1 and not installation_id:
+        try:
+            installation_id = int(state_parts[1])
+        except ValueError:
+            pass
+
     # Verify state
-    stored_user_id = _oauth_states.get(request.state)
+    stored_user_id = _oauth_states.get(state)
     if not stored_user_id or stored_user_id != user.id:
         raise HTTPException(
             status_code=400,
@@ -147,7 +185,7 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
         )
 
     # Remove used state
-    del _oauth_states[request.state]
+    del _oauth_states[state]
 
     oauth_service = get_github_oauth_service()
 
@@ -158,6 +196,13 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
 
         # Get GitHub user info
         github_user = await oauth_service.get_github_user(access_token)
+
+        # If no installation_id provided, try to get from user's installations
+        if not installation_id:
+            installations = await oauth_service.get_user_installations(access_token)
+            if installations:
+                # Use the first installation (usually the most recent)
+                installation_id = installations[0]["id"]
 
         # Encrypt token for storage
         encrypted_token = encrypt_token(access_token, ENCRYPTION_KEY)
@@ -171,6 +216,7 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
             if existing:
                 # Update existing connection
                 existing.access_token = encrypted_token
+                existing.installation_id = installation_id
                 existing.github_user_id = github_user["id"]
                 existing.github_username = github_user["login"]
                 existing.github_avatar_url = github_user.get("avatar_url")
@@ -181,6 +227,7 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
                 connection = GitHubConnection(
                     user_id=user.id,
                     access_token=encrypted_token,
+                    installation_id=installation_id,
                     github_user_id=github_user["id"],
                     github_username=github_user["login"],
                     github_avatar_url=github_user.get("avatar_url"),
@@ -195,6 +242,7 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
             success=True,
             message="GitHub connected successfully",
             github_username=github_user["login"],
+            installation_id=installation_id,
         )
 
     except Exception as e:
@@ -215,6 +263,7 @@ async def get_connection_status(user: User = RequireAuth):
 
         return GitHubConnectionResponse(
             id=connection.id,
+            installation_id=connection.installation_id,
             github_username=connection.github_username,
             github_avatar_url=connection.github_avatar_url,
             is_active=bool(connection.is_active),
@@ -244,9 +293,10 @@ async def disconnect_github(user: User = RequireAuth):
 
 @router.get("/repos", response_model=RepoListResponse)
 async def list_repositories(user: User = RequireAuth):
-    """List repositories accessible to the connected GitHub account.
+    """List repositories accessible to the GitHub App installation.
 
-    Used for the repository selection dropdown.
+    Returns ONLY the repositories the user selected during GitHub App installation.
+    This provides fine-grained access control.
     """
     with get_db_session() as session:
         connection = (
@@ -262,8 +312,27 @@ async def list_repositories(user: User = RequireAuth):
                 detail="No active GitHub connection. Please connect GitHub first.",
             )
 
+        oauth_service = get_github_oauth_service()
+
         try:
-            # Decrypt token
+            # Try to use GitHub App installation for fine-grained access
+            if connection.installation_id and oauth_service.is_app_configured():
+                repos = await oauth_service.get_installation_repos(connection.installation_id)
+                return RepoListResponse(
+                    success=True,
+                    repositories=[
+                        RepoOption(
+                            full_name=repo["full_name"],
+                            name=repo["name"],
+                            is_private=repo["private"],
+                            default_branch=repo["default_branch"],
+                            description=repo.get("description"),
+                        )
+                        for repo in repos
+                    ],
+                )
+
+            # Fallback to OAuth token (lists all repos user has access to)
             access_token = decrypt_token(connection.access_token, ENCRYPTION_KEY)
 
             async with GitHubService(access_token) as github:
@@ -279,7 +348,6 @@ async def list_repositories(user: User = RequireAuth):
                     RepoOption(
                         full_name=repo["full_name"],
                         name=repo["name"],
-                        owner=repo["owner"],
                         is_private=repo["private"],
                         default_branch=repo["default_branch"],
                         description=repo.get("description"),
@@ -317,10 +385,19 @@ async def set_repository(request: SetRepoRequest, user: User = RequireAuth):
                 detail="No active GitHub connection. Please connect GitHub first.",
             )
 
+        oauth_service = get_github_oauth_service()
+
         try:
-            # Verify access to the repository
-            access_token = decrypt_token(connection.access_token, ENCRYPTION_KEY)
             owner, repo = request.repo_full_name.split("/")
+
+            # Try to use installation token if available
+            if connection.installation_id and oauth_service.is_app_configured():
+                token_data = await oauth_service.get_installation_access_token(
+                    connection.installation_id
+                )
+                access_token = token_data["token"]
+            else:
+                access_token = decrypt_token(connection.access_token, ENCRYPTION_KEY)
 
             async with GitHubService(access_token) as github:
                 # Try to get repo info to verify access
@@ -408,9 +485,10 @@ async def toggle_auto_sync(user: User = RequireAuth):
 
 @router.get("/oauth/status")
 async def get_oauth_status():
-    """Check if GitHub OAuth is configured."""
+    """Check if GitHub OAuth and GitHub App are configured."""
     oauth_service = get_github_oauth_service()
     return {
-        "configured": oauth_service.is_configured(),
+        "oauth_configured": oauth_service.is_configured(),
+        "app_configured": oauth_service.is_app_configured(),
         "callback_url": oauth_service.callback_url if oauth_service.is_configured() else None,
     }

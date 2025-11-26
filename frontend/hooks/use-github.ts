@@ -111,19 +111,33 @@ export function useToggleGitHubAutoSync() {
 }
 
 /**
- * Hook to initiate GitHub OAuth flow.
- * Returns a function that redirects to GitHub.
+ * Hook to initiate GitHub App installation flow.
+ * Returns a function that redirects to GitHub App installation page.
+ *
+ * Flow:
+ * 1. User clicks "Connect GitHub"
+ * 2. Redirected to GitHub App installation page where they select repos
+ * 3. GitHub redirects back with installation_id and setup_action=install
+ * 4. We then initiate OAuth to get user token
+ * 5. Callback page saves both installation_id and user token
  */
 export function useConnectGitHub() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async () => {
-      const { url, state } = await api.getGitHubAuthUrl()
-      // Store state in sessionStorage for verification on callback
+      // First, get the OAuth auth URL and store state
+      const { url: authUrl, state } = await api.getGitHubAuthUrl()
       sessionStorage.setItem("github-oauth-state", state)
-      // Redirect to GitHub
-      window.location.href = url
+
+      // Now get the GitHub App installation URL
+      // After installation, GitHub will redirect to our callback with installation_id
+      try {
+        const { url: installUrl } = await api.getGitHubInstallUrl()
+        // Redirect to GitHub App installation page
+        window.location.href = installUrl
+      } catch {
+        // If App not configured, fall back to regular OAuth
+        window.location.href = authUrl
+      }
     },
   })
 }
