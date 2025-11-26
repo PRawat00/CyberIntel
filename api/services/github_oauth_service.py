@@ -77,7 +77,7 @@ class GitHubOAuthService:
             raise ValueError("GitHub App ID not configured")
 
         # GitHub App installation URL - users select repos here
-        return "https://github.com/apps/repo_cyber_intel_prod/installations/new"
+        return "https://github.com/apps/cyberintelrepoapp/installations/new"
 
     def get_authorization_url(self, state: str, installation_id: int | None = None) -> str:
         """Generate the GitHub OAuth authorization URL.
