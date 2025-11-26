@@ -98,6 +98,7 @@ class GitHubOAuthService:
         params = {
             "client_id": self.client_id,
             "redirect_uri": self.callback_url,
+            "scope": "repo",  # Access to public and private repositories
             "state": state,
         }
 
