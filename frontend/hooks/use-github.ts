@@ -132,8 +132,9 @@ export function useConnectGitHub() {
       // After installation, GitHub will redirect to our callback with installation_id
       try {
         const { url: installUrl } = await api.getGitHubInstallUrl()
-        // Redirect to GitHub App installation page
-        window.location.href = installUrl
+        // Redirect to GitHub App installation page with state for CSRF protection
+        // GitHub passes the state parameter through to the OAuth callback
+        window.location.href = `${installUrl}?state=${encodeURIComponent(state)}`
       } catch {
         // If App not configured, fall back to regular OAuth
         window.location.href = authUrl
