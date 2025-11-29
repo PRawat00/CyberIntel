@@ -2,7 +2,9 @@
 
 import logging
 import os
+import time
 
+import jwt
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
@@ -22,6 +24,59 @@ router = APIRouter(
 
 # Get encryption key from environment
 ENCRYPTION_KEY = os.getenv("GITHUB_TOKEN_ENCRYPTION_KEY", "default-dev-key-change-in-prod")
+
+# Secret for signing OAuth state JWT (uses existing JWT_SECRET_KEY or falls back)
+OAUTH_STATE_SECRET = os.getenv("JWT_SECRET_KEY", "dev-secret-change-in-prod")
+
+
+def generate_oauth_state(user_id: str) -> str:
+    """Generate a JWT-based OAuth state that encodes user_id.
+
+    This is a stateless approach - no server-side storage needed.
+    The state itself contains all info for verification.
+
+    Args:
+        user_id: The user ID to encode in the state
+
+    Returns:
+        JWT token string to use as OAuth state parameter
+    """
+    payload = {
+        "user_id": user_id,
+        "exp": int(time.time()) + 600,  # 10 minute expiry
+        "type": "github_oauth",  # Prevent token reuse for other purposes
+    }
+    return jwt.encode(payload, OAUTH_STATE_SECRET, algorithm="HS256")
+
+
+def verify_oauth_state(state: str) -> str | None:
+    """Verify OAuth state JWT and extract user_id.
+
+    Args:
+        state: The state parameter from OAuth callback
+
+    Returns:
+        user_id if valid, None otherwise
+    """
+    try:
+        # Handle state with appended installation_id (format: jwt_token:installation_id)
+        state_token = state.split(":")[0] if ":" in state else state
+
+        payload = jwt.decode(state_token, OAUTH_STATE_SECRET, algorithms=["HS256"])
+
+        # Verify this is a GitHub OAuth state token
+        if payload.get("type") != "github_oauth":
+            logger.warning("Invalid state type in OAuth callback")
+            return None
+
+        return payload.get("user_id")
+
+    except jwt.ExpiredSignatureError:
+        logger.warning("OAuth state expired")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid OAuth state token: {e}")
+        return None
 
 
 # Pydantic models for request/response
@@ -110,10 +165,6 @@ class RepoListResponse(BaseModel):
     repositories: list[RepoOption]
 
 
-# OAuth state storage (in production, use Redis or database)
-_oauth_states: dict[str, str] = {}
-
-
 @router.get("/install", response_model=InstallResponse)
 async def get_install_url(user: User = RequireAuth):
     """Get GitHub App installation URL.
@@ -138,6 +189,9 @@ async def get_oauth_authorize_url(user: User = RequireAuth):
 
     Returns the URL to redirect the user to for GitHub OAuth authorization.
     This is typically called after the user has installed the GitHub App.
+
+    Uses JWT-based state for CSRF protection - no server-side storage needed.
+    The state encodes the user_id and expiry, making it self-validating.
     """
     oauth_service = get_github_oauth_service()
 
@@ -147,11 +201,8 @@ async def get_oauth_authorize_url(user: User = RequireAuth):
             detail="GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.",
         )
 
-    # Generate state for CSRF protection
-    state = oauth_service.generate_state()
-
-    # Store state with user ID (in production, use Redis with TTL)
-    _oauth_states[state] = user.id
+    # Generate JWT-based state that encodes user_id (stateless CSRF protection)
+    state = generate_oauth_state(user.id)
 
     # Get authorization URL
     url = oauth_service.get_authorization_url(state)
@@ -165,10 +216,11 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
 
     Exchanges the authorization code for an access token and saves the connection.
     If installation_id is provided (from GitHub App install), it's stored for fine-grained access.
+
+    Uses JWT-based state verification - no server-side storage lookup needed.
     """
-    # Extract state and optional installation_id from state parameter
+    # Extract optional installation_id from state parameter (format: jwt_token:installation_id)
     state_parts = request.state.split(":")
-    state = state_parts[0]
     installation_id = request.installation_id
     if len(state_parts) > 1 and not installation_id:
         try:
@@ -176,16 +228,14 @@ async def handle_oauth_callback(request: OAuthCallbackRequest, user: User = Requ
         except ValueError:
             pass
 
-    # Verify state
-    stored_user_id = _oauth_states.get(state)
-    if not stored_user_id or stored_user_id != user.id:
+    # Verify JWT-based state and extract user_id
+    state_user_id = verify_oauth_state(request.state)
+    if not state_user_id or state_user_id != user.id:
+        logger.warning(f"OAuth state verification failed for user {user.id}")
         raise HTTPException(
             status_code=400,
-            detail="Invalid state parameter. Please try connecting again.",
+            detail="Invalid or expired state parameter. Please try connecting again.",
         )
-
-    # Remove used state
-    del _oauth_states[state]
 
     oauth_service = get_github_oauth_service()
 
