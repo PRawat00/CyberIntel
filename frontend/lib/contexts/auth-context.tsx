@@ -5,10 +5,10 @@
  *
  * Manages authentication state across the application.
  * Automatically switches between mock auth (development) and Supabase (production)
- * based on environment variables.
+ * based on environment variables and hostname detection.
  */
 
-import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { logger } from '@/lib/logger'
 import { mockAuth } from '@/lib/auth/mock-auth'
@@ -19,26 +19,10 @@ import { useDependencySelection } from '@/hooks/use-dependency-selection'
 import { useSidebar } from '@/hooks/use-sidebar'
 
 // Determine which auth service to use based on environment
-const hasSupabaseConfig =
+const hasSupabaseConfig = !!(
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-// Force mock auth on localhost to avoid OAuth redirect issues
-const isLocalhost = typeof window !== 'undefined' &&
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-
-const authService = (hasSupabaseConfig && !isLocalhost) ? supabaseAuth : mockAuth
-
-// Log which auth service is being used
-if (typeof window !== 'undefined') {
-  const usingMock = !hasSupabaseConfig || isLocalhost
-  logger.log(
-    `🔐 Auth Service: ${usingMock ? 'Mock' : 'Supabase'} ${
-      isLocalhost ? '(localhost detected - using mock auth)' :
-      hasSupabaseConfig ? '' : '(Set NEXT_PUBLIC_SUPABASE_URL to use Supabase)'
-    }`
-  )
-}
+)
 
 interface AuthContextType {
   user: User | null
@@ -94,6 +78,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track if we've already attempted auto-sync this session
   const hasAutoSynced = useRef(false)
 
+  // State-based auth service selection (fixes race condition with window check)
+  const [authServiceType, setAuthServiceType] = useState<'mock' | 'supabase'>('mock')
+
+  // Determine auth service based on hostname (runs after hydration)
+  useEffect(() => {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
+
+    if (hasSupabaseConfig && !isLocalhost) {
+      setAuthServiceType('supabase')
+      logger.log('Auth Service: Supabase (production)')
+    } else {
+      setAuthServiceType('mock')
+      logger.log(`Auth Service: Mock ${isLocalhost ? '(localhost detected)' : '(Supabase not configured)'}`)
+    }
+  }, [])
+
+  // Memoize auth service to prevent unnecessary re-renders
+  const authService = useMemo(() => {
+    return authServiceType === 'supabase' ? supabaseAuth : mockAuth
+  }, [authServiceType])
+
   // Auto-sync GitHub on login if enabled
   async function triggerGitHubAutoSync() {
     if (hasAutoSynced.current) return
@@ -125,15 +131,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Initialize auth state on mount
+  // Initialize auth state on mount (re-run when authService changes)
   useEffect(() => {
     loadSession()
-  }, [])
+  }, [authService])
 
-  // Subscribe to auth state changes (Supabase sessions)
+  // Subscribe to auth state changes AFTER initial load completes
+  // This prevents race conditions where listener fires before session is loaded
   useEffect(() => {
+    // Wait for initial load to complete before subscribing
+    if (!initialLoadComplete) return
+
     const { data: authListener } = authService.onAuthStateChange(async (event, session) => {
-      logger.log('🔐 Auth state changed:', event, session?.user?.email)
+      logger.log('Auth state changed:', event, session?.user?.email)
 
       if (session) {
         setSession(session)
@@ -149,11 +159,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthListenerReady(true)
     })
 
-    // Cleanup subscription on unmount
+    // Cleanup subscription on unmount or when authService changes
     return () => {
       authListener?.subscription?.unsubscribe()
     }
-  }, [])
+  }, [initialLoadComplete, authService])
 
   async function loadSession() {
     try {
@@ -174,11 +184,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Reset initialization state when auth service changes
+  // This ensures we re-check session with the correct service
+  useEffect(() => {
+    setInitialLoadComplete(false)
+    setAuthListenerReady(false)
+    setLoading(true)
+  }, [authService])
+
   // Only set loading=false when BOTH initial load and auth listener are ready
   // This prevents race conditions where the app redirects before session is fully loaded
   useEffect(() => {
     if (initialLoadComplete && authListenerReady) {
-      logger.log('🔐 Auth initialization complete')
+      logger.log('Auth initialization complete')
       setLoading(false)
     }
   }, [initialLoadComplete, authListenerReady])

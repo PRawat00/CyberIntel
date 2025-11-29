@@ -12,10 +12,36 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+// Whitelist of allowed redirect paths (prevents open redirect vulnerability)
+const ALLOWED_REDIRECTS = [
+  '/dashboard',
+  '/dashboard/scans',
+  '/dashboard/integrations',
+  '/auth/profile',
+  '/',
+]
+
+/**
+ * Validate that the redirect URL is safe (same-origin and whitelisted)
+ */
+function isValidRedirect(next: string): boolean {
+  // Must start with / (relative URL)
+  if (!next.startsWith('/')) return false
+  // Must not be a protocol-relative URL (//evil.com)
+  if (next.startsWith('//')) return false
+  // Check against whitelist
+  return ALLOWED_REDIRECTS.some(allowed =>
+    next === allowed || next.startsWith(allowed + '/')
+  )
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  const nextParam = searchParams.get('next') ?? '/dashboard'
+
+  // Validate redirect URL to prevent open redirect attacks
+  const next = isValidRedirect(nextParam) ? nextParam : '/dashboard'
 
   // Check for OAuth error from provider
   const error = searchParams.get('error')

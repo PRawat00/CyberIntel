@@ -1,9 +1,12 @@
 /**
  * Supabase client configuration for SecureChat
  * Handles authentication and database access
+ *
+ * Uses @supabase/ssr for proper cookie-based session management
+ * that works with server-side rendering and middleware.
  */
 
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { logger } from '@/lib/logger'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,29 +17,21 @@ const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
 // Log configuration status
 if (!isSupabaseConfigured) {
-  logger.warn('⚠️  Supabase not configured - using mock authentication')
+  logger.warn('Supabase not configured - using mock authentication')
   logger.warn('To use Supabase: Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
-  logger.warn('See .env.example for details')
 }
 
 /**
  * Supabase client instance
  * Configured with:
- * - Auto token refresh
- * - Session persistence in localStorage
- * - URL-based session detection (for OAuth callbacks)
+ * - Cookie-based session storage (works with SSR)
+ * - Auto token refresh via middleware
+ * - Shared session between server and client
  *
  * Will be null if Supabase environment variables are not set (falls back to mock auth)
  */
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl!, supabaseAnonKey!, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      },
-    })
+  ? createBrowserClient(supabaseUrl!, supabaseAnonKey!)
   : null
 
 /**
