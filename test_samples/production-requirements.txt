@@ -2,36 +2,36 @@
 # Python 3.11+
 
 # Web Framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
+fastapi==0.123.0
+uvicorn[standard]==0.38.0
+pydantic==2.12.5
+pydantic-settings==2.12.0
 
 # Database & ORM
-sqlalchemy==1.4.25
-alembic==1.12.1
-psycopg2-binary==2.9.9
+sqlalchemy==2.0.44
+alembic==1.17.2
+psycopg2-binary==2.9.11
 
 # Security & Auth
-cryptography==41.0.0
-python-jose==3.3.0
+cryptography==46.0.3
+python-jose==3.5.0
 passlib==1.7.4
 
 # Template Engine
-jinja2==3.0.0
+jinja2==3.1.6
 
 # HTTP & API
-requests==2.31.0
-httpx==0.25.2
+requests==2.32.5
+httpx==0.28.1
 
 # Data Processing
-pillow==9.5.0
-python-multipart==0.0.6
+pillow==12.0.0
+python-multipart==0.0.20
 
 # Admin & Management
-django==3.2.0
-django-cors-headers==4.3.0
+django==5.2.8
+django-cors-headers==4.9.0
 
 # Utilities
-python-dotenv==1.0.0
-click==8.1.7
+python-dotenv==1.2.1
+click==8.3.1
