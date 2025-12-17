@@ -62,19 +62,6 @@ export default function LoginPage() {
             </p>
           </CardContent>
         </Card>
-
-        {/* Test Credentials */}
-        <Card className="mt-4 bg-muted/50">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground text-center mb-2">
-              <strong>Test Credentials:</strong>
-            </p>
-            <div className="space-y-1 text-xs text-muted-foreground">
-              <p className="text-center">Email: <code>local@test.dev</code></p>
-              <p className="text-center">Password: <code>password123</code></p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
