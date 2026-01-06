@@ -26,6 +26,33 @@ The script automatically:
 
 ---
 
+## Development Scripts
+
+### Local Development
+
+```bash
+# Start API (port 8000) + Frontend (port 3000) in one command
+./start.sh
+
+# Stop all running services
+./stop.sh
+```
+
+### Environment Management
+
+```bash
+# Switch to local development environment
+./scripts/switch-env.sh local
+
+# Switch to production configuration
+./scripts/switch-env.sh production
+
+# Validate your environment configuration
+./scripts/check-env.sh
+```
+
+---
+
 ## Overview
 
 SecureChat scans your project dependencies (npm, pip, Go, Ruby) for CVEs and provides an AI chat interface to understand risks, prioritize fixes, and get actionable remediation guidance tailored to YOUR specific stack.
