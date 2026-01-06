@@ -1,0 +1,42 @@
+# CyberIntel Summarizer Configuration
+
+# Database settings
+database:
+  type: "sqlite"  # sqlite or postgresql
+  sqlite:
+    path: "cyberintel.db"
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "cyberintel"
+    user: "postgres"
+    # password should be set via environment variable DATABASE_PASSWORD
+
+# NVD API settings
+nvd:
+  base_url: "https://services.nvd.nist.gov/rest/json/cves/2.0"
+  api_key: null  # Optional: Register at https://nvd.nist.gov/developers/request-an-api-key
+  rate_limit:
+    requests_per_period: 50  # 5 without API key, 50 with API key
+    period_seconds: 30
+    min_delay_between_requests: 2.0  # Minimum seconds between requests (2.0s = ~15 requests/30s with safe buffer)
+  default_results_per_page: 100
+  max_results_per_page: 2000
+
+# CISA settings (for Phase 3)
+cisa:
+  kev_url: "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+# Logging settings
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/cyberintel.log"
+  console: true
+
+# Data ingestion settings
+ingestion:
+  default_days_back: 7  # Default number of days to fetch
+  batch_size: 100
+  retry_attempts: 3
+  retry_delay_seconds: 5

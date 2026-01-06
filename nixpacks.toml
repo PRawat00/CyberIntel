@@ -1,0 +1,18 @@
+# Nixpacks Configuration for Railway Deployment
+# Explicitly override all phases to prevent auto-detection conflicts
+
+# Explicitly use Python provider
+providers = ["python"]
+
+# Setup phase: Install system packages
+[phases.setup]
+nixPkgs = ["python311", "gcc", "postgresql"]
+
+# Install phase: OVERRIDE auto-generated phase that tries "pip install ."
+# Create venv and install from requirements file instead of running "pip install ."
+[phases.install]
+cmds = ["python -m venv --copies /opt/venv && . /opt/venv/bin/activate && pip install --no-cache-dir -r requirements.txt"]
+
+# Start command: Run FastAPI with uvicorn
+[start]
+cmd = "uvicorn api.main:app --host 0.0.0.0 --port $PORT"

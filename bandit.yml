@@ -1,0 +1,41 @@
+# Bandit configuration
+exclude_dirs:
+  - /tests/
+  - /venv/
+  - /.venv/
+
+# Security checks
+tests:
+  - B201  # flask_debug_true
+  - B301  # pickle usage
+  - B302  # marshal usage
+  - B303  # MD5 or SHA1 usage
+  - B304  # insecure cipher usage
+  - B305  # insecure cipher mode
+  - B306  # insecure mktemp usage
+  - B307  # eval usage
+  - B308  # mark_safe usage
+  - B309  # HTTPSConnection usage
+  - B310  # urllib usage
+  - B311  # random usage for crypto
+  - B312  # telnetlib usage
+  - B313  # xml vulnerabilities
+  - B314  # xml vulnerabilities
+  - B315  # xml vulnerabilities
+  - B316  # xml vulnerabilities
+  - B317  # xml vulnerabilities
+  - B318  # xml vulnerabilities
+  - B319  # xml vulnerabilities
+  - B320  # xml vulnerabilities
+  - B321  # FTP usage
+  - B322  # input usage
+  - B323  # unverified SSL context
+  - B324  # insecure hash function
+  - B325  # tempfile.mktemp usage
+  - B501  # request with verify=False
+  - B502  # ssl with bad defaults
+  - B503  # ssl with bad version
+  - B504  # ssl with bad ciphers
+  - B505  # weak cryptographic key
+  - B506  # yaml load
+  - B507  # ssh no host key verification

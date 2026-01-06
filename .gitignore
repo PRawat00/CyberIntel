@@ -1,3 +1,133 @@
-# Add .gitignore for Python project
-# Security: Initial .gitignore patterns for secrets
-# Update .gitignore with comprehensive patterns
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.md
+
+# Environment variables (CRITICAL!)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.toml
+.streamlit/secrets.toml
+!.streamlit/secrets.toml.example
+
+# Credentials files
+.credentials
+.credentials.backup
+credentials.*
+!.credentials.example
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# MacOS
+.DS_Store
+exp_ignore_thoughts.env
+
+# Model files (large)
+models/
+*.bin
+*.safetensors
+*.gguf
+
+# Video files (large)
+*.mp4
+*.mov
+*.avi
+
+# Data cache
+data_cache/
+cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Vector Store Data
+data/chroma/
+chroma_data/
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+creds.txt
+
+# Data exports and analysis scripts
+cve_export.*
+analyze_*.py
+test_auth.py
+=*
+
+# Documentation (internal dev notes)
+documentation/
+data/
+
+# Migration SQL dumps (large generated files)
+migration.sql
+migrations/
+**/migration*.sql
+migrate_*.sql
+
+# Debug and test scripts
+auth_debug.py
+test_auth.sh
+*_debug.py
+
+# Import/migration temporary scripts
+scripts/import_to_supabase.py
+scripts/migrate_direct.py
+scripts/migrate_fast.py
+
+# Documents directory (contains sensitive info)
+documents/

@@ -1,1 +1,15 @@
-# Pages: Create dashboard page component
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+export default function DashboardPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Redirect to dependencies page
+    router.replace("/dashboard/dependencies")
+  }, [router])
+
+  return null
+}

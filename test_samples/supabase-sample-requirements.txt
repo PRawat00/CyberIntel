@@ -1,0 +1,47 @@
+# Sample Requirements File Generated from Supabase CVE Data
+# Generated: 2025-11-19 19:16:18
+# Total CVEs found: 7
+# Vulnerable packages: 6
+
+# ========================================
+# VULNERABLE PACKAGES (Should trigger CVE matches)
+# ========================================
+
+# django - CRITICAL (CVSS: 9.8) - TEST-2020-DJANGO-001
+django==3.1.5
+
+# flask - HIGH (CVSS: 7.3) - TEST-2022-FLASK-001
+flask==1.1.4
+
+# jinja2 - CRITICAL (CVSS: 9.0) - TEST-2021-JINJA2-001
+jinja2==2.11.3
+
+# numpy - MEDIUM (CVSS: 6.2) - TEST-2021-NUMPY-001
+numpy==1.21.0
+
+# pillow - HIGH (CVSS: 8.8) - TEST-2021-PILLOW-001
+pillow==8.3.2
+
+# pytest - LOW (CVSS: 3.3) - TEST-2022-PYTEST-001
+pytest==6.2.5
+
+# ========================================
+# SAFE PACKAGES (Should NOT trigger CVE matches)
+# ========================================
+
+certifi==2024.8.30
+charset-normalizer==3.3.2
+idna==3.10
+python-dotenv==1.0.1
+click==8.1.7
+colorama==0.4.6
+markdown==3.7
+pygments==2.18.0
+
+# ========================================
+# DEVELOPMENT DEPENDENCIES
+# ========================================
+
+pytest==8.3.3
+pytest-cov==6.0.0
+black==24.10.0

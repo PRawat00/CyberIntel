@@ -1,1 +1,1 @@
-# Create project folder structure
+"""CLI scripts for CyberIntel Summarizer."""
