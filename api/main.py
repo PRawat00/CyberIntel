@@ -33,7 +33,7 @@ from api.routes import auth, chat, github, rag, scans  # noqa: E402
 app = FastAPI(
     title="SecureChat API",
     description="AI-Powered Dependency Security Scanner API",
-    version="1.0.0",
+    version="1.0.1",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
