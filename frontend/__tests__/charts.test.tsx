@@ -1,1 +1,0 @@
-# Test: Chart integration tests

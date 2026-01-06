@@ -1,1 +1,0 @@
-# Test: CVSS display tests

@@ -1,1 +1,0 @@
-# Table: Add sorting functionality

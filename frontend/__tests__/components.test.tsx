@@ -1,1 +1,0 @@
-# Test: Component rendering tests

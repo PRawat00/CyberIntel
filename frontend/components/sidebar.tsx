@@ -1,1 +1,0 @@
-# Frontend: Create sidebar navigation

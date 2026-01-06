@@ -1,1 +1,0 @@
-# Table: Add search functionality

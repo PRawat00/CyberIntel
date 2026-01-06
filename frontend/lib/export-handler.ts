@@ -1,1 +1,0 @@
-# Detail: Implement export functionality
