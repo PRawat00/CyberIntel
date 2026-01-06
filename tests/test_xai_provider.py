@@ -25,7 +25,7 @@ class TestXAIProviderInitialization:
         assert provider.api_key == api_key
         assert provider.model_name == XAIProvider.DEFAULT_MODEL
         assert provider.temperature == 0.7
-        assert provider.max_tokens == 1024
+        assert provider.max_tokens == 4096
         assert provider.total_input_tokens == 0
         assert provider.total_output_tokens == 0
 
@@ -103,7 +103,11 @@ class TestGenerate:
 
         # Verify API called with correct parameters
         mock_client.chat.completions.create.assert_called_once_with(
-            model=XAIProvider.DEFAULT_MODEL, messages=messages, temperature=0.7, max_tokens=1024
+            model=XAIProvider.DEFAULT_MODEL,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=4096,
+            timeout=30.0,
         )
 
     @patch("llm_engine.providers.xai_provider.OpenAI")
@@ -126,7 +130,11 @@ class TestGenerate:
 
         # Verify API called with overridden params
         mock_client.chat.completions.create.assert_called_once_with(
-            model=XAIProvider.DEFAULT_MODEL, messages=messages, temperature=0.3, max_tokens=512
+            model=XAIProvider.DEFAULT_MODEL,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=512,
+            timeout=30.0,
         )
 
     @patch("llm_engine.providers.xai_provider.OpenAI")
