@@ -1,5 +1,5 @@
-// PM2 Ecosystem Configuration for CyberIntel Summarizer
-// Oracle Cloud A1 Deployment - cd.prwt.dev
+// PM2 Ecosystem Configuration
+// Production Deployment
 //
 // Usage:
 //   pm2 start ecosystem.config.js
