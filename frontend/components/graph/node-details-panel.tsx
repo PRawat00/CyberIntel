@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import type { GraphNode } from "@/lib/types"
+import { getNvdUrl } from "@/lib/utils"
 
 interface NodeDetailsPanelProps {
   nodes: GraphNode[]
@@ -212,7 +213,7 @@ export function NodeDetailsPanel({ nodes, onClose, position, chatSidebarOpen }: 
                       </div>
                       <Button variant="ghost" size="sm" className="h-6 px-2" asChild>
                         <a
-                          href={`https://nvd.nist.gov/vuln/detail/${cve.cve_id}`}
+                          href={getNvdUrl(cve.cve_id)}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
