@@ -1,18 +1,18 @@
 # Vulnerable Python Dependencies - Test File
 # These old versions have known CVEs
 
-django==2.2.0
-requests==2.20.0
-flask==0.12.2
-jinja2==2.10
-pyyaml==3.13
-urllib3==1.24.1
-pillow==5.4.1
-cryptography==2.3
-werkzeug==0.14.1
-sqlalchemy==1.2.0
-celery==4.2.0
-paramiko==2.4.0
-beautifulsoup4==4.6.0
-lxml==4.2.1
-simplejson==3.15.0
+django==5.2.10
+requests==2.32.5
+flask==3.1.2
+jinja2==3.1.6
+pyyaml==6.0.3
+urllib3==2.6.3
+pillow==12.1.0
+cryptography==46.0.3
+werkzeug==3.1.5
+sqlalchemy==2.0.45
+celery==5.6.2
+paramiko==4.0.0
+beautifulsoup4==4.14.3
+lxml==6.0.2
+simplejson==3.20.2
